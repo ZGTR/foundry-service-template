@@ -296,12 +296,25 @@ def test_a_dotted_key_declares_the_comms_flavour(service: Path, revision: str) -
     assert "SQS_QUEUE_URL" not in (service / ".github" / "workflows" / "ci.yml").read_text()
 
 
-#: A template revision whose apply_comms_flavour.py predates `strip_markers`.
-PRE_STRIP_REVISION = "9bc7988"
+def _pre_strip_template(tmp_path: Path, revision: str) -> tuple[Path, str]:
+    """A scratch clone of the template whose newest commit has an
+    apply_comms_flavour.py without `strip_markers`, standing in for a template
+    revision that predates it. Built here so the test needs no particular history."""
+    clone = tmp_path / "template-pre-strip"
+    git("clone", "--quiet", "--no-checkout", str(REPO), str(clone), cwd=tmp_path)
+    git("checkout", "--quiet", revision, cwd=clone)
+    script = clone / "scripts" / "apply_comms_flavour.py"
+    text = script.read_text()
+    assert "def strip_markers(" in text, "the strip moved; update this fixture"
+    script.write_text(text.replace("def strip_markers(", "def _retired_strip_markers("))
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "--quiet", "-am", "pre-strip",
+        cwd=clone)
+    head = git("rev-parse", "--short", "HEAD", cwd=clone).stdout.strip()
+    return clone, head
 
 
 def test_a_sync_to_a_revision_without_the_strip_refuses_before_touching_the_kit(
-    service: Path, revision: str
+    service: Path, revision: str, tmp_path: Path
 ) -> None:
     """Regression: the strip was resolved after the kit was deleted, so a
     comms service synced to an older revision died with an AttributeError and 51 dirty
@@ -314,9 +327,10 @@ def test_a_sync_to_a_revision_without_the_strip_refuses_before_touching_the_kit(
     git("add", "-A", cwd=service)
     git("commit", "--quiet", "-m", "adopt", cwd=service)
 
-    result = run_sync("--into", str(service), "--from", str(REPO), "--revision", PRE_STRIP_REVISION)
+    source, pre_strip = _pre_strip_template(tmp_path, revision)
+    result = run_sync("--into", str(service), "--from", str(source), "--revision", pre_strip)
     assert result.returncode == 2, result.stdout + result.stderr
-    assert PRE_STRIP_REVISION in result.stderr and "strip_markers" in result.stderr, result.stderr
+    assert pre_strip in result.stderr and "strip_markers" in result.stderr, result.stderr
     assert "Traceback" not in result.stderr
     status = git("status", "--porcelain", cwd=service).stdout
     assert status == "", status
