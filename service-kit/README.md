@@ -1,7 +1,7 @@
 # service-kit
 
-Owned by the service template, `` in
-`the monorepo` (its own repository, now archived, until 2026-10-09). Do not edit here — run `python service-kit/sync.py`.
+Owned by the service template, `ZGTR/foundry-service-template`. Do not edit here —
+run `python service-kit/sync.py`.
 
 Everything under this folder is byte-identical in every Foundry service. That
 is the whole point: a gate, a Dockerfile or a test kit that differs per service
@@ -47,9 +47,8 @@ exactly as if it sat inside the folder.
 ## Syncing
 
 ```bash
-python service-kit/sync.py --revision <monorepo-sha>          # from the monorepo
-python service-kit/sync.py --from <monorepo>/.  # a local checkout
-# A template sha from before 2026-10-09 is translated through the import's commit map.
+python service-kit/sync.py --revision <template-sha>   # from ZGTR/foundry-service-template
+python service-kit/sync.py --from <template-checkout>   # a local checkout of the template
 python service-kit/gates/check_kit_drift.py                    # prove the kit is unforked
 ```
 

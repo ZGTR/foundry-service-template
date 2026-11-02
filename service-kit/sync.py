@@ -88,9 +88,9 @@ FLAVOUR_SCRIPT = "scripts/apply_comms_flavour.py"
 KIT_ROOT = Path(__file__).resolve().parent
 PACKAGE_ROOT = KIT_ROOT.parent
 DEFAULT_TEMPLATE_URL = "https://github.com/ZGTR/foundry-service-template.git"
-#: A source may hold the template at its root (this repository, or a scratch copy)
-#: or under this prefix inside a larger repository. `git archive <rev>` of a repository
-#: with no `service-kit/` at that place fails with "wrong revision or wrong source".
+#: The template lives at the root of its repository (or of a scratch copy). A source
+#: with no `service-kit/` at its root is refused: `git archive <rev>` of it fails with
+#: "wrong revision or wrong source".
 TEMPLATE_PREFIX = "."
 #: Optional map from an older `template_revision` to the commit that now carries the
 #: same bytes, one `<old> <new>` pair a line. Absent in this repository.
@@ -707,7 +707,7 @@ def main(argv: list[str] | None = None) -> int:
         "--from",
         dest="source",
         default=DEFAULT_TEMPLATE_URL,
-        help="a local template checkout or a git URL (default: the monorepo)",
+        help="a local template checkout or a git URL (default: the template repository)",
     )
     parser.add_argument(
         "--revision",
