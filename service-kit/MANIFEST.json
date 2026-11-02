@@ -1,6 +1,6 @@
 {
   "files": {
-    "service-kit/README.md": "2b4d3143bb66053819d3158675bfcd984170ec62f1871917b30cd47fc2a9902d",
+    "service-kit/README.md": "8b7647be177f68ab7332bbbc82937f5f8979af2f570429db0e36c68ca18110d8",
     "service-kit/ci/arm.sh": "52a19a1f5b94ca2c5742d582e367743d7f864f51d67db25475811a30919f4b6d",
     "service-kit/ci/deploy_env.py": "12c0a63157945727203f790f5577a3f28e44b3b5c1b0c9f80b037b82db6b59dd",
     "service-kit/ci/lambda_release.sh": "a84ec5ca2ef3ed2852179188a8e10643d9ae5c8a0e97ec53fdc733ba69085012",
@@ -121,7 +121,7 @@
     "service-kit/gates/gate_fixtures/offending/tests/test_uses_mocks.py": "8d3584e06435c0d3dae38720789496df99563579c0a8ea415437b16371656068",
     "service-kit/gates/gate_fixtures/offending/tests/test_waits_forever.py": "6dedb4e5c3325256b9cd60474c6cd52a9b8e46db4cb16c8951912350742b0f06",
     "service-kit/kit_ownership.py": "9d70f118580a8cebe1248619e3dc17da3da2357c30cf9d4a5bd6b40f68c619ce",
-    "service-kit/sync.py": "4f3183b428fe7d14d306a907ada6cf75ae3bba9b3bed325a851ff2a8a2e646dc",
+    "service-kit/sync.py": "4a7ce9f81138035e8326184e85f29e08710c2d4155b130c6b3dbdefcd665b81e",
     "service-kit/testing/foundry_testkit/__init__.py": "77c44b0ec088312fc995968c48a8a0466f9c31195548dc000765bb2b0b04c1fc",
     "service-kit/testing/foundry_testkit/aws_kit.py": "1b72e0143063c7bdfd153ec2638e663e17327325f76330885c5b1031f3a91cde",
     "service-kit/testing/foundry_testkit/cache_kit.py": "539b3cf11bc3909964b128a5f2bd849806865c3cb8fc5b2c35f8188bd6e832d0",
@@ -166,5 +166,5 @@
       ".github/workflows/ci.yml": "050c634670e68d98c5db8c12e42ad80898ce88ffce70a529d19871cb105c6dbe"
     }
   },
-  "template_revision": "d8a1ca239745772dee593fa4f36874542e375e07"
+  "template_revision": "e57cdc5e91d420b53321e563cb74d7265e7ba053"
 }
