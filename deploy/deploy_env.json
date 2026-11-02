@@ -1,0 +1,39 @@
+{
+  "_comment": [
+    "What service-kit/ci/deploy_env.py reads from SSM Parameter Store or Secrets Manager",
+    "before the deploy job pushes an image, and hands to serverless (and to the rollback)",
+    "without ever writing the values into the workflow. Service-owned, like the rest of",
+    "deploy/: the kit script is byte-identical everywhere, these names are not.",
+    "",
+    "Every ${env:NAME} in deploy/iac/serverless.yml that carries no default must be either",
+    "declared here or set by the deploy step itself, never both. The step sets IMAGE_URI",
+    "and LISTENER_RULE_PRIORITY, which is this service's own row in the service directory.",
+    "The two declared below are the estate's: the internal-edge stack publishes the shared",
+    "listener's ARN and the private zone's suffix under /foundry/<Stage>/network/, so no",
+    "service types either into a repository variable. {stage} is the deploy's target",
+    "environment, so the edge stack's Stage must be the same word. Where that stack is not",
+    "applied, the deploy job stops at its check step, before the push, naming both.",
+    "",
+    "A service that needs a secret adds, for example:",
+    "  \"DATABASE_URL\": {\"secretsmanager\": \"<service>/{stage}/database-url\"}",
+    "  \"AUTH_ISSUER\":  {\"ssm\": \"/<service>/{stage}/auth-issuer\"}",
+    "An id may also name an EARLIER ssm variable as {NAME}, resolved in declaration",
+    "order, so a product-neutral service can build its reads on one declared prefix:",
+    "  \"COMMS_DEPLOYMENT\":   {\"ssm\": \"/comms/{stage}/deployment\"}",
+    "  \"COMMS_EVENTS_QUEUE\": {\"ssm\": \"/{COMMS_DEPLOYMENT}/core/events-queue-arn\"}",
+    "A service that sets custom.callerVpc to estate in serverless.yml declares the two",
+    "variables deploy/iac/caller_vpc.yml reads. scripts/check_service_iac.sh refuses",
+    "estate without them, and declared, an absent or empty one stops the job before the",
+    "push:",
+    "  \"ESTATE_CALLER_SG_ID\": {\"ssm\": \"/foundry/{stage}/network/estate-caller-sg-id\"}",
+    "  \"PRIVATE_SUBNET_IDS\":  {\"ssm\": \"/foundry/{stage}/network/private-subnet-ids\"}",
+    "The internal-edge stack publishes the first. The foundation network root publishes",
+    "the second, a comma-separated list of the VPC's private subnets.",
+    "The deploy role needs read access to each named parameter or secret; creating them",
+    "is an owner action, not this file's."
+  ],
+  "variables": {
+    "INTERNAL_LISTENER_ARN": {"ssm": "/foundry/{stage}/network/internal-listener-arn"},
+    "INTERNAL_ZONE_SUFFIX": {"ssm": "/foundry/{stage}/network/internal-zone-suffix"}
+  }
+}

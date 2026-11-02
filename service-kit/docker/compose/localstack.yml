@@ -1,0 +1,68 @@
+# LocalStack: S3, SQS and Secrets Manager for TDD (§7).
+#
+# This is the PRODUCTION-PARITY path -- one endpoint serving the same three AWS
+# APIs the deployed service talks to, so an adapter under test exercises real
+# HTTP, real signing and real error shapes rather than a patched client object.
+#
+# It needs a Docker daemon. Where there is none,
+# `service-kit/testing/foundry_testkit/aws_kit.py`
+# falls back to `moto[server]`, which is the same idea without the daemon: a real
+# HTTP AWS surface the adapter connects to over the network. Both are SERVICES;
+# neither is a mock. The kit reports WHICH one it used, and a NAMED skip when
+# neither is reachable -- never a silent pass.
+services:
+  localstack:
+    # THE DIGEST WAS UNRESOLVABLE, and nothing here could have gone red about it:
+    # this fragment is `include:`d by `deploy/compose.yml` but LocalStack is not in
+    # `[tool.foundry.test-resources]`, so the kit never names it at `up -d` and no
+    # run has ever tried to pull it. The AWS tests reach moto-server instead and
+    # report a NAMED skip, which is honest about the endpoint and silent about the
+    # pin. Measured 2026-09-18, both directions through the registry:
+    #
+    #   docker manifest inspect localstack/localstack:3.8@sha256:0fbcf0b4...
+    #       -> exit 1, "manifest verification failed for digest"
+    #   docker manifest inspect localstack/localstack:3.8
+    #       -> exit 0, a real manifest list (so the repository IS reachable and
+    #          this is not the rate limit that `postgres:16-alpine` and
+    #          `alpine:3.20` were returning in the same minute)
+    #   docker manifest inspect localstack/localstack:3.8@sha256:b279c01f...
+    #       -> exit 0
+    #
+    # The replacement is the manifest LIST digest from
+    # `docker buildx imagetools inspect`, not one of the two per-platform digests
+    # `manifest inspect --verbose` prints -- pinning a platform digest would work
+    # on the machine it was read from and fail on every other architecture.
+    image: localstack/localstack:3.8@sha256:b279c01f4cfb8f985a482e4014cabc1e2697b9d7a6c8c8db2e40f4d9f93687c7
+    environment:
+      SERVICES: "s3,sqs,secretsmanager"
+      # Deterministic credentials so a fixture can be written down and re-run.
+      AWS_DEFAULT_REGION: "us-east-1"
+      AWS_ACCESS_KEY_ID: "test"
+      AWS_SECRET_ACCESS_KEY: "test"
+      EAGER_SERVICE_LOADING: "1"
+    ports:
+      # EPHEMERAL, like every other published port in this kit: a fixed 4566
+      # cannot be started twice on one machine, so a second worktree's run
+      # dies at `up -d` with a bind conflict that reads as "LocalStack is
+      # broken". `compose_project_name` hashing the checkout path makes two
+      # checkouts independent; it does nothing about a port they both ask
+      # the kernel for by number.
+      #
+      # THE ADVERTISED PORT AND THE PUBLISHED PORT DIFFER, AND THAT IS FINE
+      # HERE -- measured 2026-09-18 rather than assumed, because the URL says
+      # otherwise. With the host port ephemeral (55676), SQS still returns
+      # `http://sqs.us-east-1.localhost.localstack.cloud:4566/...`, and a
+      # create -> send -> receive round trip through that exact URL SUCCEEDS:
+      # every client this kit builds sets `endpoint_url`, and botocore's
+      # configured endpoint wins over the host in the queue URL. A client
+      # built WITHOUT `endpoint_url` would follow the advertised name, which
+      # is the production path and reaches real AWS by design.
+      - "${LOCALSTACK_PORT:-4566}:4566"
+    healthcheck:
+      # `services` must report "available", not merely "running": an eagerly
+      # loaded service that is still starting answers the health endpoint while
+      # refusing API calls, and a test that starts then is red for no reason.
+      test: ["CMD-SHELL", "curl -sf http://localhost:4566/_localstack/health | grep -q available"]
+      interval: 5s
+      timeout: 3s
+      retries: 20

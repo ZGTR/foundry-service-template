@@ -1,0 +1,40 @@
+# What `custom.callerVpc: estate` in serverless.yml selects: the function's VPC
+# attachment for a service that calls another private service.
+#
+# It is a separate file because the framework resolves every variable in
+# serverless.yml whether or not the value is used, and resolves a file's key only
+# when that key is selected. Kept in serverless.yml, the two variables below would be
+# demanded from every service, including the ones that call nobody.
+#
+# NEITHER VARIABLE HAS A DEFAULT, so `estate` with one unset is refused by the
+# framework at `serverless deploy`. That is after the image push, and an EMPTY value
+# is not refused at all -- it deploys as an empty id. So a service that selects
+# `estate` declares both in `deploy/deploy_env.json`: `scripts/check_service_iac.sh`
+# refuses `estate` without them, and `service-kit/ci/deploy_env.py check` refuses an
+# absent or empty parameter before the image is pushed:
+#
+#   ESTATE_CALLER_SG_ID  the internal-edge stack's EstateCallerSecurityGroupId output
+#   PRIVATE_SUBNET_IDS   the private subnets the function's network interfaces go in,
+#                        comma-separated: subnet-...,subnet-...
+#
+# ONCE ATTACHED THE FUNCTION HAS NO INTERNET PATH OF ITS OWN. It reaches only what its
+# groups let out, and the caller group, as the internal-edge stack defines it, lets
+# out HTTPS inside the VPC: the internal load balancer and the interface endpoints
+# that admit the group. So every AWS API this service's code calls (Secrets Manager,
+# KMS, SQS, ...) needs its interface endpoint in the VPC. Whatever the caller group
+# does not let out -- a NAT route to the internet, a database port, the S3 gateway
+# endpoint -- needs a second group of this service's own that allows it, added to the
+# list below. A NAT gateway therefore stands in for an endpoint only with that second
+# group. The image pull and the function's logs are the Lambda service's and need
+# neither.
+#
+# ADD A GROUP HERE, NOT AS A `vpc:` ON A FUNCTION AND NOT AS A `VpcConfig` UNDER
+# `resources`. Either replaces this one for that function, so the switch stops
+# governing it, and the gate refuses both.
+estate:
+  securityGroupIds:
+    - ${env:ESTATE_CALLER_SG_ID}
+  subnetIds:
+    Fn::Split:
+      - ","
+      - ${env:PRIVATE_SUBNET_IDS}

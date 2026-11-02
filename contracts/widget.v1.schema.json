@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.example/foundry-service-template/widget.v1.schema.json",
+  "title": "WidgetV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["widget_id", "org_id", "name", "created_at"],
+  "properties": {
+    "widget_id": { "type": "string", "minLength": 1 },
+    "org_id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "created_at": { "type": "string", "format": "date-time" }
+  }
+}

@@ -1,0 +1,31 @@
+# The service's real relational database for integration tests (§7).
+#
+# A REAL server, never SQLite standing in for one: the behaviours these tests
+# exist to pin -- transaction isolation, unique-constraint races, FK referential
+# actions -- are exactly the behaviours that differ between engines, so a
+# substitute proves the substitute.
+#
+# The template's own worked example ships SQLite and MySQL adapters; this file is
+# here because §5 requires the shared folder to carry the service's database, and
+# an emitted service on PostgreSQL changes only the image and the URL.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_DB: "${POSTGRES_DB:-service_test}"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      # pg_isready, not a TCP probe: postgres accepts connections during startup
+      # recovery and then refuses queries, so a port check goes green too early.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    tmpfs:
+      # The data directory is disposable BY DESIGN. A long-lived volume proves a
+      # PAST correctness: the bring-up contract -- migrations, grants, seeds --
+      # is the one thing a stack that never starts empty stops exercising.
+      - /var/lib/postgresql/data

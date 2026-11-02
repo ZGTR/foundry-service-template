@@ -1,0 +1,27 @@
+{
+  "_comment": [
+    "S18 clause 4. Every isinstance(x, dict) site under src/<pkg>/adapters/real/, as",
+    "'<path relative to the package>:<line>'. A provider envelope read through",
+    "isinstance/.get chains is a parser somebody wrote by hand and nobody named; a",
+    "pydantic model or TypeAdapter is the declared version.",
+    "",
+    "A RATCHET RATHER THAN A WALL, and the number is why. Measured across the estate",
+    "on 2026-09-18 by ast (not grep): 21 sites in 12 files across 4 of 9 services --",
+    "agent-runtime 5, artifact-store 5, llm-gateway 8, model-foundry 3; auth,",
+    "governance, memory, rag and workflow-restate 0. A wall would have been red in",
+    "four services on the day it landed, and a gate that is always red is a gate",
+    "nobody reads.",
+    "",
+    "THE TEMPLATE'S OWN VALUE IS 0, over a real population of 13 adapters/real",
+    "modules -- so here it IS a wall, and the gate's module floor is what tells that",
+    "zero apart from a scan that read nothing.",
+    "",
+    "The INVENTORY is not decoration. 5 and 5 look identical when one site was",
+    "repaired and another introduced the same day, so check_pydantic_boundaries.py",
+    "compares the lists and not only the counts. It fails in both directions: growth",
+    "is a finding, and beating the ratchet without lowering it is a finding too,",
+    "because an unlowered ratchet is a ceiling nobody holds."
+  ],
+  "ratchet": 0,
+  "inventory": []
+}

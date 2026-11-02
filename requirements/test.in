@@ -1,0 +1,54 @@
+# Test-only dependencies. Never installed into the container image.
+#
+# WHY A SECOND LOCK RATHER THAN A `dev` EXTRA. `requirements/service.lock` is
+# hashed and `pip install --require-hashes` is what CI uses for it, so every
+# runtime package is pinned by digest. The test tools were installed beside it by
+# an unhashed `pip install "httpx>=0.27" "jsonschema>=4.20" ...` line in
+# `ci.yml` -- resolved fresh on every run, from whatever the index served that
+# day. The supply-chain argument that produced the first lock applies unchanged
+# to the second: a test harness that can silently change underneath a green suite
+# is a green suite that means less than it looks like.
+#
+# `--require-hashes` is all-or-nothing per invocation, which is why these are a
+# separate file and a separate `pip install` rather than more lines in
+# service.in: the image must not carry pytest.
+
+# The runner itself. Pinned as a floor rather than exactly, and the LOCK is what
+# pins the version -- an exact pin here would have to be edited to take a patch
+# release, which is how a lock stops being refreshed.
+pytest>=8.0
+
+# PARALLELISM, and this slice is what needs it. The kit's real profile gives each
+# xdist worker its own database cloned from one migrated template, which is only
+# worth doing because the workers run at once. It was in zero requirement files
+# across the estate before an earlier change.
+#
+# It also changes what the harness has to be CORRECT about rather than merely
+# fast: under xdist a session-scoped fixture runs in every worker and never in the
+# controller, so `foundry_testkit.real_profile` does its bring-up in
+# `pytest_configure` and passes endpoints through `pytest_configure_node`. That
+# design is unverifiable without this package installed.
+pytest-xdist>=3.6
+
+# The HTTP client `fastapi.testclient.TestClient` is built on. FastAPI declares it
+# as an extra rather than a dependency, so a service that only installs
+# `requirements/service.lock` cannot run a single API test.
+httpx>=0.27
+
+# Contract-schema validation: `tests/contract/test_widget_contract.py` checks the
+# emitted payloads against `contracts/widget.v1.schema.json`.
+jsonschema>=4.20
+
+# The §7 test resources' NO-DAEMON fallbacks. `moto[server]` binds a real HTTP
+# endpoint speaking S3/SQS/Secrets Manager, and `redis` is the client for a real
+# cache -- both are SERVICES the adapters connect to over the network, never
+# mocks patched over a client object. The service never imports either.
+moto[server]>=5.0
+redis>=5.0
+
+# An HCL parser, for `tests/shape/test_private_ingress.py`. That test refuses an
+# internet-facing load balancer, a world-open ingress rule and a task with a public
+# IP in `deploy/iac/app`, and it has to read blocks and attributes to do it: a regex
+# over the text cannot tell an `ingress` block from an `egress` block six lines on,
+# and the egress block legitimately names 0.0.0.0/0.
+python-hcl2>=7.0

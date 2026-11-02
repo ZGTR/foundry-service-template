@@ -1,0 +1,12 @@
+# Modules no test can reach, with a reason and a bead.
+#
+# SHIPS EMPTY, WITH ITS DRIFT CHECK LIVE. Every finding on this tree was fixed rather than
+# exempted -- two shipped fakes gained tests, and `main.py`, which runs at import time in
+# the container, gained the only test it has ever had. An exemption mechanism written the
+# day the first exemption arrives is a mechanism nobody has run, so it exists now and
+# `check_test_first.py` refuses an entry that no longer names an unreachable module.
+#
+# Format:
+#   package.module.name:
+#     reason: why no test can reach it, and why that is acceptable
+#     bead: the bead tracking its removal

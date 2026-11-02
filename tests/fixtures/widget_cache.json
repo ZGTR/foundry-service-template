@@ -1,0 +1,7 @@
+{
+  "backend": "redis",
+  "entries": {
+    "widget:org_seed:widget_seed_0001": "Seeded alpha",
+    "widget:org_seed:widget_seed_0002": "Seeded beta"
+  }
+}

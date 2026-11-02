@@ -1,0 +1,37 @@
+{
+  "_comment": [
+    "What service-kit/ci/smoke.py asks this service after every deploy. Service-owned,",
+    "like the rest of deploy/: the kit script is byte-identical everywhere, these routes",
+    "are not. Measured on the real process by",
+    "tests/integration/test_smoke_against_the_real_process.py, which fails if a route is",
+    "renamed or the readiness body changes shape.",
+    "",
+    "success: readiness, not liveness -- /health/live never touches the database, so it",
+    "stays green on a deployment that cannot reach it.",
+    "denial: /widgets with no credentials. Both PrincipalAuth adapters raise Unauthorized",
+    "on a missing credential and app_factory.py maps it to 401. A service that deletes",
+    "the worked example must point this at one of its own protected routes.",
+    "",
+    "transport: invoke, because the stack's ApiUrl in deploy/iac/serverless.yml is a",
+    "name in the estate's private zone, which a GitHub-hosted runner cannot resolve.",
+    "The deploy job asks the function itself with the event the load balancer would",
+    "hand it. That does not exercise anything in front of the function: the listener",
+    "rule, the target group, the security groups, DNS or TLS. A service whose ApiUrl",
+    "is not in the private zone declares http (or leaves this out).",
+    "tests/shape/test_deploy_job_is_wired.py holds the declaration to how that URL is",
+    "written, not to where it resolves: a Value that names ${env:INTERNAL_ZONE_SUFFIX}",
+    "is read as private and any other spelling as public."
+  ],
+  "transport": "invoke",
+  "success": {
+    "method": "GET",
+    "path": "/health/ready",
+    "status": 200,
+    "expect": {"healthy": true}
+  },
+  "denial": {
+    "method": "GET",
+    "path": "/widgets",
+    "status": 401
+  }
+}

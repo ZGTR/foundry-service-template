@@ -1,0 +1,13 @@
+{
+  "bucket": "foundry-service-template-fixtures",
+  "objects": [
+    {
+      "key": "widgets/org_seed/widget_seed_0001.json",
+      "body_b64": "eyJ3aWRnZXRfaWQiOiAid2lkZ2V0X3NlZWRfMDAwMSIsICJuYW1lIjogIlNlZWRlZCBhbHBoYSJ9"
+    },
+    {
+      "key": "widgets/org_seed/widget_seed_0002.json",
+      "body_b64": "eyJ3aWRnZXRfaWQiOiAid2lkZ2V0X3NlZWRfMDAwMiIsICJuYW1lIjogIlNlZWRlZCBiZXRhIn0="
+    }
+  ]
+}

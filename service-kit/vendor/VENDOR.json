@@ -1,0 +1,17 @@
+{
+  "note": "Vendored packages, copied here and never patched in place: a patched copy is a fork nobody declared. content_sha256 is sha256 over (relative path + file bytes) for each .py file, concatenated in sorted relative-path order, __pycache__ excluded; the authoritative statement of that algorithm is gates/check_vendor_digests.py::digest(), which recomputes both values on every verify run. path+bytes rather than bytes alone, because bytes alone cannot see a rename or content moving between two files. monorepo_revision names the source commit the bytes were last taken from.",
+  "packages": {
+    "foundry_agent_trace": {
+      "content_sha256": "8fa0018adb994245612ebac407fb9d5fde2425d46bd22e67cccd6f548ce64eb9",
+      "monorepo_revision": "bac8f4265ed030e6c0c87d5fe73e0427de8cf2a6",
+      "source_package": "platform/packages/foundry-agent-trace",
+      "source_present_at_vendor_time": true
+    },
+    "foundry_contracts": {
+      "content_sha256": "4712e577e1e5384dc12ae37c47c5998942c8cb5eb08ab77fe42b03ad21b4648e",
+      "monorepo_revision": "89a734dd50c1f131165d41a8f37434b737201c63",
+      "source_package": "platform/packages/foundry-contracts",
+      "source_present_at_vendor_time": true
+    }
+  }
+}

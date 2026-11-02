@@ -1,0 +1,39 @@
+# Controllers that route no resource, with a reason and a bead.
+#
+# WHAT AN ENTRY BUYS, AND WHAT IT DOES NOT. It excuses CLAUSE 1 -- the
+# model/view/controller/schema four-file requirement -- for one controller.
+# It does NOT excuse clause 2: a handler that shapes its own response inline is
+# the same defect whether or not the router has a resource, and the controller
+# is still enumerated and still counted. An exemption that silenced the whole
+# file would be a way to delete a controller from the gate by writing a sentence
+# about it.
+#
+# WHY THIS EXISTS. A 501 catch-all has no resource, no model and no presenter,
+# and clause 1 cannot be satisfied for it by any file a service can honestly
+# write: creating `deferred_view.py` to clear the "no view" finding ADDS the
+# model-link finding, because that clause fires once a view file exists. The
+# alternative -- teaching the gate to recognise a catch-all from its status code
+# or its name -- is a heuristic over intent, which this estate has recorded
+# being wrong in both directions. So intent is DECLARED.
+#
+# SHIPS EMPTY, WITH ITS DRIFT CHECK LIVE. This template has no catch-all, so
+# there is nothing to declare here. The mechanism exists now rather than on the
+# day the first exemption arrives, because a mechanism nobody has run is not a
+# mechanism. `check_mvc_separation.py` fails closed in both directions: an
+# unregistered controller is still a finding, an entry naming no live controller
+# is a hard error, and an entry missing either field below is a hard error too.
+#
+# THE RESIDUAL, STATED RATHER THAN IMPLIED. Nothing mechanical catches a
+# DELIBERATE misclassification. Every check here is about the SHAPE of an entry
+# -- that it names a live controller, that it carries a reason and a bead, that
+# it excuses clause 1 and nothing else. None of them can read the reason and
+# decide whether it is true. A resource controller entered here with a
+# plausible sentence is invisible to this gate and to every gate around it, and
+# it will read as compliance for as long as the entry stands. That is the
+# residual every registry in this estate carries, and the only thing standing
+# against it is review of the entry itself.
+#
+# Format -- the key is the controller's path relative to `src/<package>/`:
+#   transport/http/controllers/<name>_controller.py:
+#     reason: why this router has no resource, and why that is correct
+#     bead: the bead tracking it

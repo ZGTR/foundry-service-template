@@ -1,0 +1,77 @@
+# What each package in this service IS, declared by the service, read by the kit.
+#
+# ONE registry, not one per gate. Three gates read this file and a fourth reads
+# the lifecycle key; three separate registries would mean three drift checks and
+# three chances for one of them to be the one nobody runs, which is the
+# fence-versus-workflow defect this estate has already paid for.
+#
+# WHY IT EXISTS AT ALL. The kit under `service-kit/` is copied byte-for-byte into
+# every service. The moment a kit file contains the string `foundry_agent_runtime`
+# it has stopped being a kit and become N copies that happen to agree today. So
+# anything that varies per service is DECLARED here and READ there.
+#
+# ----------------------------------------------------------------------------
+# THE KEYS ARE INDEPENDENT. No key implies another and no key defaults from
+# another. Declaring a role says nothing about a carve-out; owning the lifecycle
+# says nothing about either. This is not tidiness -- it was measured. The one
+# multi-package service in this estate ships TWO packages with the service role
+# and exactly ONE lifecycle owner, so deriving the owner from the role would be a
+# convenience that is false in the only tree that can test it.
+#
+#   <package>:
+#     role: service | library      # default: service
+#     reason: ...
+#     bead: ...
+#     lifecycle_owner: true        # at most one package in the repository
+#     carve_out:                   # paths allowed one named inner-layer import
+#       <path relative to src/<package>/>: <the module it may import>
+#     extra_layers: name1,name2    # top-level src/<package>/ dirs outside the
+#                                   # seven known layers (domain, ports,
+#                                   # application, adapters, transport, runtime,
+#                                   # composition). check_layering.py and
+#                                   # check_folder_structure.py both classify
+#                                   # only the seven; an eighth directory is a
+#                                   # finding in BOTH unless declared here.
+#                                   # Declaring it grants NO import direction --
+#                                   # it silences the "unknown layer" finding, it
+#                                   # does not add an ALLOWED entry, because a
+#                                   # per-service direction matrix is the fork
+#                                   # this whole file exists to prevent
+#                                   #.
+#
+# ----------------------------------------------------------------------------
+# UNDECLARED TAKES THE STRICT DEFAULT, and that is the property that makes this
+# file safe to forget. An undeclared package is a SERVICE -- held to every §4
+# layer, and asked for exactly one config root. An undeclared path has NO
+# carve-out. Forgetting to declare buys MORE checking, never less, so a package
+# added tomorrow is covered by default rather than by maintenance.
+#
+# THE ALTERNATIVE THAT WAS REJECTED, recorded so the next reader does not have to
+# wonder why this is not inferred. "A package with `composition/` is a
+# deployable, one without it is a library" needs no file at all, and it is a
+# FALSE GREEN on the clause that matters most: a service that forgot
+# `composition/` is reclassified as a library and thereby EXCUSED FROM THE
+# REQUIREMENT IT FAILED. The same trap was already measured one gate over --
+# `foundry_sandbox` has a `runtime/` directory holding nothing but
+# `__init__.py`, so "has a runtime/" admitted a package whose lifecycle is
+# deliberately different and produced six findings against a correct tree.
+# Absence is sometimes the fact and sometimes only stands near it, and reading a
+# directory listing for intent cannot tell the two apart.
+#
+# FAILS CLOSED IN BOTH DIRECTIONS. An entry naming a package that is not under
+# `src/`, or a carve-out naming a path that does not exist, is a HARD ERROR --
+# a registry that cannot rot loudly rots quietly. An unrecognised `role`, a
+# missing `reason` or `bead`, or a second `lifecycle_owner` is a hard error too.
+#
+# SHIPS EMPTY, WITH ITS DRIFT CHECK LIVE. This template has one package, which
+# takes every default, so there is nothing to declare. The mechanism exists now
+# rather than on the day the first declaration arrives, because a mechanism
+# nobody has run is not a mechanism.
+#
+# THE RESIDUAL, STATED RATHER THAN IMPLIED. Nothing mechanical catches a
+# DELIBERATE misdeclaration. Every check here is about the SHAPE of an entry --
+# that it names a live package, that its paths exist, that it carries a reason
+# and a bead. None can read the reason and decide whether it is true. Declaring
+# a real service `role: library` excuses it from two §4 layers and a config-root
+# check, and will read as compliance for as long as the entry stands. The only
+# thing standing against that is review of the entry itself.

@@ -1,0 +1,54 @@
+# Third-party runtime dependencies for foundry-service-template's container image.
+# foundry-contracts and foundry_service_template themselves are NOT pip-installed here -- the
+# Dockerfile COPYs their source directly (see Dockerfile's comment) so this
+# lockfile only has to pin and hash packages that actually come from PyPI.
+fastapi>=0.115
+uvicorn>=0.30
+pydantic>=2.7
+# S18. `composition/config.py` is a `BaseSettings`, so this is a RUNTIME
+# dependency of every emitted service, not a dev extra: without it the container
+# cannot import its own composition root. It was absent from all 9 services and
+# from this template when S18 was written -- measured 2026-09-18, 0 importers of
+# `pydantic_settings` estate-wide against 35 files importing plain `pydantic`.
+pydantic-settings>=2.4
+boto3>=1.34
+# JWT verification for the signature-verifying PrincipalAuth adapter.
+# `[crypto]` pulls `cryptography`, which is required for RS256/ES256 -- a Cognito
+# JWKS is RSA, and without it PyJWT can only do HMAC, which is the wrong shape
+# entirely for a token you did not issue.
+pyjwt[crypto]>=2.9
+
+# Persistence. SQLAlchemy 2's typed ORM is how every DB-backed service in this
+# estate maps its tables, alembic owns the schema, and `psycopg` is the Postgres
+# 16 driver the URL's `postgresql+psycopg` dialect loads at first connect.
+#
+# `pymysql` used to sit here, "in the IMAGE, not just the dev extra", for a
+# hand-written MySQL adapter. Nothing in this estate deployed it: the four
+# services that persist anything are on Postgres, and the template was the
+# laggard. It is gone rather than kept for symmetry.
+#
+# `[binary]` takes the prebuilt wheel. The source distribution compiles against
+# libpq, which would add a C toolchain and a system library to the image for a
+# driver that ships a manylinux wheel.
+sqlalchemy>=2.0.30
+alembic>=1.13
+psycopg[binary]>=3.2
+
+# JSON canonicalisation (RFC 8785). NOT optional and NOT a dev extra: the vendored
+# foundry_contracts package imports it at module scope in canon.py, so every emitted
+# service fails to COLLECT its own suite without it -- 15 import errors, and the
+# scaffolder's headline promise is a service that arrives green.
+rfc8785>=0.1.2
+
+# the Lambda dispatch change pinned `awslambdaric==4.0.4` here so a non-HTTP function's
+# `image.command` could run `python -m awslambdaric <module>.handler` as a
+# second Lambda Runtime API client beside the Lambda Web Adapter the kit's
+# Dockerfile installs unconditionally. Measured under RIE v1.37 with both
+# present: every invoke answers in under a millisecond with a null body, and
+# the handler is NEVER dispatched to. R.2 replaced that shape with
+# `composition/lambda_dispatch.py`, which mounts a route on the SAME process
+# the adapter already proxies to (`AWS_LWA_PASS_THROUGH_PATH`) -- so the
+# adapter stays the only runtime client and no second one is needed. Removed
+# rather than left unused: an unwired dependency pinned for an approach this
+# template no longer takes is exactly the leftover this estate's gates exist
+# to catch elsewhere, and there is no reason to make it an exception here.

@@ -1,0 +1,43 @@
+# The service itself, built from the shared folder's Dockerfile (§5).
+#
+# NOTHING here is service-specific -- not even the image name, which arrives as
+# `SERVICE_IMAGE`. Every value that differs between services is a build arg or
+# an environment variable set in `deploy/compose.yml`, never a forked copy of
+# this file.
+#
+# The two paths below are relative to THIS FILE's directory, because compose
+# resolves an included file's relative paths against the included file rather
+# than against the file that included it. They were wrong for exactly one
+# commit -- the kit move left `context: ../..`, which pointed at `service-kit/`,
+# a context with no `src/` and no `requirements/` -- and nothing went red,
+# because no gate and no test builds through compose. `docker compose -f
+# deploy/compose.yml config` prints both as absolute paths, which is the only
+# instrument that settles it; reasoning about compose's resolution rules is how
+# the wrong pair got written in the first place.
+services:
+  service:
+    build:
+      context: ../../..
+      dockerfile: service-kit/docker/Dockerfile
+    # Generic, and overridden by name in `deploy/compose.yml`. The old default
+    # was `foundry-service-template:local`, which is this one service's name
+    # sitting in a file every service carries -- harmless here and wrong in the
+    # other nine.
+    image: "${SERVICE_IMAGE:-foundry-service:local}"
+    environment:
+      SERVICE_ENV: "${SERVICE_ENV:-local}"
+      PORT: "8080"
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+      EVENT_BUS_MODE: "${EVENT_BUS_MODE:-in_process}"
+      SHUTDOWN_GRACE_SECONDS: "${SHUTDOWN_GRACE_SECONDS:-30}"
+    ports:
+      - "${SERVICE_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "/app/healthcheck.sh"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      # The drain ceiling plus a margin: a container killed mid-drain returns
+      # 502s for work it had already accepted.
+      start_period: 10s
+    stop_grace_period: 35s
