@@ -16,9 +16,9 @@ prefixed it would be wrong in the direction that is silent.
 
 from __future__ import annotations
 
+from foundry_testkit import environment_variables_read
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from foundry_testkit import environment_variables_read
 
 
 class _Prefixed(BaseSettings):

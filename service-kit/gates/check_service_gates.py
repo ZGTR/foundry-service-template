@@ -22,7 +22,8 @@ VERDICTS, per the kit vocabulary (`gate_exit_codes.py`):
   The exit code decides first: a gate that exits 0 or 3 after printing a traceback it
   caught is green or skipped, and "crashed" only names a red exit.
 
-Every `scripts/check_*` file is accounted for, not only the `.py` ones. `RUN_ELSEWHERE` names the gates the workflow runs in their own step,
+Every `scripts/check_*` file is accounted for, not only the `.py` ones.
+`RUN_ELSEWHERE` names the gates the workflow runs in their own step,
 and the coverage line counts them; any other suffix is a refusal naming the file,
 because a glob that silently skips a suffix reports a population it never saw.
 

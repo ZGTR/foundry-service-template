@@ -8,7 +8,7 @@ everywhere else -- so a service built from this template reads that name and not
 else for a new callee.
 
 A service that already reads an OLDER name for the same callee keeps working for one
-release (plan 2026-09-30-service-directory-and-api-contracts, slice A4): the directory variable wins, the legacy one is honoured with a
+release: the directory variable wins, the legacy one is honoured with a
 deprecation warning naming both, and it means exactly what it meant.
 
 Both reads stay literal in `config.py`'s `from_environment()`, the one module that

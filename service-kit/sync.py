@@ -151,7 +151,8 @@ def flavour_strip(template_root: Path, revision: str = "this tree"):
     """The template's own strip function, loaded from the template tree.
 
     Refuses (exit 2) when the template at `revision` has no strip, so a sync to a
-    revision older than the flavour stops before the kit is touched rather than failing halfway with an AttributeError.
+    revision older than the flavour stops before the kit is touched rather than
+    failing halfway with an AttributeError.
     """
     script = template_root / FLAVOUR_SCRIPT
     if not script.is_file():

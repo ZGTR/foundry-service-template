@@ -9,7 +9,8 @@ service that followed the README's estate opt-in had one red test, and that test
 started the real `aws` CLI twice from inside pytest.
 
 The declaration reads the estate's shared listener and private zone from the two
-parameters the internal-edge stack publishes under `/foundry/<Stage>/network/`. The names and the values below are written by hand; none is read
+parameters the internal-edge stack publishes under `/foundry/<Stage>/network/`.
+The names and the values below are written by hand; none is read
 from the declaration they judge.
 
 A stand-in `aws` is the only program on PATH for every run here. It is a `/bin/sh` file,

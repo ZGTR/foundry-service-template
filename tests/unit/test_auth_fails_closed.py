@@ -54,7 +54,8 @@ def test_non_local_envs_refuse_to_start_without_real_auth(env: str) -> None:
 
     `brand-new-env` is the case that matters: a name added later must be secure
     by default rather than by someone remembering to add it to a deny list.
-    `dev` is listed because it is the default serverless deploy stage: it once sat in `LOCAL_ENVS`, and the positive test
+    `dev` is listed because it is the default serverless deploy stage: it once
+    sat in `LOCAL_ENVS`, and the positive test
     above derives its cases from that set, so only a FIXED case here can catch
     it coming back.
     """

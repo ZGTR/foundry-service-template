@@ -1,7 +1,8 @@
 """The real seed profile: one bring-up per RUN, one database per WORKER, one engine per worker.
 
 This module replaces `tests/support/postgres.py`, which said in its own docstring
-that it was "a deliberately small stand-in for the kit's `real` seed profile ... so the replacement is a deletion rather than a redesign".
+that it was "a deliberately small stand-in for the kit's `real` seed profile ...
+so the replacement is a deletion rather than a redesign".
 It is that deletion. Two bring-up authorities for one PostgreSQL would be the
 estate's second-authority defect wearing a test harness: two project names, two
 `up -d`, two teardowns, and a `down -v` from either one destroying the other's

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import pytest
+from foundry_testkit import environment_variables_read
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from foundry_testkit import environment_variables_read
 
 from foundry_service_template.composition.config import ServiceConfig
 

@@ -18,7 +18,7 @@
     "service-kit/docker/wait-for.sh": "07b69740fd5124906ee7bf21c7dc8f728f914333b0d811cd7d6e46a20c7a96bb",
     "service-kit/gates/check_class_density.py": "e59aaf9801705e3f78c1a4a1a79e26d009ace11306a41f51895c9b6871a7cf68",
     "service-kit/gates/check_docker_shared.py": "d938e24cb192cb4a2a387588ba684ee0fca2f10cd2c7491bb0f6661b56678f93",
-    "service-kit/gates/check_folder_structure.py": "1e76312cbb71bf50c75c4711e4a8d0541e5a387e70b16242873cc69fdaf99712",
+    "service-kit/gates/check_folder_structure.py": "e159f1412dfd6b2005fefd3f62a3587136bf2c9327a2fae806e57ae4ae00cced",
     "service-kit/gates/check_kit_drift.py": "78c81faf3b1c0f34cab5b1529d0283f06c59e157bb3df3a90df3a7cfba1c75ed",
     "service-kit/gates/check_layering.py": "9b38713b6da5a4cdac53f7551a710c92e4e39f65ed97ac9014d7cd8ffb18120c",
     "service-kit/gates/check_lifecycle.py": "4fcaf622986e6eb79b25f35fd429954f4d31593b77a594d882e5fbf49a009592",
@@ -27,7 +27,7 @@
     "service-kit/gates/check_orm_standard.py": "71073e8c05683fd64673b2c4ef9a5648fc6732aae2e3e7cd86bba6dacfb5b543",
     "service-kit/gates/check_pydantic_boundaries.py": "dc8b70e17be87b112e6b0aac37c24104bca627b59c99834b12add4748fdfbb45",
     "service-kit/gates/check_seeded_tests.py": "a8af35f240a90ae3871df0cfe81976d8fa94a5b8d72f8c19b7ee2320fa66e59f",
-    "service-kit/gates/check_service_gates.py": "a3cad16e6da1326f1208cf1fa160784c00596247046fa73fc3fde1e0774fa64d",
+    "service-kit/gates/check_service_gates.py": "463a8bf1ae8143dd85af0b1b8a03593e2a9cd2ef6ab1f9b9f2c98fb3deb71dd0",
     "service-kit/gates/check_size_limits.py": "4f4c572002a6a975e37ccaba917c61254a1349324a897a2201d041a21e8f7446",
     "service-kit/gates/check_test_first.py": "bc50cc1eb09fb9cace211f68f095759debb8652744ab32371d9fbc1df8b3ab1a",
     "service-kit/gates/check_untimed_waits.py": "b5d6d125e71dcc3c8156c02bff780b31ab41f385a2471f236ddcf437462f7d4e",
@@ -121,12 +121,12 @@
     "service-kit/gates/gate_fixtures/offending/tests/test_uses_mocks.py": "8d3584e06435c0d3dae38720789496df99563579c0a8ea415437b16371656068",
     "service-kit/gates/gate_fixtures/offending/tests/test_waits_forever.py": "6dedb4e5c3325256b9cd60474c6cd52a9b8e46db4cb16c8951912350742b0f06",
     "service-kit/kit_ownership.py": "9d70f118580a8cebe1248619e3dc17da3da2357c30cf9d4a5bd6b40f68c619ce",
-    "service-kit/sync.py": "4cac1ade2374b0aee1929851d195a3e02242b83c9575557bf9ca2baf092eee90",
+    "service-kit/sync.py": "4f3183b428fe7d14d306a907ada6cf75ae3bba9b3bed325a851ff2a8a2e646dc",
     "service-kit/testing/foundry_testkit/__init__.py": "77c44b0ec088312fc995968c48a8a0466f9c31195548dc000765bb2b0b04c1fc",
     "service-kit/testing/foundry_testkit/aws_kit.py": "1b72e0143063c7bdfd153ec2638e663e17327325f76330885c5b1031f3a91cde",
     "service-kit/testing/foundry_testkit/cache_kit.py": "539b3cf11bc3909964b128a5f2bd849806865c3cb8fc5b2c35f8188bd6e832d0",
     "service-kit/testing/foundry_testkit/db_seeder.py": "e62622ed569c0caac4ffa29c02cf5b64f4241c8c6a68614304b7346720c442e1",
-    "service-kit/testing/foundry_testkit/real_profile.py": "57e0553b315c4b3071677e7ad0129ce99a9446a51d9357a255f2134bc394226c",
+    "service-kit/testing/foundry_testkit/real_profile.py": "9a4828c904e8c927e214dede8bc2b40915dfdb8c4ed62151f73db37567736fe6",
     "service-kit/testing/foundry_testkit/resources.py": "f02aea607fbfa85b00390a8d6c300105f2f8a4ba1c98a15629df34d17f50b698",
     "service-kit/testing/foundry_testkit/seeded_case.py": "e59afb57962b760894088dfeb905da6d256723cc8c33c18a7c8b3ca6ee930d61",
     "service-kit/testing/foundry_testkit/settings_surface.py": "2a49d94aada5cce15bab82b06bd6db2f8f78d3898d122352da99f41b263f9487",
@@ -166,5 +166,5 @@
       ".github/workflows/ci.yml": "050c634670e68d98c5db8c12e42ad80898ce88ffce70a529d19871cb105c6dbe"
     }
   },
-  "template_revision": "b3539e1b42a59aecb69e201d0ddbae5172ff46c9"
+  "template_revision": "baed58f40a472c63f02a5177ff7da95b0c17de21"
 }

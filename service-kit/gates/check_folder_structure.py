@@ -16,7 +16,8 @@ somewhere in this estate:
    set, and an unrecognised directory is a FINDING rather than a silent pass --
    the "enumerate the artifact, not a list" rule inverted: here the artifact IS
    the directory listing, and the declared set says what may be in it.
-2b. The SAME closed set applies one level down, inside `src/<package>/`. Before this clause existed, `src/<package>/ops/` --
+2b. The SAME closed set applies one level down, inside `src/<package>/`. Before
+   this clause existed, `src/<package>/ops/` --
    or any other eighth directory -- was invisible here exactly as it was
    invisible to `check_layering.py`'s direction matrix: this gate asserted the
    §4 layers it REQUIRES are present and never asked whether anything ELSE was
@@ -549,6 +550,7 @@ DECLARED_OPS_LAYER_REGISTRY = """\
 fixture_service:
   role: service
   reason: fixture for the extra_layers escape hatch
+  bead: fixture-extra-layers
   extra_layers: ops
 """
 
@@ -725,11 +727,12 @@ def _unreadable_package_arm() -> int | None:
 #: The `package_roles.yaml` body for the STALE-declaration proof: `extra_layers`
 #: names a directory `ops` that this tree never creates. Fails closed in the
 #: OTHER direction from `declared-layer` above -- "a declaration naming no
-#: package is a finding" (an earlier change's own wording).
+#: package is a finding".
 STALE_EXTRA_LAYER_REGISTRY = """\
 fixture_service:
   role: service
   reason: fixture for the extra_layers stale-declaration proof
+  bead: fixture-extra-layers
   extra_layers: ops
 """
 
