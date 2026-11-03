@@ -470,6 +470,24 @@ def test_the_same_comment_is_no_obstacle_to_a_service_of_another_name(
     assert drift.returncode == 0, drift.stdout + drift.stderr
 
 
+def test_a_service_named_like_the_templates_prefix_syncs_and_drift_is_green(
+    service: Path, template: tuple[Path, str]
+) -> None:
+    """`foundry_service` is a prefix of the template's own name. The template's name in a
+    placement is what the sync renames, so it is not text that already names the service."""
+    package = service / "src" / "foundry_service"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    commit_all(service, "a package named like the template's prefix")
+
+    done = sync(service, template)
+    assert done.returncode == 0, done.stdout + done.stderr
+    commit_all(service, "sync")
+
+    drift = gate(service, "check_kit_drift.py")
+    assert drift.returncode == 0, drift.stdout + drift.stderr
+
+
 def test_without_the_refusal_such_a_sync_leaves_drift_red_for_good(
     named_service: Path, template: tuple[Path, str], tmp_path: Path
 ) -> None:

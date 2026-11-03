@@ -522,11 +522,17 @@ def refuse_a_placement_that_names_the_service(
     if module is None or module == TEMPLATE_MODULE:
         return
     names = (module, module.replace("_", "-"))
+    # The template's own name is what `place` renames, so it is not text that already
+    # names the service. Without this, a service whose name is a prefix of the
+    # template's (`foundry_service`) would be refused for every mention of the template.
+    own = (TEMPLATE_MODULE, TEMPLATE_MODULE.replace("_", "-"))
     for relative in PLACEMENTS:
         incoming = template / relative
         if relative in owned.owned_placements or not incoming.is_file():
             continue
         lines = incoming.read_text(encoding="utf-8").splitlines()
+        for template_name in own:
+            lines = [line.replace(template_name, "") for line in lines]
         hits = [(n, name) for n, line in enumerate(lines, 1) for name in names if name in line]
         if hits:
             number, name = hits[0]
