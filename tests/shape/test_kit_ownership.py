@@ -488,6 +488,26 @@ def test_a_service_named_like_the_templates_prefix_syncs_and_drift_is_green(
     assert drift.returncode == 0, drift.stdout + drift.stderr
 
 
+def test_text_that_only_names_the_service_after_the_rename_is_refused(
+    service: Path, template: tuple[Path, str], tmp_path: Path
+) -> None:
+    """Overlap: `foundry_foundry_service_template` holds no `foundry_foundry` that
+    survives the rename intact, yet placing it for `foundry_foundry` and normalising
+    it back gives `foundry_service_template_foundry`. The guard checks the round trip."""
+    package = service / "src" / "foundry_foundry"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    commit_all(service, "a package whose name overlaps the template's")
+    naming = template_naming(tmp_path, template, "foundry_foundry_service_template here")
+    before = tree_hash(service)
+
+    done = sync(service, naming)
+
+    assert done.returncode == 2, done.stdout + done.stderr
+    assert f"already names this service in {CI}" in done.stderr
+    assert tree_hash(service) == before, "a refused sync changed the service"
+
+
 def test_without_the_refusal_such_a_sync_leaves_drift_red_for_good(
     named_service: Path, template: tuple[Path, str], tmp_path: Path
 ) -> None:

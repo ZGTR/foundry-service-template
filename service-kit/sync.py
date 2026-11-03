@@ -522,18 +522,27 @@ def refuse_a_placement_that_names_the_service(
     if module is None or module == TEMPLATE_MODULE:
         return
     names = (module, module.replace("_", "-"))
-    # The template's own name is what `place` renames, so it is not text that already
-    # names the service. Without this, a service whose name is a prefix of the
-    # template's (`foundry_service`) would be refused for every mention of the template.
-    own = (TEMPLATE_MODULE, TEMPLATE_MODULE.replace("_", "-"))
+
+    def placed(line: str) -> str:  # what `place` writes for this service
+        return line.replace(TEMPLATE_MODULE, module).replace(TEMPLATE_NAME, names[1])
+
+    def normalised(line: str) -> str:  # what check_kit_drift hashes
+        return line.replace(module, TEMPLATE_MODULE).replace(names[1], TEMPLATE_NAME)
+
+    # A line is refused when the rename does not round-trip, which is exactly when
+    # drift would read it as an edit. Matching the service's name as a substring
+    # instead refused a service named like the template's prefix (`foundry_service`)
+    # for every mention of the template itself.
     for relative in PLACEMENTS:
         incoming = template / relative
         if relative in owned.owned_placements or not incoming.is_file():
             continue
         lines = incoming.read_text(encoding="utf-8").splitlines()
-        for template_name in own:
-            lines = [line.replace(template_name, "") for line in lines]
-        hits = [(n, name) for n, line in enumerate(lines, 1) for name in names if name in line]
+        hits = [
+            (n, next((name for name in names if name in placed(line)), names[0]))
+            for n, line in enumerate(lines, 1)
+            if normalised(placed(line)) != line
+        ]
         if hits:
             number, name = hits[0]
             die(
