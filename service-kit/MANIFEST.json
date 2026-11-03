@@ -121,7 +121,7 @@
     "service-kit/gates/gate_fixtures/offending/tests/test_uses_mocks.py": "8d3584e06435c0d3dae38720789496df99563579c0a8ea415437b16371656068",
     "service-kit/gates/gate_fixtures/offending/tests/test_waits_forever.py": "6dedb4e5c3325256b9cd60474c6cd52a9b8e46db4cb16c8951912350742b0f06",
     "service-kit/kit_ownership.py": "9d70f118580a8cebe1248619e3dc17da3da2357c30cf9d4a5bd6b40f68c619ce",
-    "service-kit/sync.py": "fc750dea48f0f0643c9935fa2ae7c3e8a1dae0115cf63ca27d88b8868e4803df",
+    "service-kit/sync.py": "fe7fd2dbbcdb0cdc6db269c8c5447f4b321de5c7e946038a2e695e743fa950f3",
     "service-kit/testing/foundry_testkit/__init__.py": "77c44b0ec088312fc995968c48a8a0466f9c31195548dc000765bb2b0b04c1fc",
     "service-kit/testing/foundry_testkit/aws_kit.py": "1b72e0143063c7bdfd153ec2638e663e17327325f76330885c5b1031f3a91cde",
     "service-kit/testing/foundry_testkit/cache_kit.py": "539b3cf11bc3909964b128a5f2bd849806865c3cb8fc5b2c35f8188bd6e832d0",
@@ -166,5 +166,5 @@
       ".github/workflows/ci.yml": "050c634670e68d98c5db8c12e42ad80898ce88ffce70a529d19871cb105c6dbe"
     }
   },
-  "template_revision": "2924297bcbfa46fe2e5a022a0ce5a2dad9672d72"
+  "template_revision": "8637fb919d21d775da98f62c53fe349cf590e942"
 }
