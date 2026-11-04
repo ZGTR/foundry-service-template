@@ -10,7 +10,13 @@
 # an emitted service on PostgreSQL changes only the image and the URL.
 services:
   postgres:
-    image: postgres:16-alpine
+    # Pinned by digest for the same reason the Redis and LocalStack fragments are:
+    # a tag is a moving target. The value is the multi-arch index digest the
+    # registry served for `postgres:16-alpine` on 2026-11-04, read with
+    # `docker buildx imagetools inspect postgres:16-alpine` and confirmed by the
+    # registry API's `Docker-Content-Digest` header. It is the LIST digest, not a
+    # per-platform one, so the pin resolves on amd64 and arm64 alike.
+    image: postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab
     environment:
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"

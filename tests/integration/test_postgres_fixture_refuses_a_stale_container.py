@@ -64,13 +64,19 @@ STALE_PROJECT = "shp-tpl-stale-container-arm"
 #: zero-port arm reads, and it must not collide with a real one.
 ZERO_PORT_PROJECT = "shp-tpl-zero-port-arm"
 
+#: The kit fragment's own digest-pinned image, so this arm runs the same bytes the
+#: real fixture does and a floating tag cannot slip back in here alone.
+POSTGRES_IMAGE = (
+    "postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab"
+)
+
 #: A postgres that EXPOSES 5432 without publishing it -- the shape a crashed run
 #: leaves behind. `expose:` rather than a doctored `ports:` because compose
 #: merges `ports` by appending, so an override cannot remove a publication.
-STALE_COMPOSE = """
+STALE_COMPOSE = f"""
 services:
   postgres:
-    image: postgres:16-alpine
+    image: {POSTGRES_IMAGE}
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

@@ -10,7 +10,7 @@
     "service-kit/docker/Dockerfile": "1ab114312843663986037fe033c250eb034e1f205bf76df54f69f567de7c052f",
     "service-kit/docker/README.md": "720e7e9f5ef3d786b2c96ccfc35004c82ded9a3a66ee4f8d2c7f1c81b31283ee",
     "service-kit/docker/compose/localstack.yml": "362d084785260e52c12d35bc6cdae4c516acbbc596df1a907feb26b0658b79dc",
-    "service-kit/docker/compose/postgres.yml": "b6f3906c76af296ccdf7e3850ea5ea9fcfed5d3764ec9e926bc612cf5e21d7ed",
+    "service-kit/docker/compose/postgres.yml": "4e82fa676be38650727508db836f97198c37291eb927663318c1080b7f21879a",
     "service-kit/docker/compose/redis.yml": "20fa702f1ac12acd793198dc5924d1b080164fdf9e02dac888fc2ade641efc0c",
     "service-kit/docker/compose/service.yml": "a6f0604638e940139bab7f00e544c33d5804c90a1feef8bed3764e8ca4333d0e",
     "service-kit/docker/entrypoint.sh": "ecada3cd4756bab326842f3d8390e918a29d9ed3ef166fa5c3d31d7329235e21",
@@ -166,5 +166,5 @@
       ".github/workflows/ci.yml": "050c634670e68d98c5db8c12e42ad80898ce88ffce70a529d19871cb105c6dbe"
     }
   },
-  "template_revision": "d46a7d34f10864e8a9e05f4196aefec9e7a2b45e"
+  "template_revision": "f1828ba8b7b7ba532e9702354f7fdb84f7df46b0"
 }
