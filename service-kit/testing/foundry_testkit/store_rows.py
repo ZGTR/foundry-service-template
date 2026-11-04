@@ -126,8 +126,13 @@ class SqlStoreRows:
         from sqlalchemy import func, select
         from sqlalchemy import table as table_clause
 
+        # A schema-qualified owned name (`tenant.widgets`) names a schema and a
+        # table; one quoted identifier "tenant.widgets" would name neither.
+        schema, _, name = table.rpartition(".")
         with self._engine.connect() as connection:
-            statement = select(func.count()).select_from(table_clause(table))
+            statement = select(func.count()).select_from(
+                table_clause(name, schema=schema or None)
+            )
             return int(connection.execute(statement).scalar_one())
 
     def select(self, statement: str, parameters: dict[str, Any]) -> list[tuple[Any, ...]]:
