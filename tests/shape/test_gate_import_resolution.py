@@ -218,6 +218,54 @@ def test_layering_accepts_a_leaf_module_its_package_publishes_in_all(
     assert _layering_findings(tmp_path, probe, ports='__all__ = ["store"]\n') == []
 
 
+#: `ports/__init__.py` bodies that bind `store` themselves, so `from pkg.ports import
+#: store` returns that binding, not the sibling module `ports/store.py`.
+_BOUND_BY_THE_PACKAGE = {
+    "re-exported function": "from .store import store\n",
+    "aliased re-export": "from .store import make as store\n",
+    "plain assignment": "store = object()\n",
+    "function": "def store():\n    return None\n",
+}
+
+
+@pytest.mark.parametrize("probe", ["from pkg.ports import store", "from ..ports import store"])
+@pytest.mark.parametrize("init", sorted(_BOUND_BY_THE_PACKAGE))
+def test_layering_accepts_a_name_its_package_binds_itself(
+    tmp_path: Path, probe: str, init: str
+) -> None:
+    assert _layering_findings(tmp_path, probe, ports=_BOUND_BY_THE_PACKAGE[init]) == []
+
+
+@pytest.mark.parametrize("probe", ["from pkg.ports import store", "from ..ports import store"])
+def test_layering_still_flags_a_submodule_the_package_only_imports(
+    tmp_path: Path, probe: str
+) -> None:
+    """`from . import store` binds the module itself, so the edge is still the leaf."""
+    findings = _layering_findings(tmp_path, probe, ports="from . import store\n")
+    assert len(findings) == 1, findings
+    assert "deep cross-submodule import pkg.ports.store" in findings[0]
+
+
+#: `ports/__init__.py` bodies whose `__all__` cannot be read as a literal, so it
+#: publishes nothing and the leaf import is still a finding.
+_UNREADABLE_ALL = {
+    "cleared": '__all__ = ["store"]\n__all__.clear()\n',
+    "removed": '__all__ = ["store"]\n__all__.remove("store")\n',
+    "reassigned under if": '__all__ = ["store"]\nif False:\n    __all__ = []\n',
+    "extended": '__all__ = []\n__all__ += ["store"]\n',
+}
+
+
+@pytest.mark.parametrize("probe", ["from pkg.ports import store", "from ..ports import store"])
+@pytest.mark.parametrize("init", sorted(_UNREADABLE_ALL))
+def test_layering_does_not_trust_an_all_that_is_touched_again(
+    tmp_path: Path, probe: str, init: str
+) -> None:
+    findings = _layering_findings(tmp_path, probe, ports=_UNREADABLE_ALL[init])
+    assert len(findings) == 1, findings
+    assert "deep cross-submodule import pkg.ports.store" in findings[0]
+
+
 #: Root `__init__.py` bodies that each expose `pkg.transport` to `from pkg import *`.
 #: QA rounds 1 and 2 found that every attempt to read `__all__`
 #: left one of these behind, so a wildcard inside the package is now refused outright.

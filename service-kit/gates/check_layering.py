@@ -215,9 +215,17 @@ def _module_file(root: Path, dotted: str) -> Path | None:
 
 
 def _declared_exports(source: Path) -> list[str] | None:
-    """A module's literal `__all__` of strings; None when absent, computed or extended."""
+    """A module's literal `__all__` of strings; None when absent, computed or touched again.
+
+    Only a top-level `__all__ = [...]` of string literals is read. Any other mention of
+    the name -- `__all__.clear()`, a reassignment under an `if`, an `+=` -- makes the
+    list unknown, and unknown publishes nothing, so a misreading can only make the gate
+    stricter.
+    """
+    tree = ast.parse(source.read_text())
     exports: list[str] | None = None
-    for node in ast.parse(source.read_text()).body:
+    read_targets: set[int] = set()
+    for node in tree.body:
         targets = (
             node.targets
             if isinstance(node, ast.Assign)
@@ -225,7 +233,8 @@ def _declared_exports(source: Path) -> list[str] | None:
             if isinstance(node, (ast.AnnAssign, ast.AugAssign))
             else []
         )
-        if not any(isinstance(t, ast.Name) and t.id == "__all__" for t in targets):
+        named = [t for t in targets if isinstance(t, ast.Name) and t.id == "__all__"]
+        if not named:
             continue
         value = node.value if not isinstance(node, ast.AugAssign) else None
         literal = isinstance(value, (ast.List, ast.Tuple)) and all(
@@ -234,7 +243,34 @@ def _declared_exports(source: Path) -> list[str] | None:
         if not literal:
             return None
         exports = [e.value for e in value.elts]
+        read_targets.update(id(t) for t in named)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id == "__all__" and id(node) not in read_targets:
+            return None
     return exports
+
+
+def _bound_attributes(source: Path) -> set[str]:
+    """Names a package `__init__.py` binds itself at top level, so a member import reads them.
+
+    `from pkg.domain import policy` returns whatever `pkg/domain/__init__.py` bound to
+    `policy` -- a function re-exported by `from .policy import policy`, or `policy =
+    object()` -- not the sibling module `policy.py`. Such a name goes through the
+    package's contract and stays the edge `pkg.domain`. `from . import policy` binds the
+    submodule itself and is not counted, so it is still promoted.
+    """
+    names: set[str] = set()
+    for node in ast.parse(source.read_text()).body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.add(node.name)
+        elif isinstance(node, ast.Assign):
+            names.update(t.id for t in node.targets if isinstance(t, ast.Name))
+        elif isinstance(node, ast.AnnAssign) and node.value is not None:
+            if isinstance(node.target, ast.Name):
+                names.add(node.target.id)
+        elif isinstance(node, ast.ImportFrom) and node.module is not None:
+            names.update(alias.asname or alias.name for alias in node.names)
+    return names - {"__all__", "*"}
 
 
 def _imports(
@@ -293,9 +329,12 @@ def _imports(
             )
             edges.append((module, line))
             continue
+        below_root_package = (
+            module != package and source is not None and source.name == "__init__.py"
+        )
         published = (
-            set(_declared_exports(source) or [])
-            if module != package and source is not None and source.name == "__init__.py"
+            set(_declared_exports(source) or []) | _bound_attributes(source)
+            if below_root_package
             else set()
         )
         targets = {
