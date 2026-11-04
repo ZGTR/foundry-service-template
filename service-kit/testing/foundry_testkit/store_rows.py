@@ -121,7 +121,14 @@ class SqlStoreRows:
 
     def count(self, table: str) -> int:
         assert_owned(table, self.owned_tables)
-        return int(self.select(f"select count(*) from {table}", {})[0][0])
+        # Built with SQLAlchemy Core rather than an interpolated string, so no SQL text
+        # is ever assembled from a name, even an allow-listed one.
+        from sqlalchemy import func, select
+        from sqlalchemy import table as table_clause
+
+        with self._engine.connect() as connection:
+            statement = select(func.count()).select_from(table_clause(table))
+            return int(connection.execute(statement).scalar_one())
 
     def select(self, statement: str, parameters: dict[str, Any]) -> list[tuple[Any, ...]]:
         """The one raw-SQL seam, and it is TEST support.

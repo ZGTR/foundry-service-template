@@ -130,7 +130,7 @@
     "service-kit/testing/foundry_testkit/resources.py": "f02aea607fbfa85b00390a8d6c300105f2f8a4ba1c98a15629df34d17f50b698",
     "service-kit/testing/foundry_testkit/seeded_case.py": "e59afb57962b760894088dfeb905da6d256723cc8c33c18a7c8b3ca6ee930d61",
     "service-kit/testing/foundry_testkit/settings_surface.py": "2a49d94aada5cce15bab82b06bd6db2f8f78d3898d122352da99f41b263f9487",
-    "service-kit/testing/foundry_testkit/store_rows.py": "97fb785c3c4e5d2c41bae43ee4a2a2fe7cffaff93d5716b69967cae207607e43",
+    "service-kit/testing/foundry_testkit/store_rows.py": "4bcadf098c7e75530676b889d6a40f1d843c006c5eced53a33b9274ecfd7193b",
     "service-kit/testing/foundry_testkit/timed.py": "894586ac795d4cda5b2f623a3b254d6d95bc6c108b1827d15b1cdd20f62b7114",
     "service-kit/vendor/VENDOR.json": "a68a3bfd550b48cac8ef7f66ece30e7878a18a0b36fe240688d75e38450096a9",
     "service-kit/vendor/foundry_agent_trace/__init__.py": "e46c0c4d1df1d5b64797333a58516fb3f9dca6ba3ee049378f8f201f611b0766",
@@ -166,5 +166,5 @@
       ".github/workflows/ci.yml": "050c634670e68d98c5db8c12e42ad80898ce88ffce70a529d19871cb105c6dbe"
     }
   },
-  "template_revision": "0804a368a4676612b322e97aa4860940379790e6"
+  "template_revision": "9ae8e18d836b0c269944150c61f0519fb50b1894"
 }
