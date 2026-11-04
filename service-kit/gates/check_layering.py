@@ -69,8 +69,10 @@ from gate_common import (  # noqa: E402
     MIN_PACKAGES,
     PACKAGE_ROOT,
     declared_extra_layers,
+    imports_in,
     load_package_roles,
     marker_count,
+    package_of,
     python_sources,
     source_roots,
     unmarked_flagged_files,
@@ -191,14 +193,165 @@ def _submodule_of(path: Path, root: Path) -> str | None:
     return relative[0] if len(relative) > 1 else None
 
 
-def _imports(tree: ast.AST) -> list[tuple[str, int]]:
-    names: list[tuple[str, int]] = []
+def _module_file(root: Path, dotted: str) -> Path | None:
+    """The file that defines intra-package module `dotted`: its `__init__.py` or `.py`.
+
+    Matched against the directory LISTING, not `is_file()`: on a case-insensitive
+    filesystem (macOS) `ports/Clock.py` "exists" because `ports/clock.py` does, which
+    would read `from pkg.ports import Clock` -- a class -- as an import of a module.
+    """
+    directory = root.joinpath(*dotted.split(".")[1:])
+    if directory == root:
+        return root / "__init__.py" if (root / "__init__.py").is_file() else None
+    try:
+        siblings = {entry.name for entry in directory.parent.iterdir()}
+    except OSError:
+        return None
+    if directory.name in siblings and (directory / "__init__.py").is_file():
+        return directory / "__init__.py"
+    if f"{directory.name}.py" in siblings:
+        return directory.with_suffix(".py")
+    return None
+
+
+def _declared_exports(source: Path) -> list[str] | None:
+    """A module's literal `__all__` of strings; None when absent, computed or touched again.
+
+    Only a top-level `__all__ = [...]` of string literals is read. Any other mention of
+    the name -- `__all__.clear()`, a reassignment under an `if`, an `+=` -- makes the
+    list unknown, and unknown publishes nothing, so a misreading can only make the gate
+    stricter.
+    """
+    tree = ast.parse(source.read_text())
+    exports: list[str] | None = None
+    read_targets: set[int] = set()
+    for node in tree.body:
+        targets = (
+            node.targets
+            if isinstance(node, ast.Assign)
+            else [node.target]
+            if isinstance(node, (ast.AnnAssign, ast.AugAssign))
+            else []
+        )
+        named = [t for t in targets if isinstance(t, ast.Name) and t.id == "__all__"]
+        if not named:
+            continue
+        value = node.value if not isinstance(node, ast.AugAssign) else None
+        literal = isinstance(value, (ast.List, ast.Tuple)) and all(
+            isinstance(e, ast.Constant) and isinstance(e.value, str) for e in value.elts
+        )
+        if not literal:
+            return None
+        exports = [e.value for e in value.elts]
+        read_targets.update(id(t) for t in named)
     for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            names.extend((alias.name, node.lineno) for alias in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-            names.append((node.module, node.lineno))
-    return names
+        if isinstance(node, ast.Name) and node.id == "__all__" and id(node) not in read_targets:
+            return None
+    return exports
+
+
+def _bound_attributes(source: Path, package: str) -> set[str]:
+    """Names a package `__init__.py` binds itself at top level, so a member import reads them.
+
+    `from pkg.domain import policy` returns whatever `pkg/domain/__init__.py` bound to
+    `policy` -- a function re-exported by `from .policy import policy`, or `policy =
+    object()` -- not the sibling module `policy.py`. Such a name goes through the
+    package's contract and stays the edge `pkg.domain`. An import whose source is the
+    package itself -- `from . import policy`, or `from pkg.domain import policy` --
+    binds the submodule and is not counted, so it is still promoted.
+    """
+    names: set[str] = set()
+    for node in ast.parse(source.read_text()).body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.add(node.name)
+        elif isinstance(node, ast.Assign):
+            names.update(t.id for t in node.targets if isinstance(t, ast.Name))
+        elif isinstance(node, ast.AnnAssign) and node.value is not None:
+            if isinstance(node.target, ast.Name):
+                names.add(node.target.id)
+        elif isinstance(node, ast.ImportFrom):
+            if node.level:
+                base = package.rsplit(".", node.level - 1)[0] if node.level > 1 else package
+                origin = f"{base}.{node.module}" if node.module else base
+            else:
+                origin = node.module or ""
+            if origin != package:
+                names.update(alias.asname or alias.name for alias in node.names)
+    return names - {"__all__", "*"}
+
+
+def _imports(
+    tree: ast.AST, path: Path, root: Path
+) -> tuple[list[tuple[str, int]], list[tuple[int, str]]]:
+    """(edges, problems): every module this file loads, and every import no rule can judge.
+
+    Relative imports are resolved by `gate_common.imports_in`. A `from X import name`
+    inside the package is an edge to `X.name` when that name is itself a submodule or
+    subpackage, because that is the module Python loads: `from pkg import transport`
+    reaches `pkg.transport` and `from pkg.domain.model import widget` reaches the leaf
+    `pkg.domain.model.widget`, the same edges the `import` spellings make. Any other
+    name (`__version__`, a class) leaves the edge at `X`.
+
+    A wildcard from any module inside the package is a problem, whatever `X` declares.
+    QA rounds 1 and 2 showed that reading `__all__` to expand one
+    always leaves a spelling behind (`.append`, a conditional assignment, an alias
+    re-export), and each one hid a forbidden edge. The edge `X` itself is still
+    judged. A wildcard of a third-party module is out of scope. A None module (a
+    relative import above the package) is a problem too.
+
+    ONE EXCEPTION, AND IT IS THE CONTRACT ITSELF. Below the package root, a submodule
+    that `X/__init__.py` lists in a literal `__all__` stays the edge `X`:
+    `transport/http/controllers/__init__.py` publishes `bytes_controller`, so importing
+    that name from the package goes through the package's declared contract, which is
+    the thing rule 4 protects. At the root the member is always promoted, because there
+    the member IS the layer the direction rule has to see. Every way `_declared_exports`
+    can misread `__all__` shrinks the published set, so a misreading makes this stricter.
+    """
+    package = root.name
+    edges: list[tuple[str, int]] = []
+    problems: list[tuple[int, str]] = []
+    for statement in imports_in(tree, package_of(path, root.parent)):
+        module, line = statement.module, statement.lineno
+        if module is None:
+            problems.append(
+                (
+                    line,
+                    f"relative import climbs above {package}; Python refuses it at import "
+                    f"time and no direction rule can judge it",
+                )
+            )
+            continue
+        if not statement.is_from or module.split(".")[0] != package:
+            edges.append((module, line))
+            continue
+        members = [name for name, _bound in statement.names]
+        source = _module_file(root, module)
+        if "*" in members:
+            problems.append(
+                (
+                    line,
+                    f"wildcard import from {module} inside the package hides dependency "
+                    f"edges; import names explicitly",
+                )
+            )
+            edges.append((module, line))
+            continue
+        below_root_package = (
+            module != package and source is not None and source.name == "__init__.py"
+        )
+        published = (
+            set(_declared_exports(source) or []) | _bound_attributes(source, module)
+            if below_root_package
+            else set()
+        )
+        targets = {
+            f"{module}.{name}"
+            if name not in published and _module_file(root, f"{module}.{name}")
+            else module
+            for name in members
+        } or {module}
+        edges.extend((target, line) for target in sorted(targets))
+    return edges, problems
 
 
 def _reads_environment(tree: ast.AST) -> bool:
@@ -292,7 +445,9 @@ def analyse(
             )
 
         allowed = ALLOWED.get(submodule)
-        for name, lineno in _imports(tree):
+        edges, problems = _imports(tree, path, root)
+        findings.extend(f"{relative}:{lineno}: {problem}" for lineno, problem in problems)
+        for name, lineno in edges:
             parts = name.split(".")
             # Rule 2: no framework/SDK in an inner layer.
             carved = allowed_here.get(relative.as_posix(), set())
@@ -438,6 +593,66 @@ def _unrecognised_layout_arm() -> list[str]:
     return problems
 
 
+#: (import statement planted in `application/probe.py`, findings it must produce). BOTH
+#: SPELLINGS of each edge, because this gate once kept an `ImportFrom` only at
+#: `level == 0` and printed PASS on `from ..transport import http` while flagging its
+#: absolute twin. HAND-WRITTEN counts, never read off the gate.
+RELATIVE_IMPORT_CASES: tuple[tuple[str, int], ...] = (
+    ("from pkg.transport import http", 1),
+    ("from ..transport import http", 1),
+    ("from pkg import transport", 1),
+    ("from .. import transport", 1),
+    ("from ..transport import http as wire", 1),
+    ("from ..domain.model.widget import Widget", 1),
+    ("from ... import anything", 1),
+    # Package members (QA rounds 1 and 2): a leaf module named as a member, and any
+    # wildcard inside the package, which is refused whatever `__all__` says.
+    ("from .. import *", 1),
+    ("from pkg import *", 1),
+    ("from ..domain.model import widget", 1),
+    ("from pkg.domain.model import widget", 1),
+    ("from ..ports import *", 1),
+    ("from ..domain import *", 1),
+    ("from os.path import *", 0),
+    ("from . import sibling", 0),
+    ("from .sibling import helper as h", 0),
+    ("from .. import domain", 0),
+    ("from ..domain import model", 0),
+)
+
+
+def _relative_import_arm() -> list[str]:
+    """Drive the PRODUCTION analyser over every spelling in `RELATIVE_IMPORT_CASES`.
+
+    A temp tree, for the same reason `_unrecognised_layout_arm` gives: a tracked tree
+    under `gate_fixtures/` is read by every other gate's production scan.
+    """
+    layout = {
+        "application/sibling.py": "",
+        "domain/model/widget.py": "",
+        "ports/store.py": "",
+        "transport/http/api.py": "",
+        "__init__.py": '__all__ = ["transport"]\n',
+        "domain/__init__.py": '__all__ = ["model"]\n',
+    }
+    problems = []
+    for statement, expected in RELATIVE_IMPORT_CASES:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw) / "pkg"
+            for rel, body in {**layout, "application/probe.py": statement + "\n"}.items():
+                path = root / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                parent = path.parent
+                while parent != root.parent:
+                    (parent / "__init__.py").touch()
+                    parent = parent.parent
+                path.write_text(body)
+            findings = analyse(root, is_fixture=True)[0]
+            if len(findings) != expected:
+                problems.append(f"{statement!r} produced {findings}, expected {expected}")
+    return problems
+
+
 def _fixture_arm(name: str) -> tuple[list[str], int, int, set[str], int] | None:
     """Run the PRODUCTION analyser over a fixture package. None when absent."""
     root = FIXTURE_ROOT / name / "pkg"
@@ -487,10 +702,13 @@ def main() -> int:
             f"the OFFENDING fixture produced {len(offending[0])} finding(s), expected the "
             f"hand-written {EXPECTED_OFFENDING_FINDINGS}: {offending[0]}"
         )
-    control_problems = _location_control_failures() + _unrecognised_layout_arm()
+    control_problems = (
+        _location_control_failures() + _unrecognised_layout_arm() + _relative_import_arm()
+    )
     if control_problems:
         return refuse(
-            f"the layer-location clause failed its own control(s): {control_problems}. "
+            f"the layer-location or import-resolution clause failed its own control(s): "
+            f"{control_problems}. "
             f"A floor that has never been shown to fire cannot certify a scan"
         )
     marked = marker_count()
@@ -589,6 +807,9 @@ def main() -> int:
         f"PASS: {len(packages)} package(s), {modules} module(s), "
         f"{cross} cross-submodule import(s) resolved, "
         f"5 rules x 2 fixture arms = 10 arms; 10 executed, 0 skipped, 0 unaccounted. "
+        f"Import-resolution control: {len(RELATIVE_IMPORT_CASES)} spellings, "
+        f"{sum(1 for _, n in RELATIVE_IMPORT_CASES if n)} flagged and "
+        f"{sum(1 for _, n in RELATIVE_IMPORT_CASES if not n)} quiet. "
         f"{coverage}."
     )
     return GREEN

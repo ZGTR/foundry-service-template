@@ -105,6 +105,8 @@ from gate_common import (  # noqa: E402
     FIXTURE_ROOT,
     MIN_PACKAGES,
     PACKAGE_ROOT,
+    imports_in,
+    package_of,
     python_sources,
     service_data_file,
     source_roots,
@@ -223,14 +225,9 @@ def _base_names(node: ast.ClassDef) -> list[str]:
     return names
 
 
-def _import_roots(tree: ast.AST) -> list[tuple[str, int]]:
-    roots: list[tuple[str, int]] = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            roots.extend((alias.name.split(".")[0], node.lineno) for alias in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-            roots.append((node.module.split(".")[0], node.lineno))
-    return roots
+def _import_roots(tree: ast.AST, package: str) -> list[tuple[str, int]]:
+    """(top-level module, line) per import; relative ones resolve into `package`."""
+    return [(s.module.split(".")[0], s.lineno) for s in imports_in(tree, package) if s.module]
 
 
 def _settings_config_keywords(cls: ast.ClassDef) -> set[str] | None:
@@ -382,7 +379,7 @@ def analyse(package: Path) -> tuple[list[str], dict[str, object]]:
             findings.append(f"{posix}: unparseable ({exc})")
             continue
 
-        import_roots = _import_roots(tree)
+        import_roots = _import_roots(tree, package_of(path, package.parent))
         if any(root in {"pydantic", "pydantic_settings"} for root, _ in import_roots):
             counts["pydantic_modules"] = int(counts["pydantic_modules"]) + 1
         local = _model_classes(tree)
@@ -647,6 +644,12 @@ _MUTATIONS: dict[str, dict[str, str | None]] = {
             "from pydantic import BaseModel\n\n\nclass Gadget(BaseModel):\n    gadget_id: str\n"
         )
     },
+    "domain-imports-a-local-pydantic-module": {
+        "domain/pydantic.py": "class BaseModel:\n    pass\n",
+        "domain/model.py": (
+            "from .pydantic import BaseModel\n\n\nclass Gadget(BaseModel):\n    gadget_id: str\n"
+        ),
+    },
     "adapter-parses-by-hand": {
         "adapters/real/provider_gateway.py": (
             "def read(payload):\n"
@@ -753,6 +756,14 @@ def _control_cases() -> list[tuple[str, int, int, str, str]]:
             0,
             "domain imports 'pydantic'",
             "CLAUSE 3, the one the plan said check_layering.py already enforced. It does not",
+        ),
+        (
+            "domain-imports-a-local-pydantic-module",
+            0,
+            0,
+            "",
+            "CLAUSE 3'S NEAR MISS. `from .pydantic import BaseModel` resolves through "
+            "gate_common.imports_in to the package's own module, not the library",
         ),
         (
             "adapter-parses-by-hand",
