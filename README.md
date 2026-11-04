@@ -652,7 +652,11 @@ pip install --no-deps -e .
 pip install --require-hashes -r requirements/test.lock
 export PYTHONPATH=service-kit/vendor
 ruff check src tests scripts service-kit
-for gate in service-kit/gates/check_*.py; do python "$gate" || [ "$?" -eq 3 ]; done
+failed=0
+for gate in service-kit/gates/check_*.py; do
+  python "$gate" || [ "$?" -eq 3 ] || { echo "FAILED: $gate"; failed=1; }
+done
+[ "$failed" -eq 0 ]
 pytest tests
 bash scripts/check_service_iac.sh      # needs terraform or tofu on PATH
 ```

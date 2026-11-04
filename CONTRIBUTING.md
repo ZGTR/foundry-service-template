@@ -7,7 +7,11 @@ Follow "Verify" in `README.md`. Before a pull request, run from the repository r
 ```bash
 export PYTHONPATH=service-kit/vendor
 ruff check src tests scripts service-kit
-for gate in service-kit/gates/check_*.py; do python "$gate" || [ "$?" -eq 3 ]; done
+failed=0
+for gate in service-kit/gates/check_*.py; do
+  python "$gate" || [ "$?" -eq 3 ] || { echo "FAILED: $gate"; failed=1; }
+done
+[ "$failed" -eq 0 ]                       # exit 3 is a named skip; any other non-zero is red
 pytest tests
 bash scripts/check_service_iac.sh      # needs terraform or tofu on PATH
 ```
