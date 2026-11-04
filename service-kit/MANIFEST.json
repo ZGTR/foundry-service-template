@@ -20,19 +20,19 @@
     "service-kit/gates/check_docker_shared.py": "d938e24cb192cb4a2a387588ba684ee0fca2f10cd2c7491bb0f6661b56678f93",
     "service-kit/gates/check_folder_structure.py": "e159f1412dfd6b2005fefd3f62a3587136bf2c9327a2fae806e57ae4ae00cced",
     "service-kit/gates/check_kit_drift.py": "78c81faf3b1c0f34cab5b1529d0283f06c59e157bb3df3a90df3a7cfba1c75ed",
-    "service-kit/gates/check_layering.py": "9b38713b6da5a4cdac53f7551a710c92e4e39f65ed97ac9014d7cd8ffb18120c",
+    "service-kit/gates/check_layering.py": "c5a03c7353782d75a6496a10bbb657b7305d212abe5bdc95c9690cdbe028574e",
     "service-kit/gates/check_lifecycle.py": "4fcaf622986e6eb79b25f35fd429954f4d31593b77a594d882e5fbf49a009592",
     "service-kit/gates/check_mock_budget.py": "ef7af95a65867a8d0ed5bce283b7cb5ba4dcf659ecbce7f6e470439a60dccc14",
     "service-kit/gates/check_mvc_separation.py": "f6861621397ebbbbc318172f6ba036d9dd9f44286acf74fc837b550d52ca58f6",
-    "service-kit/gates/check_orm_standard.py": "71073e8c05683fd64673b2c4ef9a5648fc6732aae2e3e7cd86bba6dacfb5b543",
-    "service-kit/gates/check_pydantic_boundaries.py": "dc8b70e17be87b112e6b0aac37c24104bca627b59c99834b12add4748fdfbb45",
+    "service-kit/gates/check_orm_standard.py": "8ca3812f2c600dc6d080b79164dcf1719559edaaba9159f349103e3a930abd6a",
+    "service-kit/gates/check_pydantic_boundaries.py": "1fc20bae0efb4f3c6e1ddf9af2309384ccd0f7f6f07efaa9e369e03fa994b5ec",
     "service-kit/gates/check_seeded_tests.py": "a8af35f240a90ae3871df0cfe81976d8fa94a5b8d72f8c19b7ee2320fa66e59f",
     "service-kit/gates/check_service_gates.py": "463a8bf1ae8143dd85af0b1b8a03593e2a9cd2ef6ab1f9b9f2c98fb3deb71dd0",
     "service-kit/gates/check_size_limits.py": "4f4c572002a6a975e37ccaba917c61254a1349324a897a2201d041a21e8f7446",
-    "service-kit/gates/check_test_first.py": "bc50cc1eb09fb9cace211f68f095759debb8652744ab32371d9fbc1df8b3ab1a",
+    "service-kit/gates/check_test_first.py": "b1ae6ab8e9792651a2ca6b42ff733a6eb85258e479f9f24544aba5827e69f2ac",
     "service-kit/gates/check_untimed_waits.py": "b5d6d125e71dcc3c8156c02bff780b31ab41f385a2471f236ddcf437462f7d4e",
     "service-kit/gates/check_vendor_digests.py": "7df352088184c52eada6609eec74c4d89f1b30d5729fef2afc29e442d5580f36",
-    "service-kit/gates/gate_common.py": "b8c6ce6cbbd63812ae5c73853b31605b4700d347c9c13e9959803e2e753e470d",
+    "service-kit/gates/gate_common.py": "a287f9da77a5dc3878eb79e40baa524fa0fb49ca48ecc3d8fa30883100fadbac",
     "service-kit/gates/gate_exit_codes.py": "d411d2abb8c7256bc2d04fc4bcb41c9cd97c16e89615b8367fd9e119aa24b6be",
     "service-kit/gates/gate_fixtures/README.md": "4f5d46136e0aadaab67177aa1d550155ec23c1f3764feb6458d26ad09a1500d2",
     "service-kit/gates/gate_fixtures/conforming/docker/Dockerfile": "c42788e7c995199c05f87d801b6f7c1580806c7aa6bf7aba86755f02541c07c1",
@@ -166,5 +166,5 @@
       ".github/workflows/ci.yml": "050c634670e68d98c5db8c12e42ad80898ce88ffce70a529d19871cb105c6dbe"
     }
   },
-  "template_revision": "8637fb919d21d775da98f62c53fe349cf590e942"
+  "template_revision": "0804a368a4676612b322e97aa4860940379790e6"
 }

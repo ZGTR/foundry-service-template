@@ -19,11 +19,14 @@ committing the fixture made the production glob match it.
 
 from __future__ import annotations
 
+import ast
 from pathlib import Path
+from typing import NamedTuple
 
 __all__ = [
     "FIXTURE_DIR_NAME",
     "FIXTURE_ROOT",
+    "ImportStatement",
     "is_a_gate_fixture",
     "EXPECTED_MARKED_FIXTURE_FILES",
     "GATES_DIR",
@@ -33,7 +36,9 @@ __all__ = [
     "PACKAGE_ROOT",
     "SCRIPTS_DIR",
     "declared_extra_layers",
+    "imports_in",
     "marker_count",
+    "package_of",
     "python_sources",
     "service_data_file",
     "MIN_PACKAGES",
@@ -361,6 +366,69 @@ def python_sources(root: Path, *, exclude_fixtures: bool = True) -> list[Path]:
         if "__pycache__" not in path.parts
         and not (exclude_fixtures and FIXTURE_ROOT in path.parents)
     )
+
+
+class ImportStatement(NamedTuple):
+    """One module an import statement names, as an ABSOLUTE dotted name.
+
+    `module` is None for a relative import that climbs above the import root, which
+    Python refuses at import time ("attempted relative import beyond top-level
+    package"); a caller decides whether that is a finding. `names` pairs each imported
+    name with the local name it binds: `from m import a as b` is `(("a", "b"),)`, and
+    `import a.b as c` is `(("a.b", "c"),)`, and `import a.b` is `(("a.b", "a"),)`, because
+    that statement binds `a`.
+    """
+
+    module: str | None
+    lineno: int
+    is_from: bool
+    names: tuple[tuple[str, str], ...]
+
+
+def package_of(path: Path, import_root: Path) -> str:
+    """The dotted package a module at `path` belongs to: Python's `__package__`.
+
+    `import_root` is the directory on `sys.path` (`src/` for a service package). A
+    module and its directory's `__init__.py` share one package, which is the anchor
+    every relative import in either file is resolved against.
+    """
+    return ".".join(path.parent.relative_to(import_root).parts)
+
+
+def imports_in(tree: ast.AST, package: str) -> list[ImportStatement]:
+    """Every import in `tree`, relative ones resolved against `package`.
+
+    THE ONE RESOLVER. `check_layering`, `check_orm_standard`,
+    `check_pydantic_boundaries` and `check_test_first` each walked the tree themselves
+    and kept an `ImportFrom` only when `node.level == 0`, so `from ..transport import
+    http` was invisible to the direction rule: planted in a service's `application/`,
+    the absolute spelling was a finding and the relative one printed PASS. Resolving
+    here, once, is what makes "the gates agree about what a file imports" true.
+    """
+    found: list[ImportStatement] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            found.extend(
+                # `import a.b.c` binds `a`; the module is still the full dotted name.
+                ImportStatement(
+                    alias.name,
+                    node.lineno,
+                    False,
+                    ((alias.name, alias.asname or alias.name.split(".")[0]),),
+                )
+                for alias in node.names
+            )
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module
+            if node.level:
+                # Level 1 is `package` itself; each further dot drops one component.
+                anchor = package.split(".") if package else []
+                kept = len(anchor) - node.level + 1
+                tail = [node.module] if node.module else []
+                module = ".".join([*anchor[:kept], *tail]) if kept > 0 else None
+            names = tuple((alias.name, alias.asname or alias.name) for alias in node.names)
+            found.append(ImportStatement(module, node.lineno, True, names))
+    return found
 
 
 #: The token every deliberate violation in `gate_fixtures/offending/` carries.

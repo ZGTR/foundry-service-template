@@ -60,6 +60,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from gate_common import (  # noqa: E402
     MIN_PACKAGES,
     PACKAGE_ROOT,
+    ImportStatement,
+    imports_in,
+    package_of,
     python_sources,
     service_data_file,
     source_roots,
@@ -92,18 +95,17 @@ MIN_MODULES = 20
 MIN_SQLALCHEMY_MODULES = 3
 
 
-def _module_roots(tree: ast.AST) -> list[tuple[str, int]]:
-    """(top-level module name, line) for every import in the file."""
-    roots: list[tuple[str, int]] = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            roots.extend((alias.name.split(".")[0], node.lineno) for alias in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-            roots.append((node.module.split(".")[0], node.lineno))
-    return roots
+def _module_roots(statements: list[ImportStatement]) -> list[tuple[str, int]]:
+    """(top-level module name, line) for every import in the file.
+
+    A relative import is resolved into the package by `gate_common.imports_in`, so its
+    root is the package's own name: `from .sqlite3 import connect` is a local module,
+    never the driver.
+    """
+    return [(s.module.split(".")[0], s.lineno) for s in statements if s.module]
 
 
-def _sqlalchemy_text_names(tree: ast.AST) -> tuple[set[str], set[str]]:
+def _sqlalchemy_text_names(statements: list[ImportStatement]) -> tuple[set[str], set[str]]:
     """Names bound to `sqlalchemy.text`, and module aliases for `sqlalchemy`.
 
     Resolved from the IMPORTS rather than matched as the word `text`, because
@@ -114,23 +116,20 @@ def _sqlalchemy_text_names(tree: ast.AST) -> tuple[set[str], set[str]]:
     """
     bound: set[str] = set()
     modules: set[str] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
-            if node.module.split(".")[0] != "sqlalchemy":
-                continue
-            for alias in node.names:
-                if alias.name == "text":
-                    bound.add(alias.asname or alias.name)
-        elif isinstance(node, ast.Import):
-            for alias in node.names:
-                if alias.name.split(".")[0] == "sqlalchemy":
-                    modules.add(alias.asname or alias.name)
+    for statement in statements:
+        if not statement.module or statement.module.split(".")[0] != "sqlalchemy":
+            continue
+        for name, local in statement.names:
+            if not statement.is_from:
+                modules.add(local)
+            elif name == "text":
+                bound.add(local)
     return bound, modules
 
 
-def _text_calls(tree: ast.AST) -> list[int]:
+def _text_calls(tree: ast.AST, statements: list[ImportStatement]) -> list[int]:
     """Line numbers of every `text(...)` that is SQLAlchemy's `text`."""
-    bound, modules = _sqlalchemy_text_names(tree)
+    bound, modules = _sqlalchemy_text_names(statements)
     lines: list[int] = []
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
@@ -232,7 +231,8 @@ def analyse(
         counts["modules"] += 1
         tree = ast.parse(path.read_text(), filename=str(path))
 
-        roots = _module_roots(tree)
+        statements = imports_in(tree, package_of(path, package.parent))
+        roots = _module_roots(statements)
         if any(root == "sqlalchemy" for root, _ in roots):
             counts["sqlalchemy_modules"] += 1
 
@@ -256,7 +256,7 @@ def analyse(
                 )
 
         # CLAUSE 3 -- raw SQL with no declared reason
-        lines = _text_calls(tree)
+        lines = _text_calls(tree, statements)
         counts["text_calls"] += len(lines)
         if lines:
             seen_text_files.add(relative)
@@ -360,6 +360,15 @@ _MUTATIONS: dict[str, dict[str, str]] = {
             '    return session.execute(text("SELECT 1"))\n'
         )
     },
+    "local-module-named-like-a-driver": {
+        "application/sqlite3.py": "def connect():\n    return None\n",
+        "application/create_widget.py": (
+            "from .sqlite3 import connect\n\n\n"
+            "def create_widget(repository, widget):\n"
+            "    connect()\n"
+            "    repository.add(widget)\n"
+        ),
+    },
     "text-that-is-not-sql": {
         "application/create_widget.py": (
             "def create_widget(repository, response):\n"
@@ -426,6 +435,15 @@ def _control_cases() -> list[tuple[str, dict[str, str], int, str, str]]:
             "names no text() call",
             "a declaration for a file that makes no text() call is a finding, so the "
             "register cannot rot into prose nobody reads",
+        ),
+        (
+            "local-module-named-like-a-driver",
+            {},
+            0,
+            "",
+            "A RELATIVE IMPORT NAMES THE PACKAGE'S OWN MODULE. `from .sqlite3 import connect` "
+            "resolves through gate_common.imports_in to fixture_pkg.application.sqlite3; a "
+            "matcher that read node.module and dropped the level would call it the driver",
         ),
         (
             "text-that-is-not-sql",

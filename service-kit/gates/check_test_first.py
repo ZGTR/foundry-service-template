@@ -38,7 +38,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from gate_common import PACKAGE_ROOT, service_data_file, source_roots  # noqa: E402
+from gate_common import (  # noqa: E402
+    PACKAGE_ROOT,
+    imports_in,
+    package_of,
+    service_data_file,
+    source_roots,
+)
 
 ROOT = PACKAGE_ROOT
 #: Service-owned, outside the kit: an exemption is a statement about ONE
@@ -128,8 +134,15 @@ def named_module_strings(path: Path, modules: set[str]) -> set[str]:
     }
 
 
-def intra_package_imports(path: Path, package: str | tuple[str, ...]) -> set[str]:
+def intra_package_imports(
+    path: Path, package: str | tuple[str, ...], *, import_root: Path
+) -> set[str]:
     """Every `package.*` name this file imports, module and symbol form alike.
+
+    `import_root` is the `sys.path` directory the file is imported from (`src/` for a
+    package module, the repository root for a test), which is what a relative import is
+    resolved against through `gate_common.imports_in`. A relative edge dropped here
+    shrinks the closure, and a module reached only that way reads as untested.
 
     `package` may be ONE name or a tuple of them, because `str.startswith` accepts a tuple
     natively -- so a multi-package service widens the filter without changing the matcher.
@@ -148,12 +161,13 @@ def intra_package_imports(path: Path, package: str | tuple[str, ...]) -> set[str
         return set()
 
     found: set[str] = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith(package):
-            found.add(node.module)
-            found.update(f"{node.module}.{alias.name}" for alias in node.names)
-        elif isinstance(node, ast.Import):
-            found.update(a.name for a in node.names if a.name.startswith(package))
+    for statement in imports_in(tree, package_of(path, import_root)):
+        module = statement.module
+        if not module or not module.startswith(package):
+            continue
+        found.add(module)
+        if statement.is_from:
+            found.update(f"{module}.{name}" for name, _bound in statement.names)
     return found
 
 
@@ -294,7 +308,7 @@ def unreachable_modules(root: Path):
 
     seeds: set[str] = set()
     for test in test_files:
-        seeds |= intra_package_imports(test, package)
+        seeds |= intra_package_imports(test, package, import_root=root)
         seeds |= named_module_strings(test, set(modules))
 
     # Package `__init__` files: traversed, never judged. See `unreachable`'s docstring.
@@ -305,7 +319,7 @@ def unreachable_modules(root: Path):
         if p.name == "__init__.py"
     }
     edges = {
-        name: intra_package_imports(path, package)
+        name: intra_package_imports(path, package, import_root=src)
         for name, path in {**modules, **packages}.items()
     }
     for name, path in packages.items():
