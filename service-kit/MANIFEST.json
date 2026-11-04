@@ -20,7 +20,7 @@
     "service-kit/gates/check_docker_shared.py": "d938e24cb192cb4a2a387588ba684ee0fca2f10cd2c7491bb0f6661b56678f93",
     "service-kit/gates/check_folder_structure.py": "e159f1412dfd6b2005fefd3f62a3587136bf2c9327a2fae806e57ae4ae00cced",
     "service-kit/gates/check_kit_drift.py": "78c81faf3b1c0f34cab5b1529d0283f06c59e157bb3df3a90df3a7cfba1c75ed",
-    "service-kit/gates/check_layering.py": "17101073d81d239e4c9776a070e44977b1f4de572fc6814c18a1a3d09d949621",
+    "service-kit/gates/check_layering.py": "4be2f863585390dcf381ad594cb88dc20d2361958a69c86564018a4950ba59ea",
     "service-kit/gates/check_lifecycle.py": "4fcaf622986e6eb79b25f35fd429954f4d31593b77a594d882e5fbf49a009592",
     "service-kit/gates/check_mock_budget.py": "ef7af95a65867a8d0ed5bce283b7cb5ba4dcf659ecbce7f6e470439a60dccc14",
     "service-kit/gates/check_mvc_separation.py": "f6861621397ebbbbc318172f6ba036d9dd9f44286acf74fc837b550d52ca58f6",
@@ -166,5 +166,5 @@
       ".github/workflows/ci.yml": "050c634670e68d98c5db8c12e42ad80898ce88ffce70a529d19871cb105c6dbe"
     }
   },
-  "template_revision": "47324c553edbae8c67d8032f0afb0f8e105573b7"
+  "template_revision": "d46a7d34f10864e8a9e05f4196aefec9e7a2b45e"
 }
