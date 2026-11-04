@@ -237,11 +237,14 @@ def test_layering_accepts_a_name_its_package_binds_itself(
 
 
 @pytest.mark.parametrize("probe", ["from pkg.ports import store", "from ..ports import store"])
+@pytest.mark.parametrize(
+    "init", ["from . import store\n", "from pkg.ports import store\n", "from .. import ports\n"]
+)
 def test_layering_still_flags_a_submodule_the_package_only_imports(
-    tmp_path: Path, probe: str
+    tmp_path: Path, probe: str, init: str
 ) -> None:
-    """`from . import store` binds the module itself, so the edge is still the leaf."""
-    findings = _layering_findings(tmp_path, probe, ports="from . import store\n")
+    """An import from the package itself binds the module, so the edge is still the leaf."""
+    findings = _layering_findings(tmp_path, probe, ports=init)
     assert len(findings) == 1, findings
     assert "deep cross-submodule import pkg.ports.store" in findings[0]
 

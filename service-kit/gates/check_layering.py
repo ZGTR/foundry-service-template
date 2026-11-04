@@ -250,14 +250,15 @@ def _declared_exports(source: Path) -> list[str] | None:
     return exports
 
 
-def _bound_attributes(source: Path) -> set[str]:
+def _bound_attributes(source: Path, package: str) -> set[str]:
     """Names a package `__init__.py` binds itself at top level, so a member import reads them.
 
     `from pkg.domain import policy` returns whatever `pkg/domain/__init__.py` bound to
     `policy` -- a function re-exported by `from .policy import policy`, or `policy =
     object()` -- not the sibling module `policy.py`. Such a name goes through the
-    package's contract and stays the edge `pkg.domain`. `from . import policy` binds the
-    submodule itself and is not counted, so it is still promoted.
+    package's contract and stays the edge `pkg.domain`. An import whose source is the
+    package itself -- `from . import policy`, or `from pkg.domain import policy` --
+    binds the submodule and is not counted, so it is still promoted.
     """
     names: set[str] = set()
     for node in ast.parse(source.read_text()).body:
@@ -268,8 +269,14 @@ def _bound_attributes(source: Path) -> set[str]:
         elif isinstance(node, ast.AnnAssign) and node.value is not None:
             if isinstance(node.target, ast.Name):
                 names.add(node.target.id)
-        elif isinstance(node, ast.ImportFrom) and node.module is not None:
-            names.update(alias.asname or alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            if node.level:
+                base = package.rsplit(".", node.level - 1)[0] if node.level > 1 else package
+                origin = f"{base}.{node.module}" if node.module else base
+            else:
+                origin = node.module or ""
+            if origin != package:
+                names.update(alias.asname or alias.name for alias in node.names)
     return names - {"__all__", "*"}
 
 
@@ -333,7 +340,7 @@ def _imports(
             module != package and source is not None and source.name == "__init__.py"
         )
         published = (
-            set(_declared_exports(source) or []) | _bound_attributes(source)
+            set(_declared_exports(source) or []) | _bound_attributes(source, module)
             if below_root_package
             else set()
         )
