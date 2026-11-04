@@ -651,14 +651,12 @@ pip install --require-hashes -r requirements/service.lock
 pip install --no-deps -e .
 pip install --require-hashes -r requirements/test.lock
 export PYTHONPATH=service-kit/vendor
+bash -e <<'SH'                         # stops at the first failing check
 ruff check src tests scripts service-kit
-failed=0
-for gate in service-kit/gates/check_*.py; do
-  python "$gate" || [ "$?" -eq 3 ] || { echo "FAILED: $gate"; failed=1; }
-done
-[ "$failed" -eq 0 ]
+for gate in service-kit/gates/check_*.py; do python "$gate" || [ "$?" -eq 3 ]; done
 pytest tests
 bash scripts/check_service_iac.sh      # needs terraform or tofu on PATH
+SH
 ```
 
 Exit code 3 from a gate means "skipped, with the reason printed"; CI treats it the same way.

@@ -6,15 +6,16 @@ Follow "Verify" in `README.md`. Before a pull request, run from the repository r
 
 ```bash
 export PYTHONPATH=service-kit/vendor
+bash -e <<'SH'                         # stops at the first failing check
 ruff check src tests scripts service-kit
-failed=0
-for gate in service-kit/gates/check_*.py; do
-  python "$gate" || [ "$?" -eq 3 ] || { echo "FAILED: $gate"; failed=1; }
-done
-[ "$failed" -eq 0 ]                       # exit 3 is a named skip; any other non-zero is red
+for gate in service-kit/gates/check_*.py; do python "$gate" || [ "$?" -eq 3 ]; done
 pytest tests
 bash scripts/check_service_iac.sh      # needs terraform or tofu on PATH
+SH
 ```
+
+A gate that exits 3 printed a named skip and is tolerated; any other non-zero exit
+stops the run.
 
 The tests use real PostgreSQL, Redis and AWS endpoints started through Docker Compose,
 not mocks. A skipped test is not a pass: CI sets `REQUIRE_REAL_RESOURCES=1`, so fix the
