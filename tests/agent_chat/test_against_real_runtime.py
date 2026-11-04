@@ -6,7 +6,8 @@ tools to the template webhook. A `note:` turn through the BFF must commit exactl
 row and emit `state.patch` and `artifact`; a turn whose fact cannot be staged must
 commit nothing and emit no artifact.
 
-Opt-in: set FOUNDRY_AGENT_STEPS to a foundry-agent `steps/` checkout with its `.venv`.
+Opt-in: set FOUNDRY_AGENT to a foundry-agent checkout (repository root) with its `.venv`;
+the step API runs from it with `SERVICE_MODE=steps`.
 Without it this module skips by name; it is a cross-repository proof, not a unit test.
 """
 
@@ -33,10 +34,10 @@ from sqlalchemy import create_engine, select, text
 
 from tests.support.agent_chat_product import NOTES, SECRET, Product, counts
 
-STEPS = os.environ.get("FOUNDRY_AGENT_STEPS")
+AGENT = os.environ.get("FOUNDRY_AGENT")
 pytestmark = pytest.mark.skipif(
-    not STEPS, reason="real-runtime proof skipped: FOUNDRY_AGENT_STEPS is not set")
-DEFINITION = "tests/fixtures/conversation/intake-assistant.conversation.json"
+    not AGENT, reason="real-runtime proof skipped: FOUNDRY_AGENT is not set")
+DEFINITION = "tests/steps/fixtures/conversation/intake-assistant.conversation.json"
 
 
 def free_port() -> int:
@@ -74,12 +75,12 @@ def runtime_database(real_profile):
 
 @pytest.fixture
 def stack(engine, runtime_database, tmp_path):
-    steps = Path(STEPS)
-    python = str(steps / ".venv" / "bin" / "python")
+    root = Path(AGENT)
+    python = str(root / ".venv" / "bin" / "python")
     product = Product()
     app_port, model_port, runtime_port = free_port(), free_port(), free_port()
     issuer = f"http://127.0.0.1:{app_port}"
-    definition = json.loads((steps / DEFINITION).read_text())
+    definition = json.loads((root / DEFINITION).read_text())
     pem = ec.generate_private_key(ec.SECP256R1()).private_bytes(
         serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8,
         serialization.NoEncryption()).decode()
@@ -102,7 +103,8 @@ def stack(engine, runtime_database, tmp_path):
     threading.Thread(target=server.run, daemon=True).start()
 
     (tmp_path / "secret").write_text(SECRET)
-    env = {**os.environ, "PYTHONPATH": f"{steps / 'src'}:{steps}", "SERVICE_ENV": "local",
+    env = {**os.environ, "PYTHONPATH": f"{root / 'src'}:{root}", "SERVICE_MODE": "steps",
+           "SERVICE_ENV": "local",
            "RECEIPT_STORE_BACKEND": "postgres", "RECEIPT_STORE_DATABASE_URL": runtime_database,
            "AUTH_JWKS_URI": f"{issuer}/api/agent-chat/jwks.json", "AUTH_AUDIENCE": "agent-chat",
            "PRINCIPAL_ISSUER": issuer, "MODEL_API_BASE_URL": f"http://127.0.0.1:{model_port}/v1",
@@ -112,20 +114,20 @@ def stack(engine, runtime_database, tmp_path):
            "CONVERSATION_TOOL_WEBHOOK_SECRET_FILE": str(tmp_path / "secret")}
     logs = (tmp_path / "model.log").open("w"), (tmp_path / "runtime.log").open("w")
     subprocess.run([python, "-m", "foundry_agent_runtime.composition.migrate_receipt_store"],
-                   cwd=steps, env=env, check=True, capture_output=True)
+                   cwd=root, env=env, check=True, capture_output=True)
     commands = (
-        ["-m", "tests.support.fake_chat_server", "--port", str(model_port),
+        ["-m", "tests.steps.support.fake_chat_server", "--port", str(model_port),
          "--chunk-delay", "0.04"],
         ["-m", "uvicorn", "foundry_agent_runtime.composition.main:app", "--host", "127.0.0.1",
          "--port", str(runtime_port), "--log-level", "warning"],
     )
-    procs = [subprocess.Popen([python, *argv], cwd=steps, env=env, stdout=log, stderr=log)
+    procs = [subprocess.Popen([python, *argv], cwd=root, env=env, stdout=log, stderr=log)
              for argv, log in zip(commands, logs, strict=True)]
     try:
         wait_for(f"{issuer}/api/agent-chat/jwks.json")
         wait_for(f"http://127.0.0.1:{model_port}/calls", procs[0])
         wait_for(f"http://127.0.0.1:{runtime_port}/health/live", procs[1])
-        yield issuer, product, steps
+        yield issuer, product, root
     finally:
         for proc in procs:
             proc.terminate()
@@ -149,10 +151,10 @@ def turn(base: str, cid: str, said: str) -> list[tuple[float, dict]]:
 
 
 def test_a_note_turn_commits_one_row_and_streams_the_display_events(stack, engine):
-    base, _, steps = stack
+    base, _, root = stack
     import jsonschema
 
-    schema = json.loads((steps / "contracts" / "agent-chat-stream.v1.json").read_text())
+    schema = json.loads((root / "contracts" / "agent-chat-stream.v1.json").read_text())
     arrived = turn(base, "conv-note", "note: water the plants on Friday")
     events = [event for _, event in arrived]
     for event in events:

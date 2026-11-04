@@ -696,8 +696,8 @@ AgentChat is a streaming chat whose agent runs in the product's own installation
 The adapter lives under `docs/` because the folder-structure gate allows a closed set of
 top-level directories and one package under `src/`. Its tests are in `tests/agent_chat/`.
 `test_against_real_runtime.py` runs the template as the real runtime's BFF and webhook
-when `FOUNDRY_AGENT_STEPS` names a `foundry-agent/steps` checkout with its `.venv`;
-otherwise it skips by name.
+when `FOUNDRY_AGENT` names a `foundry-agent` checkout (repository root, with its `.venv`;
+the step API runs with `SERVICE_MODE=steps`); otherwise it skips by name.
 
 ## Deliberate scope boundaries
 
