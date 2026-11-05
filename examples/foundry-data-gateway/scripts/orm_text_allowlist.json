@@ -1,0 +1,23 @@
+{
+  "_why": [
+    "Every deliberate escape from the ORM into raw SQL, one entry per file.",
+    "check_orm_standard.py clause 3 reads this and FAILS CLOSED IN BOTH",
+    "DIRECTIONS: a text() call under src/ with no entry here is a finding, and an",
+    "entry naming a file that makes no text() call is a finding too. A stale",
+    "exemption reads as review and is not.",
+    "",
+    "IT SHIPS EMPTY, DELIBERATELY. An exemption mechanism written the day the",
+    "first exemption arrives is a mechanism nobody has ever run, so the drift",
+    "check above is live now, against zero entries, and the gate's own controls",
+    "exercise both directions of it on every invocation.",
+    "",
+    "'path' is '<package>/<path relative to src/<package>/>' -- package-qualified,",
+    "because a repository may ship more than one package and a bare relative path",
+    "would let an entry written for one be satisfied by a same-named file in a",
+    "sibling. An entry whose first segment names no package under src/ is a",
+    "finding, so the old unqualified form is rejected rather than silently",
+    "accepted. 'reason' must say why the ORM cannot express this, not that raw SQL",
+    "was faster to write."
+  ],
+  "allowed": []
+}

@@ -1,0 +1,493 @@
+# CI/CD for foundry-data-gateway.
+#
+# Every job through `build` runs on every push -- no AWS credentials, no spend.
+# `deploy-dev` runs ONLY on an explicit `workflow_dispatch`, matching this
+# estate's rule that no agent or pipeline triggers a deploy automatically, and
+# it is gated a second time by a GitHub environment protection rule.
+#
+# `new_service.sh` emits this file into every service it creates, with every
+# `foundry-data-gateway` above renamed by the same pass that renames the
+# Python module -- so a service with its own extra deploy-time grant (the
+# model gateway's MODEL_MODE/ALLOWED_MODELS/BEDROCK_MODEL_ARNS, for one)
+# adds those env vars and the matching `scripts/check_service_iac.sh` arm
+# itself; this file only carries what every emitted service needs.
+#
+# If the account this repo deploys to has its Actions billing blocked, every
+# run fails in seconds before a step executes regardless of what this file
+# says -- check the account's own billing status before reading a red run here
+# as a regression in the service.
+
+name: foundry-data-gateway
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: "Environment to deploy to (dev/staging/prod)"
+        required: true
+        default: "dev"
+        type: choice
+        options: [dev, staging, prod]
+
+jobs:
+  gate:
+    name: lint + test (no AWS, no spend)
+    runs-on: ubuntu-latest
+    # The vendored contracts package is resolved by path in every step, exactly as
+    # the container resolves it: vendor/foundry_contracts is a plain package
+    # directory, not a distribution, so it cannot be pip-installed.
+    env:
+      # `service-kit/vendor`, not `vendor`. The kit move (245127e) took the
+      # vendored contracts package with it and left this value naming a path that
+      # does not exist -- `ls vendor` is No such file. pytest did not notice,
+      # because pyproject's own `pythonpath` lists the real location, so the
+      # suite stayed green while every NON-pytest step in this job (the gates,
+      # prove_seeded_tests.py) ran with a dead entry on its import path.
+      PYTHONPATH: service-kit/vendor
+      # A skip is not a pass, and this is where that is enforced in CI. Without
+      # it the AWS and Redis fixtures skip whenever their resource is missing and
+      # the job stays green -- which is what happened here: no run had ever
+      # started LocalStack, so four SQS arms and one Redis arm had never executed
+      # in CI at all. The resources now come up from the DECLARATION in
+      # pyproject's [tool.foundry.test-resources], through docker compose, which
+      # ubuntu-latest can run; that is why there is no `services:` block here.
+      # One bring-up authority, the same one a developer gets locally.
+      REQUIRE_REAL_RESOURCES: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The locked third-party graph first, then this package without dependency
+      # resolution, then the locked test tools. `pip install ./vendor/foundry_contracts
+      # || pip install ./contracts` stood here while the template lived in the
+      # monorepo; neither arm could succeed (no pyproject in vendor/, no contracts/
+      # directory), so this job could never have passed Install.
+      #
+      # THE TEST TOOLS ARE HASHED TOO, as of an earlier change. This line read
+      # `pip install "httpx>=0.27" "jsonschema>=4.20" "moto[server]>=5.0"
+      # "redis>=5.0" ruff pytest` -- resolved fresh on every run, from whatever
+      # the index served that day, beside a runtime graph pinned by digest. The
+      # supply-chain argument that produced `service.lock` applies unchanged to
+      # the harness: a test runner that can change underneath a green suite is a
+      # green suite that means less than it looks like. `--require-hashes` is
+      # all-or-nothing per invocation, which is why this is a second lock and a
+      # second `pip install` rather than more lines in `service.in` -- the
+      # container image must not carry pytest.
+      #
+      # `ruff` is NOT in that lock and is installed separately on purpose: it is a
+      # linter whose version is a style decision, not part of the harness whose
+      # reproducibility the suite's verdict depends on.
+      - name: Install
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install --require-hashes -r requirements/service.lock
+          pip install --no-deps -e .
+          pip install --require-hashes -r requirements/test.lock
+          pip install ruff
+
+      - name: Lint
+        run: . .venv/bin/activate && ruff check src tests scripts service-kit
+
+      # THE v2 CONTRACT GATES (README.md, "Service module contract" §9).
+      #
+      # Deliberately not "THE SIX", which this heading said while the steps below
+      # it numbered six and the template's gate directory held eight. A count in a
+      # heading is a second, unmaintained claim about a list the reader can see:
+      # `scripts/new_service.sh` makes the same mistake in the same estate, and
+      # `.claude/CLAUDE.md`'s own rule count had already rotted once. Every
+      # `service-kit/gates/check_*.py` gets a step here; nothing asserts the number.
+      #
+      # Each is a SEPARATE step, deliberately. Chained with `&&` the first red
+      # gate aborts the rest and the job's verdict keeps its full apparent scope
+      # -- the multi-arm-gate defect .claude/CLAUDE.md opens with. Separate steps
+      # make the Actions UI say which gates ran and which never did.
+      #
+      # Exit codes: 0 green, 1 finding, 2 refusal, 3 named skip. A 3 is tolerated
+      # EXPLICITLY (`|| [ "$?" -eq 3 ]`) and never silently: it means a required
+      # input is genuinely absent in this checkout, and the gate says which.
+      - name: "Gate: layering (§1 dependency direction + submodule contracts)"
+        run: . .venv/bin/activate && python service-kit/gates/check_layering.py || [ "$?" -eq 3 ]
+
+      - name: "Gate: MVC separation (§2 model/view/controller/schema)"
+        run: . .venv/bin/activate && python service-kit/gates/check_mvc_separation.py || [ "$?" -eq 3 ]
+
+      - name: "Gate: size limits (§4)"
+        run: . .venv/bin/activate && python service-kit/gates/check_size_limits.py || [ "$?" -eq 3 ]
+
+      - name: "Gate: mock budget (§7 ratchet, may only shrink)"
+        run: . .venv/bin/activate && python service-kit/gates/check_mock_budget.py || [ "$?" -eq 3 ]
+
+      - name: "Gate: shared docker folder (§5, entrypoint forwards \"$@\")"
+        run: . .venv/bin/activate && python service-kit/gates/check_docker_shared.py || [ "$?" -eq 3 ]
+
+      - name: "Gate: production lifecycle (§6 declared and tested)"
+        run: . .venv/bin/activate && python service-kit/gates/check_lifecycle.py || [ "$?" -eq 3 ]
+
+      # §16. The three routes by which hand-written SQL comes back one file at a
+      # time: a DBAPI driver imported outside `engine_factory.py`, a second
+      # declarative base that `migrations/env.py` cannot see, and a `text()` call
+      # nobody had to justify. Exit 3 is the named skip for a service with no
+      # `migrations/` directory, which is a service that owns no schema.
+      - name: "Gate: ORM standard (§16 SQLAlchemy 2, no raw SQL, no second base)"
+        run: . .venv/bin/activate && python service-kit/gates/check_orm_standard.py || [ "$?" -eq 3 ]
+
+      # S13/S14. This gate and the whole seeded tier were dropped when the
+      # template was extracted into its own repository and were absent for six
+      # revisions without a single red signal -- a missing test tier is silent by
+      # construction. A step here is what makes its absence cost something.
+      - name: "Gate: seeded + e2e tiers (S13/S14 corpus, edge codes, journey seam)"
+        run: . .venv/bin/activate && python service-kit/gates/check_seeded_tests.py || [ "$?" -eq 3 ]
+
+      - name: "Gate: test-first import closure (§8)"
+        run: . .venv/bin/activate && python service-kit/gates/check_test_first.py || [ "$?" -eq 3 ]
+
+      # S18. The three edges where externally-shaped data becomes Python: the
+      # ENVIRONMENT at the composition root, the WIRE under
+      # `transport/http/schemas/`, and a provider's JSON envelope inside a real
+      # adapter. All three are parsed by a declared pydantic type, and `domain/`
+      # imports none of it.
+      #
+      # It DISCOVERS the config root by basename rather than naming
+      # `composition/config.py`. Measured over the estate on 2026-09-18, that
+      # path matches 7 of 9 services and reads as complete: model-foundry keeps
+      # its config at the package root and workflow-restate calls it
+      # settings.py, so a hardcoded path judges neither and reports both clean.
+      # A service where discovery finds no root is exit 2, a REFUSAL, never a
+      # skip -- "found no violation" and "looked at nothing" are otherwise the
+      # same output.
+      - name: "Gate: pydantic boundaries (S18 config/wire/envelope, domain clean)"
+        run: . .venv/bin/activate && python service-kit/gates/check_pydantic_boundaries.py || [ "$?" -eq 3 ]
+
+      # §5. One folder shape across the estate, and the clause with teeth is not
+      # the tidy listing -- it is that a Dockerfile or compose file outside
+      # `service-kit/docker/` or `deploy/` is a finding. A root Dockerfile is how
+      # a service quietly stops using the kit's image while every drift gate
+      # still passes, because check_kit_drift.py compares the kit against its
+      # manifest and a file OUTSIDE the kit is invisible to it.
+      - name: "Gate: folder structure (§5, one shape, kit-or-deploy container files)"
+        run: . .venv/bin/activate && python service-kit/gates/check_folder_structure.py || [ "$?" -eq 3 ]
+
+      # §4. How MANY classes one module declares, which check_size_limits.py
+      # does not ask -- it caps how LONG each one is. Five 30-line classes in a
+      # file break no length ceiling and are still what makes a service
+      # unnavigable, because the filename stops predicting the contents.
+      # An exception family is exempt STRUCTURALLY, not by a list: eight errors
+      # deriving from one base are one idea at eight values, and splitting them
+      # would satisfy a flat count while making the code worse.
+      - name: "Gate: class density (§4, one file one idea, exception families exempt)"
+        run: . .venv/bin/activate && python service-kit/gates/check_class_density.py || [ "$?" -eq 3 ]
+
+      # A test that deadlocks does not fail. It stops, and the job is killed from
+      # outside with no line naming the wait: one service's suite hung for 25
+      # minutes that way. `lock.acquire()`, `thread.join()` and
+      # `event.wait()` have no deadline unless one is passed, and `with lock:`
+      # cannot be given one, so test code goes through foundry_testkit.timed.
+      - name: "Gate: untimed waits (test code may not wait without a deadline)"
+        run: . .venv/bin/activate && python service-kit/gates/check_untimed_waits.py || [ "$?" -eq 3 ]
+
+      # S15. The kit is template-owned and byte-identical across services, which
+      # is the only thing that makes "run the gate, get the same answer" true
+      # estate-wide. This step is what makes a local edit to it cost something.
+      #
+      # It cannot catch an author who edits a kit file AND re-emits the manifest,
+      # because both sides of that comparison then come from the same edited
+      # tree. The monorepo's check_service_kit_parity.py compares this manifest
+      # against the template's own at the declared revision, which is the half
+      # that needs a second party.
+      - name: "Gate: service-kit drift (§15 manifest matches the tree)"
+        run: . .venv/bin/activate && python service-kit/gates/check_kit_drift.py || [ "$?" -eq 3 ]
+
+      # The vendored platform packages reproduce the content_sha256 their
+      # VENDOR.json records. This was the one kit gate with no step: it was red on
+      # this template for four days while CI stayed green,
+      # because two commits re-copied the bytes by hand and left the record behind.
+      # `scripts/vendor_package.py` now writes both in one step; this is the reader.
+      # tests/shape/test_ci_runs_every_kit_gate.py keeps every kit gate here.
+      - name: "Gate: vendored copies reproduce VENDOR.json (content_sha256)"
+        run: . .venv/bin/activate && python service-kit/gates/check_vendor_digests.py || [ "$?" -eq 3 ]
+
+      # A BREAKING CHANGE INSIDE A MAJOR VERSION IS REFUSED.
+      # `scripts/export_openapi.py` writes `contracts/openapi/v1.json` and the suite's
+      # `tests/shape/test_openapi_contract.py` keeps it equal to what the app serves, so
+      # the committed file is the contract. This step compares the BASE's committed spec
+      # (a pull request's target branch, else the branch tip before the push) against
+      # this tree's with `oasdiff breaking --fail-on ERR`: removing or narrowing an
+      # operation is red, adding one is not, and removing an operation that was
+      # `deprecated: true` with a past `x-sunset` date is not -- the route by which a
+      # retired `/v1` path finally leaves.
+      #
+      # A spec still at `openapi/v1.json`, the estate directory's default, is compared at
+      # that path, and the change that moves it to the kit's path is compared across the
+      # move. The folder-structure gate above refuses a top-level `openapi/`, so in a
+      # service that runs this workflow that path is a step on the way, not a place to
+      # stay. Both files on one side is a refusal.
+      #
+      # Exit 3 is a named skip, tolerated explicitly like the gates above: the base has
+      # no spec at either path (the change that first commits one, or a service that has
+      # synced this workflow before adopting the export), or there is no base to compare with.
+      #
+      # oasdiff is pinned by the sha256 of its 1.33.0 release tarball, inside the
+      # script, and a mismatch installs nothing. It is a release binary rather than a
+      # marketplace action so the same command runs here and on a laptop.
+      - name: "Install oasdiff 1.33.0 (release tarball, sha256-pinned)"
+        run: bash service-kit/ci/openapi_breaking.sh install "$RUNNER_TEMP/oasdiff-bin" && echo "$RUNNER_TEMP/oasdiff-bin" >> "$GITHUB_PATH"
+
+      - name: "Contract: no breaking OpenAPI change inside a major (oasdiff breaking, base spec vs this tree)"
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: bash service-kit/ci/openapi_breaking.sh compare || [ "$?" -eq 3 ]
+
+      # The SERVICE's own gates: every scripts/check_*.py, by glob.
+      # This workflow is a kit placement, so a service cannot add a step for a gate of
+      # its own without going red on kit drift; this step is where such gates run. A
+      # service gate's named skip (exit 3) is tolerated and counted; 1, 2, a crash or a
+      # timeout is red. The runner exits 2 only if its own control fails.
+      - name: "Gate: the service's own scripts/check_*.py"
+        run: . .venv/bin/activate && python service-kit/gates/check_service_gates.py
+
+      # The gate above only asks whether the seeded suites are well-FORMED. This
+      # asks whether they BITE: it neutralises the tenancy and provenance
+      # behaviour each suite claims to cover and requires the suite to go red,
+      # printing the baseline and restore arms and the collected count per arm so
+      # an all-red table cannot be mistaken for proof.
+      - name: "Proof: seeded suites go red under mutation"
+        run: . .venv/bin/activate && python scripts/prove_seeded_tests.py
+
+      - name: Test (full suite, void-check the count)
+        run: |
+          . .venv/bin/activate
+          # DO NOT add -q (or -qq, or --no-header) to either pytest call below.
+          # Both steps PARSE pytest's summary lines -- 'N tests collected' and
+          # 'N passed' -- and a verbosity flag suppresses exactly those lines, at
+          # exit 0, with a command that reads fine in review. The captured value
+          # then comes back empty and the guard below turns a green suite red.
+          #
+          # An earlier version of this comment gave a DIFFERENT reason: that
+          # pyproject's addopts already supplies a -q and flags ACCUMULATE into an
+          # effective -qq. It was then corrected to "that is false here", on the
+          # measurement that no addopts exists in this package or in any emitted
+          # service -- pyproject.toml contains zero, and pytest.ini, setup.cfg and
+          # tox.ini do not exist.
+          #
+          # BOTH of those are half right, and the correction was wrong about the
+          # half that matters. THE ABSENCE OF addopts IN THIS PACKAGE IS NOT THE
+          # ABSENCE OF addopts IN THE RUN. This package has no
+          # [tool.pytest.ini_options] at all, so pyproject.toml is not an inifile
+          # candidate and pytest CLIMBS to find one. In the Foundry monorepo,
+          # where this repository is pinned as a submodule at
+          # ., it lands on
+          # platform/pyproject.toml, whose addopts begins `-q`.
+          #
+          # Measured 2026-09-17 from that checkout:
+          # `pytest tests/seeded tests/e2e -q --no-header` over 23 PASSING tests
+          # printed the dots, a warnings block and NO summary line, at exit 0 --
+          # the -qq the correction said could not happen. The same command in a
+          # service emitted by scripts/new_service.sh printed "23 passed", because
+          # there the rootdir is the service and nothing above it contributes.
+          # scripts/prove_seeded_tests.py hit exactly this and no longer passes -q.
+          #
+          # So the conclusion the old comment reached is right and its reasoning
+          # was not, which matters because the two imply opposite actions: an
+          # author who checks this pyproject, finds no addopts, and concludes -q is
+          # now safe is reading the wrong file. The parsing constraint is
+          # unconditional and belongs to these steps. In CI the point is moot --
+          # actions/checkout gives a standalone checkout with no parent to climb
+          # to -- and that is precisely why a local run is where this bites, and
+          # why "it works in CI" is not evidence about it.
+          #
+          # This is the ROOT copy. The same false comment reached every emitted
+          # service from here, which is why it is corrected at the template
+          # rather than only where it was noticed.
+          collected=$(pytest tests --collect-only | grep -oE '[0-9]+ tests? collected' | grep -oE '^[0-9]+')
+          if [ -z "$collected" ] || [ "$collected" -lt 1 ]; then
+            echo "gate: collected '$collected' tests -- a zero-collection run exits 0 and looks green"
+            exit 1
+          fi
+          pytest tests --tb=short | tee /tmp/pytest.log
+          passed=$(grep -oE '[0-9]+ passed' /tmp/pytest.log | tail -1 | grep -oE '^[0-9]+')
+          if [ -z "$passed" ]; then
+            echo "gate: no passing summary line -- treating as failure"
+            exit 1
+          fi
+          echo "gate: $passed passed of $collected collected"
+
+  iac:
+    name: terraform validate + serverless print (no AWS, no spend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      # One script, not a list of inline steps, so the identical arms run here
+      # and locally.
+      - name: Validate this service's IaC
+        run: bash scripts/check_service_iac.sh
+
+  build:
+    name: build image, tag by commit sha
+    needs: [gate, iac]
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: tag
+        run: echo "image_tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      # Built through `deploy/compose.yml`, never with a bare `docker build`. The kit's
+      # Dockerfile is generic and takes two per-service args -- SERVICE_PACKAGE (which
+      # package under `src/`; it refuses to build without one) and HAS_MIGRATIONS
+      # (whether `migrations/` and `alembic.ini` ship; default `no`). This workflow is a
+      # kit PLACEMENT, byte-identical in every service, so it cannot hold either value,
+      # and `deploy/compose.yml` already does. A `docker build` here had to repeat them:
+      # after b547768 it repeated SERVICE_PACKAGE and not HAS_MIGRATIONS, so the image
+      # this workflow pushes for a schema-owning service shipped without its migrations
+      # while the local compose image carried them. One authority, read
+      # by both builds below.
+      - name: Build (no push -- ECR push needs deploy-gated credentials)
+        env:
+          SERVICE_IMAGE: foundry-data-gateway:${{ steps.tag.outputs.image_tag }}
+        run: docker compose -f deploy/compose.yml build service
+
+  deploy-dev:
+    name: push to ECR + deploy (manual dispatch only)
+    needs: build
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }} # protection rule gates this job on manual approval
+    # The one function this job deploys, named once: the rollback target is read
+    # from it, the smoke asks it and the rollback redeploys it.
+    env:
+      FUNCTION_NAME: foundry-data-gateway-${{ inputs.target_environment }}-api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # BEFORE anything is pushed or deployed: the digest the function runs now is
+      # the only rollback target this job will ever have. An empty value means the
+      # function does not exist yet (first deploy); any other AWS error stops the job
+      # here, because a deploy that cannot name its rollback target must not start.
+      - name: Record the running image (rollback target)
+        id: previous
+        run: bash service-kit/ci/lambda_release.sh previous-image "$FUNCTION_NAME" >> "$GITHUB_OUTPUT"
+
+      # Also BEFORE the push: every variable deploy/deploy_env.json declares is read
+      # from its named SSM parameter or Secrets Manager secret, and an absent or empty
+      # one stops the job here, naming each. Values are masked and never written to
+      # the workflow, $GITHUB_ENV or disk; the deploy and the rollback read them again
+      # through the same script, which hands them only to the command it runs.
+      - name: Resolve the declared deploy configuration (SSM / Secrets Manager)
+        env:
+          STAGE: ${{ inputs.target_environment }}
+        run: python3 service-kit/ci/deploy_env.py check "$STAGE"
+
+      - name: Build, tag by digest, push
+        id: push
+        run: |
+          IMAGE="${{ steps.ecr.outputs.registry }}/foundry-data-gateway:${{ needs.build.outputs.image_tag }}"
+          SERVICE_IMAGE="$IMAGE" docker compose -f deploy/compose.yml build service
+          docker push "$IMAGE"
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE")
+          echo "image_uri=$DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy Lambda (serverless)
+        id: deploy
+        # `working-directory` is not tidiness: the Serverless Framework REFUSES a
+        # config that is not in the working directory. `scripts/check_service_iac.sh`
+        # arm 7 pins this, because the failure would otherwise surface AFTER the
+        # image was built and pushed.
+        working-directory: deploy/iac
+        env:
+          IMAGE_URI: ${{ steps.push.outputs.image_uri }}
+          # The service's rule on the estate's shared internal listener. The
+          # internal-edge stack owns the listener and the zone and publishes both
+          # under /foundry/<Stage>/network/; deploy/deploy_env.json declares them,
+          # so neither is a step value here, and `deploy_env.py exec` refuses one that
+          # is. The priority is this service's row in the service directory, and an
+          # unset one is refused before serverless runs.
+          LISTENER_RULE_PRIORITY: ${{ vars.LISTENER_RULE_PRIORITY }}
+          # COMMS-FLAVOUR-STRIP:BEGIN: no queue for comms services
+          SQS_QUEUE_URL: ${{ vars.SQS_QUEUE_URL }}
+          SQS_QUEUE_ARN: ${{ vars.SQS_QUEUE_ARN }}
+          # COMMS-FLAVOUR-STRIP:END
+          STAGE: ${{ inputs.target_environment }}
+        run: >-
+          python3 ../../service-kit/ci/deploy_env.py exec "$STAGE" --
+          npx --yes serverless@3 deploy --stage "$STAGE" --config serverless.yml
+
+      # The URL comes from the stack's `ApiUrl` output (deploy/iac/serverless.yml).
+      # The script refuses when the stack or the output cannot be read, so this step
+      # goes red instead of handing the smoke an empty URL.
+      #
+      # For a service with private ingress that URL is a name in the estate's private
+      # zone, which a GitHub-hosted runner cannot resolve. Such a service declares
+      # `"transport": "invoke"` in deploy/smoke.json and the smoke below asks the
+      # function itself; the URL then only names the host the event carries.
+      - name: Read the deployed API URL (stack output ApiUrl)
+        id: url
+        env:
+          STACK_NAME: foundry-data-gateway-${{ inputs.target_environment }}
+        run: bash service-kit/ci/lambda_release.sh api-url "$STACK_NAME" >> "$GITHUB_OUTPUT"
+
+      # Two arms against the deployed service, declared per service in deploy/smoke.json: a
+      # success route (readiness, in the template) and a protected route that must
+      # refuse a caller with no credentials. A 2xx on the second arm means auth is
+      # not wired, and that is red. No answer after the cold-start retries, or no
+      # declaration, is exit 2, never a pass.
+      - name: Smoke (one success, one expected denial)
+        env:
+          API_URL: ${{ steps.url.outputs.api_url }}
+        # The job's FUNCTION_NAME is read only when the service declares the invoke
+        # transport; an http smoke ignores it. An invoke smoke shows the function
+        # answers and refuses; it does not exercise anything in front of the function
+        # (the listener rule, the target group, the security groups, DNS, TLS), and
+        # its last line says so.
+        run: python3 service-kit/ci/smoke.py "$API_URL" --function-name "$FUNCTION_NAME"
+
+      # Runs when the deploy LANDED and anything after it failed: a red smoke, or a
+      # URL that could not be read, which leaves an unverified release live. Not on a
+      # failed deploy step itself -- CloudFormation rolls that back on its own.
+      # The env block repeats the deploy step's, because the redeploy re-resolves
+      # serverless.yml and an omitted variable would deploy as empty; the declared
+      # SSM / Secrets Manager variables come through deploy_env.py exactly as they
+      # did for the deploy.
+      # IMAGE_URI is the previous image too: serverless.yml needs it with no default,
+      # and deploy_env.py exec refuses a step that leaves it unset, before
+      # lambda_release.sh can redeploy. With no recorded image
+      # (first deploy) it is empty, so exec refuses naming IMAGE_URI rather than the
+      # script saying no rollback happened; the job stays red either way, because the
+      # smoke was red.
+      - name: Rollback on red smoke
+        if: failure() && steps.deploy.outcome == 'success'
+        env:
+          PREVIOUS_IMAGE: ${{ steps.previous.outputs.image_uri }}
+          IMAGE_URI: ${{ steps.previous.outputs.image_uri }}
+          STAGE: ${{ inputs.target_environment }}
+          LISTENER_RULE_PRIORITY: ${{ vars.LISTENER_RULE_PRIORITY }}
+          # COMMS-FLAVOUR-STRIP:BEGIN: no queue for comms services
+          SQS_QUEUE_URL: ${{ vars.SQS_QUEUE_URL }}
+          SQS_QUEUE_ARN: ${{ vars.SQS_QUEUE_ARN }}
+          # COMMS-FLAVOUR-STRIP:END
+        run: >-
+          python3 service-kit/ci/deploy_env.py exec "$STAGE" --
+          bash service-kit/ci/lambda_release.sh rollback "$PREVIOUS_IMAGE" "$STAGE" "$FUNCTION_NAME"

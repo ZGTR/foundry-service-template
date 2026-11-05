@@ -1,0 +1,18 @@
+# The build context is the repository root (deploy/compose.yml and
+# service-kit/docker/compose/service.yml both say `context` .. to it), and the
+# Dockerfile COPYs whole trees -- `src/${SERVICE_PACKAGE}`, `service-kit/vendor/`,
+# `migrations`. Without this file a LOCAL build carries whatever the working tree
+# holds beside the source: bytecode, virtualenvs, tool caches. Bytecode is the one
+# that changes behaviour: a mutant restored within the same second at the same size
+# leaves a .pyc whose header still matches the restored source, so an image built
+# for a mutation proof's "restore" arm ran the mutant (measured in llm-gateway,
+# an earlier change). CI checkouts are clean, so this protects local proof, not
+# production bytes -- and it keeps both built from the same inputs.
+**/__pycache__
+**/*.pyc
+**/*.pyo
+.venv
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+.git

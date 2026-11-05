@@ -1,0 +1,86 @@
+{
+  "tools/list": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "tools": [
+        {
+          "name": "list_subjects",
+          "description": "List the catalogue's learning subjects, optionally for one age group.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "age_group": {
+                "type": "string",
+                "enum": [
+                  "3-4",
+                  "5-6",
+                  "7-8"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "subject_progress",
+          "description": "Per-learner progress in one subject for the caller's school: bytes completed and average score.",
+          "inputSchema": {
+            "type": "object",
+            "required": [
+              "subject_slug"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "subject_slug": {
+                "type": "string",
+                "maxLength": 64
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "tools/call": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\": true, \"tool\": \"list_subjects\", \"row_count\": 2, \"columns\": [\"slug\", \"title_en\", \"title_ar\", \"age_group\", \"bytes\"], \"rows\": [{\"slug\": \"animals\", \"title_en\": \"Animals Around Us\", \"title_ar\": \"\\u0627\\u0644\\u062d\\u064a\\u0648\\u0627\\u0646\\u0627\\u062a \\u0645\\u0646 \\u062d\\u0648\\u0644\\u0646\\u0627\", \"age_group\": \"5-6\", \"bytes\": 4}, {\"slug\": \"arabic-words\", \"title_en\": \"First Arabic Words\", \"title_ar\": \"\\u0643\\u0644\\u0645\\u0627\\u062a\\u064a \\u0627\\u0644\\u0639\\u0631\\u0628\\u064a\\u0629 \\u0627\\u0644\\u0623\\u0648\\u0644\\u0649\", \"age_group\": \"5-6\", \"bytes\": 4}]}"
+        }
+      ],
+      "structuredContent": {
+        "ok": true,
+        "tool": "list_subjects",
+        "row_count": 2,
+        "columns": [
+          "slug",
+          "title_en",
+          "title_ar",
+          "age_group",
+          "bytes"
+        ],
+        "rows": [
+          {
+            "slug": "animals",
+            "title_en": "Animals Around Us",
+            "title_ar": "\u0627\u0644\u062d\u064a\u0648\u0627\u0646\u0627\u062a \u0645\u0646 \u062d\u0648\u0644\u0646\u0627",
+            "age_group": "5-6",
+            "bytes": 4
+          },
+          {
+            "slug": "arabic-words",
+            "title_en": "First Arabic Words",
+            "title_ar": "\u0643\u0644\u0645\u0627\u062a\u064a \u0627\u0644\u0639\u0631\u0628\u064a\u0629 \u0627\u0644\u0623\u0648\u0644\u0649",
+            "age_group": "5-6",
+            "bytes": 4
+          }
+        ]
+      },
+      "isError": false
+    }
+  }
+}

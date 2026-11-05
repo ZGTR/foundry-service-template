@@ -1,0 +1,228 @@
+id: 1
+event: turn.started
+data: {"user_text":"Which learners are struggling and need help?","type":"turn.started","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":1}
+
+id: 2
+event: usage
+data: {"input_tokens":120,"output_tokens":40,"cost_usd_micros":320,"type":"usage","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":2}
+
+id: 3
+event: artifact
+data: {"artifact":{"id":"tc_ae4a7dc3d7b7673593fe13e1ae60999275ba3284","data":{"ok":true,"rows":[{"learner":"Yousef","subject":"Arabic Letters","attempts":3,"avg_score":33.3},{"learner":"Yousef","subject":"Reading Short Stories","attempts":4,"avg_score":38.3},{"learner":"Yousef","subject":"Adding Numbers","attempts":2,"avg_score":40.5},{"learner":"Maryam","subject":"Arabic Letters","attempts":4,"avg_score":43.8},{"learner":"Maryam","subject":"Counting 1-10","attempts":3,"avg_score":56.3},{"learner":"Maryam","subject":"Reading Short Stories","attempts":2,"avg_score":56.5},{"learner":"Lina","subject":"First Arabic Words","attempts":3,"avg_score":59.7}],"tool":"struggling_learners","columns":["learner","subject","avg_score","attempts"],"row_count":7},"kind":"data_table","title":"struggling_learners"},"type":"artifact","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":3}
+
+id: 4
+event: text.delta
+data: {"text":"7","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":4}
+
+id: 5
+event: text.delta
+data: {"text":" learner-subject","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":5}
+
+id: 6
+event: text.delta
+data: {"text":" pairs","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":6}
+
+id: 7
+event: text.delta
+data: {"text":" need","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":7}
+
+id: 8
+event: text.delta
+data: {"text":" help,","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":8}
+
+id: 9
+event: text.delta
+data: {"text":" weakest","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":9}
+
+id: 10
+event: text.delta
+data: {"text":" first:","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":10}
+
+id: 11
+event: text.delta
+data: {"text":" Yousef","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":11}
+
+id: 12
+event: text.delta
+data: {"text":" in","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":12}
+
+id: 13
+event: text.delta
+data: {"text":" Arabic","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":13}
+
+id: 14
+event: text.delta
+data: {"text":" Letters","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":14}
+
+id: 15
+event: text.delta
+data: {"text":" (avg","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":15}
+
+id: 16
+event: text.delta
+data: {"text":" 33.3);","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":16}
+
+id: 17
+event: text.delta
+data: {"text":" Yousef","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":17}
+
+id: 18
+event: text.delta
+data: {"text":" in","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":18}
+
+id: 19
+event: text.delta
+data: {"text":" Reading","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":19}
+
+id: 20
+event: text.delta
+data: {"text":" Short","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":20}
+
+id: 21
+event: text.delta
+data: {"text":" Stories","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":21}
+
+id: 22
+event: text.delta
+data: {"text":" (avg","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":22}
+
+id: 23
+event: text.delta
+data: {"text":" 38.3);","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":23}
+
+id: 24
+event: text.delta
+data: {"text":" Yousef","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":24}
+
+id: 25
+event: text.delta
+data: {"text":" in","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":25}
+
+id: 26
+event: text.delta
+data: {"text":" Adding","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":26}
+
+id: 27
+event: text.delta
+data: {"text":" Numbers","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":27}
+
+id: 28
+event: text.delta
+data: {"text":" (avg","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":28}
+
+id: 29
+event: text.delta
+data: {"text":" 40.5);","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":29}
+
+id: 30
+event: text.delta
+data: {"text":" Maryam","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":30}
+
+id: 31
+event: text.delta
+data: {"text":" in","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":31}
+
+id: 32
+event: text.delta
+data: {"text":" Arabic","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":32}
+
+id: 33
+event: text.delta
+data: {"text":" Letters","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":33}
+
+id: 34
+event: text.delta
+data: {"text":" (avg","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":34}
+
+id: 35
+event: text.delta
+data: {"text":" 43.8);","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":35}
+
+id: 36
+event: text.delta
+data: {"text":" Maryam","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":36}
+
+id: 37
+event: text.delta
+data: {"text":" in","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":37}
+
+id: 38
+event: text.delta
+data: {"text":" Counting","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":38}
+
+id: 39
+event: text.delta
+data: {"text":" 1-10","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":39}
+
+id: 40
+event: text.delta
+data: {"text":" (avg","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":40}
+
+id: 41
+event: text.delta
+data: {"text":" 56.3);","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":41}
+
+id: 42
+event: text.delta
+data: {"text":" Maryam","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":42}
+
+id: 43
+event: text.delta
+data: {"text":" in","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":43}
+
+id: 44
+event: text.delta
+data: {"text":" Reading","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":44}
+
+id: 45
+event: text.delta
+data: {"text":" Short","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":45}
+
+id: 46
+event: text.delta
+data: {"text":" Stories","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":46}
+
+id: 47
+event: text.delta
+data: {"text":" (avg","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":47}
+
+id: 48
+event: text.delta
+data: {"text":" 56.5);","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":48}
+
+id: 49
+event: text.delta
+data: {"text":" Lina","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":49}
+
+id: 50
+event: text.delta
+data: {"text":" in","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":50}
+
+id: 51
+event: text.delta
+data: {"text":" First","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":51}
+
+id: 52
+event: text.delta
+data: {"text":" Arabic","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":52}
+
+id: 53
+event: text.delta
+data: {"text":" Words","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":53}
+
+id: 54
+event: text.delta
+data: {"text":" (avg","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":54}
+
+id: 55
+event: text.delta
+data: {"text":" 59.7).","type":"text.delta","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":55}
+
+id: 56
+event: usage
+data: {"input_tokens":240,"output_tokens":80,"cost_usd_micros":640,"type":"usage","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":56}
+
+id: 57
+event: turn.done
+data: {"stop_reason":"end_turn","type":"turn.done","conversation_id":"conv-amal","turn_id":"t_7971f220f0c037e6b35dd1d9","seq":57}
+

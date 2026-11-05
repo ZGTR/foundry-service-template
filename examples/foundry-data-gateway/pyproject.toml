@@ -1,0 +1,222 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "foundry-data-gateway"
+version = "0.1.0"
+description = "Reference service: one image, deployable to Lambda or ECS, worked domain included"
+license = { text = "MIT" }
+requires-python = ">=3.12"
+# `foundry-contracts` is NOT listed: it is not a distribution on any index this
+# repository can reach. Its source is VENDORED under `vendor/foundry_contracts`
+# (the Dockerfile COPYs it, CI and tests put `vendor` on PYTHONPATH), so only its
+# own third-party dependency, rfc8785, is declared here.
+dependencies = [
+    "rfc8785>=0.1.2",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "pydantic>=2.7",
+    # S18. `composition/config.py` IS a `BaseSettings`, so this is as hard a
+    # dependency as fastapi: without it the container cannot import its own
+    # composition root, and the failure is an ImportError at startup rather than
+    # a degraded mode. Deliberately not an extra for that reason -- an extra is
+    # for a capability a deployment may legitimately decline, and no deployment
+    # can decline reading its own configuration.
+    "pydantic-settings>=2.4",
+    # Persistence is this service's reason to exist, so the ORM and the
+    # migration tool are HARD dependencies rather than extras. The DBAPI driver
+    # is chosen late -- by the dialect in DATABASE_URL, at first connect -- but
+    # `psycopg` ships here because Postgres is the estate's engine and a service
+    # that cannot reach its database is not a degraded service, it is a stopped
+    # one. `[binary]` takes the prebuilt wheel rather than compiling against
+    # libpq, which would put a C toolchain in the container image.
+    "sqlalchemy>=2.0.30",
+    "alembic>=1.13",
+    "psycopg[binary]>=3.2",
+]
+
+[project.optional-dependencies]
+aws = ["boto3>=1.34"]
+# Signature-verifying auth. An extra rather than a hard dependency because a
+# local run legitimately uses the header adapter, and `cryptography` is a heavy
+# build for a service that never verifies a token. `build_container()` refuses to
+# start non-locally without real auth, so omitting this extra fails loudly at
+# startup rather than quietly downgrading.
+jwt = ["pyjwt[crypto]>=2.9"]
+# There is no `mysql` extra any more. It carried `pymysql` for a hand-written
+# MySQL adapter that no service in this estate ever deployed; the four services
+# that persist anything are on SQLAlchemy 2 over Postgres, and the template was
+# the laggard. `pysqlite` needs no entry at all -- it is in the standard library,
+# and a local `sqlite+pysqlite://` URL is how a test reaches a real engine
+# without a server.
+#
+# AND THERE IS NO `dev` EXTRA, WHICH IS THE POINT RATHER THAN AN OMISSION.
+# `requirements/test.in` and `test.lock` are the test dependency set, and
+# `test.in`'s own header argues for exactly that -- "WHY A SECOND LOCK RATHER
+# THAN A `dev` EXTRA" -- because the extra resolves fresh from whatever the index
+# serves that day, which is the supply-chain argument that produced the first
+# lock applied unchanged to the second. `ci.yml` installs the lock with
+# `--require-hashes` and never mentions this extra.
+#
+# The extra survived that change and became a SECOND list for one thing, with
+# nothing reconciling the two. It carried httpx, jsonschema, pyjwt[crypto],
+# moto[server] and redis, and it did NOT carry `pytest-xdist`, which the lock
+# has pinned at >=3.6 since the real-profile work. That gap was not cosmetic:
+# `service-kit/testing/foundry_testkit/real_profile.py` defines
+# `pytest_configure_node`, and pluggy validates hook NAMES at collection, so in
+# an environment built from this extra the whole suite died before a single test
+# ran -- `PluginValidationError: unknown hook`, exit 3, 0 passed against 379
+# collected. Not a degraded run; no run. Measured on this tree, and the failure
+# reads as a broken branch rather than as a missing package.
+#
+# Deleting the list is the repair rather than adding xdist to it, because two
+# lists that agree today is the shape this estate has already paid for -- the
+# rule count that read "Nine" against twenty-two rules, the five hand-maintained
+# `entrypoint.sh` copies. Nothing references `[dev]`: measured across
+# `pyproject.toml`, `.github`, `README.md`, `service-kit`, `scripts` and
+# `requirements`, the only hit is the section header above. Every package it
+# named keeps a declaration -- httpx, jsonschema, moto and redis in
+# `requirements/test.lock`, and pyjwt in the `jwt` extra above as well as in
+# `requirements/service.lock`.
+#
+# The kit-side fix ships separately and is the one that travels: the hook now
+# carries `@pytest.hookimpl(optionalhook=True)`, which keys on the HOOKSPEC's
+# absence rather than the module's. `importlib.util.find_spec("xdist")` is NOT
+# sufficient and was measured failing -- a plugin blocked with `-p no:xdist` is
+# still importable, so that guard returns a module while pluggy has no spec, and
+# the suite dies exactly as before while the guard looks like a fix.
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/foundry_data_gateway"]
+
+[tool.foundry.test-resources]
+# WHAT THE REAL ARM NEEDS, DECLARED RATHER THAN GUESSED.
+#
+# `foundry_testkit.real_profile` brings these up -- and only these -- by name,
+# once per run, in the pytest controller. The alternative it rejects is starting
+# whatever `deploy/compose.yml` happens to define: that file `include:`s the kit's
+# LocalStack fragment as well, so a service with no AWS in its tests would pull a
+# ~1 GB image every run and `real arm ran:` would be a sentence about the compose
+# file rather than about the tests.
+#
+# A service with no database DELETES this table. Its real arm then reports
+# `real arm ran: none declared`, a NAMED no-op -- never a silent pass.
+#
+# DECLARING A RESOURCE IS WHAT STARTS IT; INCLUDING ITS FRAGMENT ONLY MAKES IT
+# RESOLVABLE. That distinction is the whole reason this line changed. LocalStack
+# was `include:`d by `deploy/compose.yml` and absent from this list, so the kit
+# never named it at `up -d`, no run had ever pulled the image, and the four SQS
+# arms quietly took the moto fallback or skipped. Redis was further out still:
+# `cache_kit` has always connected to `REDIS_HOST:REDIS_PORT`, nothing ever
+# started a server, and its arm skipped on every machine and in CI inside a
+# green run.
+#
+# An earlier version of this comment said LocalStack was left out "because this
+# checkout could not prove it". That was true when it was written and is no
+# longer: the image is pulled, the fragment publishes an ephemeral port, and the
+# arms run against it. A caveat kept past its measurement reads as a decision.
+resources = ["postgres", "localstack", "redis"]
+
+# WHERE `Base` LIVES, so the truncate set is DERIVED from the mapping.
+#
+# A hand-written table list is the estate's enumerate-the-artifact defect in
+# miniature: a table added by a migration and mapped by a record class is not
+# truncated, its rows survive into the next test, and the leak surfaces somewhere
+# else entirely. The kit reads `Base.metadata.sorted_tables` and refuses an empty
+# mapping, which is what an un-imported record module looks like.
+orm_metadata = "foundry_data_gateway.adapters.real.orm:Base"
+
+[tool.pytest.ini_options]
+# THIS BLOCK IS LOAD-BEARING TWICE OVER.
+#
+# It puts the kit on the import path. `service-kit/testing` makes
+# `foundry_testkit` importable and `service-kit/vendor` makes the vendored
+# platform packages importable, without either being pip-installed -- the same
+# arrangement the Dockerfile gets by COPYing them onto PYTHONPATH. `"."` keeps
+# `tests.support` importable, which is where the service's own material lives.
+#
+# And its mere EXISTENCE fixes a second defect. With no
+# `[tool.pytest.ini_options]` anywhere in this file, pyproject.toml is not an
+# inifile candidate at all, so pytest climbs to a parent -- in the monorepo that
+# is platform/pyproject.toml, whose `addopts` begins `-q`. A `-q` on the
+# command line then composes to `-qq`, which suppresses the "N passed" summary
+# line that CI parses, at exit 0. Measured in this repository:
+# a real 23-passed run reported no count at all. A flag you pass is not the flag
+# the tool receives.
+pythonpath = ["src", "service-kit/testing", "service-kit/vendor", ".", "docs/agent-chat"]
+testpaths = ["tests"]
+# `"src"` IS FIRST, AND IT IS NOT COSMETIC. Without it this suite imports
+# `foundry_data_gateway` from wherever pip put it, which in CI is this same
+# checkout (`pip install --no-deps -e .`) and locally is whatever a shared
+# virtualenv happens to point at. Measured here on 2026-09-18: a venv shared with
+# a sibling worktree carried
+# `_editable_impl_foundry_data_gateway.pth` naming ANOTHER checkout's `src`,
+# so every src-dependent test in this tree ran against a different tree's source.
+# It surfaced as `TypeError: build_container() got an unexpected keyword argument
+# 'database_engine'` for a parameter sitting in this checkout's own file -- which
+# reads as an editing mistake, and sends the reader to the one place the fault is
+# not. The 328 tests that had passed alongside it had measured the other tree.
+# pytest inserts these at `sys.path[0]`, ahead of the `.pth` entry site-packages
+# adds, so the checkout under test is the checkout that gets tested.
+#
+# A test that has run this many seconds gets every thread's stack dumped to stderr,
+# and then runs on. comms-core's full suite once hung 25 minutes in an untimed lock
+# wait with nothing on the terminal; this names the line it is
+# waiting on. It times TESTS: a hang in session start-up, before the first test, gets
+# no dump. tests/shape/test_hung_test_dumps_its_threads.py reads the value pytest
+# received.
+faulthandler_timeout = 300
+
+[tool.ruff]
+# INLINED, not extended. This template is its own repository, so there is no
+# parent pyproject to extend; these settings travel unchanged into every service
+# new_service.sh emits.
+line-length = 100
+target-version = "py312"
+# vendor/ is a byte-identical copy of foundry-contracts; it is linted where it is
+# authored, and a local lint fix here would turn the copy into a fork.
+extend-exclude = ["vendor"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "TID"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"os.environ".msg = "Packages must not read the environment; inject config through the constructor."
+
+[tool.ruff.lint.per-file-ignores]
+# The PoC driver, stub model and seed script carry long SQL and report strings.
+"poc/*" = ["E501", "B905"]
+"scripts/seed_alphazed.py" = ["E501"]
+# composition/config.py is the one designated composition-root module allowed to
+# read os.environ (see its own docstring, and the root pyproject.toml's
+# banned-api message). tests/unit/test_config.py, tests/shape/test_layering.py
+# and service-kit/gates/check_layering.py rule 3 all assert this stays the ONLY exception.
+"src/foundry_data_gateway/composition/config.py" = ["TID251"]
+# Tests read the environment on purpose: `FOUNDRY_TEST_MYSQL_URL` selects the
+# integration target for the repository contract, and `test_new_service_script.py`
+# builds an env for the subprocess it runs. The ban's stated subject is the
+# PACKAGE -- "blackbox packages must not read the environment; inject config
+# through the constructor" -- and src/ is still held to it in full.
+"tests/**" = ["TID251"]
+# The MUTATION PROVER reads the environment for the same reason the tests do: it
+# is tooling that DRIVES pytest, not code that ships. `--profile fake|real` has to
+# reach the subprocess it spawns, and `SEED_PROFILE` is how the seeded tier selects
+# its arm. The ban's stated subject is the service PACKAGE -- "packages must not
+# read the environment; inject config through the constructor" -- and `src/` is
+# still held to it in full.
+"scripts/**" = ["TID251"]
+# The TEST KIT reads the environment for the same reason the tests do -- it IS
+# the tests' machinery, moved into the kit by an earlier change and no longer
+# matched by the "tests/**" pattern above. The ban's subject is the service
+# PACKAGE, and `src/` is still held to it in full.
+"service-kit/testing/**" = ["TID251"]
+# The §9 gates' fixture packages are DELIBERATELY wrong (or deliberately
+# ordinary): `gate_fixtures/offending/` plants one violation per clause -- one of
+# them is exactly an adapter reading `os.environ` -- and `conforming/` is a
+# correct service whose composition root reads it legitimately. Linting them as
+# production source would either flag the planted defect (and invite someone to
+# "fix" a control) or push the fixture into wording the gate no longer matches.
+# They are still parsed by every gate, which is the check that actually matters
+# for them.
+"service-kit/gates/gate_fixtures/**" = ["TID251", "E501", "I001", "F401", "B008"]

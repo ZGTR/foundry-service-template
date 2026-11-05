@@ -1,0 +1,134 @@
+# Lambda target (image package type). Same ECR image the ECS target in
+# iac/app/ deploys -- ${env:IMAGE_URI} is the one shared seam (plan
+# section 8: "two IaC tools ... own disjoint resources with a single,
+# explicit seam -- the ECR repository and the image digest").
+#
+# `IMAGE_URI` must be a digest pin (repo@sha256:...), never a floating tag --
+# promoting a tag can silently move which bytes run; a digest cannot.
+#
+# Not applied by this template. `sls deploy --stage <env>` is a CI/CD step
+# (`.github/workflows/ci.yml`), gated behind manual approval, never run ad hoc
+# against a shared account.
+#
+# INGRESS IS PRIVATE. The function's only entry is a rule on the estate's shared
+# INTERNAL load balancer, which the internal-edge stack owns and this file never
+# creates. There is no API Gateway here: an `httpApi` or `http` event is an
+# internet-facing endpoint, and `tests/shape/test_private_ingress.py` refuses one
+# unless `custom.exposure` below reads `public`.
+
+service: foundry-data-gateway
+
+custom:
+  # private | edge_iam | public. It must equal this service's row in the Foundry
+  # workspace's `scripts/service_directory.yaml`, and it is a committed literal
+  # rather than a deploy-time variable on purpose: a value that could be flipped
+  # in a step's environment would be invisible to every gate that reads this file.
+  exposure: private
+  # none | estate. `estate` attaches the function to the VPC with the estate's caller
+  # group, which a service needs before it can CALL another private service: the
+  # shared internal load balancer admits HTTPS from that group, and a function
+  # outside the VPC cannot reach it at all. `none`, the default, attaches nothing.
+  # A committed literal for the same reason `exposure` is one. What `estate` needs
+  # at deploy time is in `caller_vpc.yml`, beside this file.
+  callerVpc: none
+
+provider:
+  name: aws
+  region: ${env:AWS_REGION, "eu-west-1"}
+  stage: ${opt:stage, "dev"}
+  # Null unless `custom.callerVpc` is `estate`, and null is the only value the
+  # framework reads as no VPC at all: an empty mapping still adds the VPC access
+  # policy to the function's role. `caller_vpc.yml` holds no `none` key, so `none`
+  # resolves through the fallback, and so does any value that is not `estate` --
+  # which is why `scripts/check_service_iac.sh` refuses any other value.
+  vpc: ${file(./caller_vpc.yml):${self:custom.callerVpc}, null}
+  stackTags:
+    "foundry:exposure": ${self:custom.exposure}
+  ecr:
+    images:
+      widgets-image:
+        uri: ${env:IMAGE_URI}
+  environment:
+    SERVICE_ENV: ${self:provider.stage}
+    PRINCIPAL_ISSUER: foundry-data-gateway
+    # DATABASE_URL, not DB_PATH. The ORM absorbed the dialect, so
+    # `config.py` REQUIRES this and refuses an empty value at startup naming the
+    # variable -- an instruction a task definition can follow. The empty default is
+    # deliberate: a default here would be a second answer to the same question,
+    # silently preferred over the operator's, and `/tmp/widgets.db` is exactly what
+    # that looked like -- a Lambda that came up green writing every row to a
+    # filesystem that disappears with the execution environment.
+    #
+    # It was left behind because compose and serverless are two readers of one
+    # contract and only compose was updated. `check_iac_env_has_a_reader.py` is what
+    # found it: DB_PATH was still SET here and read by nothing at all.
+    DATABASE_URL: ${env:DATABASE_URL, ""}
+    # EVENT_BUS_MODE is deliberately NOT set here. It read
+    # `outbox`, and no composition root reads `config.event_bus_mode` -- container.py
+    # builds `InProcessEventBus()` unconditionally -- so the deployment declared a
+    # durability mode the process cannot honour. Unset, `config.py` defaults to
+    # `in_process`, which is what the process actually does. Setting it again without
+    # first making the container honour it re-creates the same false claim.
+    SQS_QUEUE_URL: ${env:SQS_QUEUE_URL, ""}  # COMMS-FLAVOUR-STRIP-LINE
+  # COMMS-FLAVOUR-STRIP:BEGIN: sqs:SendMessage IAM -- comms services hold only events:PutEvents on their own bus
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+          Resource: ${env:SQS_QUEUE_ARN, "*"}
+  # COMMS-FLAVOUR-STRIP:END
+
+functions:
+  api:
+    image:
+      name: widgets-image
+    memorySize: 512
+    timeout: 29 # well inside the load balancer's 60s idle timeout; a genuinely longer job belongs on ECS (plan section 3)
+    events:
+      # The same three values `deploy/iac/app` takes as `internal_listener_arn`,
+      # `listener_rule_priority` and `internal_zone_suffix`. None has a default: a
+      # default listener would be a second answer to "which door", and the deploy
+      # step refuses an unset one before serverless runs (`service-kit/ci/deploy_env.py`).
+      - alb:
+          listenerArn: ${env:INTERNAL_LISTENER_ARN}
+          priority: ${env:LISTENER_RULE_PRIORITY}
+          conditions:
+            host: ${self:service}.${env:INTERNAL_ZONE_SUFFIX}
+    environment:
+      AWS_LWA_PORT: "8080"
+
+# There is deliberately only ONE function, and a service emitted from this
+# template starts with only one. A second, `drainOutbox`, used to be declared
+# here on a `rate(1 minute)` schedule with this as its entire body:
+#
+#     command: [/opt/venv/bin/python, -c,
+#               "from ...handlers.outbox_drain import handle_scheduled_drain"]
+#
+# That imports the symbol and exits. `handle_scheduled_drain(drain)` takes the
+# bound drain callable as a required argument, and no composition root in this
+# template builds one, so the command could not have called it even if it had
+# tried. EventBridge would have invoked the function 1440 times a day to import
+# a module, and both the AWS console and this repository's IaC gate showed it
+# green, because the only thing either of them checked was that a function by
+# that name existed.
+#
+# This template is the emitter, so the copy that shipped here became a copy in
+# every service generated from it. Arm 6 of `scripts/check_service_iac.sh` now
+# reads the RESOLVED config and refuses any function whose command only imports,
+# which keeps the class shut for services emitted from here in future.
+#
+# WHEN YOUR SERVICE GENUINELY NEEDS A SCHEDULED DRAIN, declare the function and
+# give it a command that CALLS something -- an entrypoint in `main.py` that
+# builds the outbox store and passes the drain callable in, not a bare import.
+# The `Publisher` port, the `OutboxEventBus` adapter and `transport/events/outbox_drain.py`
+# are all still here as the worked example of that shape.
+
+# The name callers inside the VPC use. It resolves only in the estate's private
+# zone, so the deploy job's smoke does not ask it: `deploy/smoke.json` declares the
+# `invoke` transport and the smoke asks the function itself.
+resources:
+  Outputs:
+    ApiUrl:
+      Value: https://${self:service}.${env:INTERNAL_ZONE_SUFFIX}

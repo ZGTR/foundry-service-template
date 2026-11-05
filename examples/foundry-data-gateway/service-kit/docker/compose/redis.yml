@@ -1,0 +1,45 @@
+# The service's real cache for integration tests (§7).
+#
+# A REAL server, never a dictionary standing in for one. `cache_kit` refuses to
+# fall back to an in-memory dict precisely because a test that asked for a cache
+# and got a dict proves something about a dict: expiry, eviction, atomic
+# counters and cross-connection visibility are the behaviours a cache test
+# exists to pin, and all four are exactly what the substitute gets right for
+# free.
+#
+# WHY THIS FRAGMENT EXISTS AT ALL. `cache_kit` has always connected to
+# `REDIS_HOST:REDIS_PORT` and reported a NAMED skip when nothing answered, and
+# nothing ever started one -- so the Redis arm skipped on every machine and in
+# CI, inside a green run. A declared resource the kit can start is the
+# difference between a skip somebody has to notice and an arm that runs.
+services:
+  redis:
+    # Pinned by digest for the same reason the LocalStack fragment is: a tag is a
+    # moving target, and "it worked yesterday" is not a property of a tag.
+    #
+    # The value is the digest the registry SERVED for `redis:7.4-alpine`, read
+    # back from the local image store with `docker image inspect --format
+    # '{{json .RepoDigests}}'` after the pull, with `postgres:16-alpine` as a
+    # positive control on the same command. It is NOT a digest anybody recalled:
+    # Docker Hub was returning 429 to `buildx imagetools inspect` at the time, and
+    # a pin written from memory is unverifiable by construction.
+    image: redis:7.4-alpine@sha256:c7d14d623c137a1bb6c3a6755b0b0aad499177087c2140eefcf2f122950b172d
+    ports:
+      # EPHEMERAL by default, like every other published port in this kit. A
+      # fixed 6379 collides with a developer's own Redis and with a second
+      # worktree's run, and both failures read as "the cache is broken".
+      #
+      # The variable is `REDIS_PORT_HOST`, NOT `REDIS_PORT`. `cache_kit` reads
+      # `REDIS_PORT` to decide where the CLIENT connects; if compose read the
+      # same name, publishing the resolved port back into the environment would
+      # silently re-pin the next `up` to it.
+      - "${REDIS_PORT_HOST:-6379}:6379"
+    healthcheck:
+      # `redis-cli ping` rather than a TCP probe: Redis accepts connections while
+      # it is still loading a dataset from disk and answers -LOADING to commands,
+      # so a port check goes green before the server can serve.
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    command: ["redis-server", "--save", "", "--appendonly", "no"]

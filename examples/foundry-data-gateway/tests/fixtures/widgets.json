@@ -1,0 +1,25 @@
+[
+  {
+    "target_class": "foundry_data_gateway.domain:Widget",
+    "data": [
+      {
+        "widget_id": "widget_seed_0001",
+        "org_id": "org_seed",
+        "name": "Seeded alpha",
+        "created_at": "2026-01-01T00:00:00+00:00"
+      },
+      {
+        "widget_id": "widget_seed_0002",
+        "org_id": "org_seed",
+        "name": "Seeded beta",
+        "created_at": "2026-01-02T00:00:00+00:00"
+      },
+      {
+        "widget_id": "widget_seed_0003",
+        "org_id": "org_other",
+        "name": "Another org's widget",
+        "created_at": "2026-01-03T00:00:00+00:00"
+      }
+    ]
+  }
+]

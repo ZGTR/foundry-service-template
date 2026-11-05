@@ -1,0 +1,37 @@
+# The service's real relational database for integration tests (§7).
+#
+# A REAL server, never SQLite standing in for one: the behaviours these tests
+# exist to pin -- transaction isolation, unique-constraint races, FK referential
+# actions -- are exactly the behaviours that differ between engines, so a
+# substitute proves the substitute.
+#
+# The template's own worked example ships SQLite and MySQL adapters; this file is
+# here because §5 requires the shared folder to carry the service's database, and
+# an emitted service on PostgreSQL changes only the image and the URL.
+services:
+  postgres:
+    # Pinned by digest for the same reason the Redis and LocalStack fragments are:
+    # a tag is a moving target. The value is the multi-arch index digest the
+    # registry served for `postgres:16-alpine` on 2026-11-04, read with
+    # `docker buildx imagetools inspect postgres:16-alpine` and confirmed by the
+    # registry API's `Docker-Content-Digest` header. It is the LIST digest, not a
+    # per-platform one, so the pin resolves on amd64 and arm64 alike.
+    image: postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_DB: "${POSTGRES_DB:-service_test}"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      # pg_isready, not a TCP probe: postgres accepts connections during startup
+      # recovery and then refuses queries, so a port check goes green too early.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    tmpfs:
+      # The data directory is disposable BY DESIGN. A long-lived volume proves a
+      # PAST correctness: the bring-up contract -- migrations, grants, seeds --
+      # is the one thing a stack that never starts empty stops exercising.
+      - /var/lib/postgresql/data

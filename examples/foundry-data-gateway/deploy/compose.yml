@@ -1,0 +1,72 @@
+# What THIS service runs locally, and nothing about how it is built.
+#
+# `deploy/` is the service-owned half of the split `service-kit/` completes
+# (contract §5). The kit carries the Dockerfile, the entrypoint and the resource
+# FRAGMENTS, byte-identical in every service. This file is the one place a
+# service says which of those resources it actually needs, and what to set in
+# its own environment. It is the only compose file at any level of the
+# repository that a human is expected to edit.
+#
+# The split is worth stating because the obvious alternative -- one compose file
+# per service, carrying both the fragments and the choices -- is what the estate
+# had, and it is how nine services came to describe the same PostgreSQL nine
+# slightly different ways. A fragment that is included cannot drift; a fragment
+# that is copied always does.
+#
+# `include:` rather than YAML anchors, deliberately. An anchor is resolved
+# inside ONE file, so sharing one across services means copying it, which is the
+# defect above wearing a different syntax. Compose resolves an `include:` path
+# relative to THIS file, so the kit's fragments are consumed where they live and
+# a `sync.py` run replaces them without touching this file.
+include:
+  # Resources, declared rather than assumed. A service with no database deletes
+  # its line here and its `[tool.foundry.test-resources]` entry, and its seeded
+  # tests then report `real arm ran: none declared` -- a NAMED no-op, never a
+  # silent pass. The worked example this template ships REQUIRES the first of
+  # them: its repository and outbox contract suites run their real arm against
+  # this PostgreSQL, migrated by `alembic upgrade head`.
+  - path: ../service-kit/docker/compose/postgres.yml
+  - path: ../service-kit/docker/compose/localstack.yml
+  - path: ../service-kit/docker/compose/redis.yml
+
+services:
+  # Service-owned overrides layered onto the kit's `service` definition. Only
+  # values that genuinely differ between services belong here; anything
+  # identical everywhere belongs in the fragment, where it cannot drift.
+  service:
+    # `extends:`, NOT an `include:` of the service fragment. An included resource
+    # cannot be redefined here: Compose v2 refuses the file outright with
+    # `services.service conflicts with imported resource`, while v5 merges it
+    # silently -- so a laptop on v5 brought the real arm up and every CI run on
+    # ubuntu-latest's v2 exited 1 at `up --wait`, turning each
+    # REQUIRE_REAL_RESOURCES=1 pytest run into exit 4 (found in
+    # comms-core). `extends:` is defined to take local
+    # overrides, and it resolves the fragment's relative `build.context` against
+    # the fragment, exactly as `include:` did.
+    extends:
+      file: ../service-kit/docker/compose/service.yml
+      service: service
+    image: "${SERVICE_IMAGE:-foundry-data-gateway:local}"
+    build:
+      args:
+        # The one build arg every service must set, because it is the only
+        # thing in the generic Dockerfile that cannot be derived: which package
+        # under `src/` is this service. See `service-kit/docker/Dockerfile`.
+        SERVICE_PACKAGE: "foundry_data_gateway"
+        # This service owns a schema, so `migrations/` and `alembic.ini` are
+        # copied into the image and the runtime can apply them. A service with
+        # no Alembic tree sets this to `no`.
+        HAS_MIGRATIONS: "yes"
+    # The database has to be accepting queries before the service opens its
+    # engine: `pool_pre_ping` recovers a connection that DIED, not one that was
+    # never available, so a service that starts first reports "not ready" for a
+    # reason that has nothing to do with the service.
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Service DNS, not localhost: the published port on the host is for the
+      # test suite, and a container reaching its neighbour through the host's
+      # port mapping breaks the moment that port is ephemeral -- which is
+      # exactly what `tests/support/postgres.py` makes it.
+      DATABASE_URL: "postgresql+psycopg://postgres:postgres@postgres:5432/service_test"

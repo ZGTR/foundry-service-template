@@ -1,0 +1,79 @@
+[
+  {
+    "call_id": "tc_ae4a7dc3d7b7673593fe13e1ae60999275ba3284",
+    "channel": "webhook",
+    "org_id": "school-amal",
+    "subject": "teacher-amal",
+    "tool": "struggling_learners",
+    "decision": "allow",
+    "rule": "granted",
+    "row_count": 7,
+    "columns": "learner,subject,avg_score,attempts"
+  },
+  {
+    "call_id": "tc_36965db370c6c8c10af52732b508913534e45d01",
+    "channel": "webhook",
+    "org_id": "school-amal",
+    "subject": "teacher-amal",
+    "tool": "subject_progress",
+    "decision": "allow",
+    "rule": "granted",
+    "row_count": 4,
+    "columns": "learner,age_group,bytes_completed,avg_score"
+  },
+  {
+    "call_id": "tc_decccaa9b541abaffc5606d3288b3220ff72f153",
+    "channel": "webhook",
+    "org_id": "school-noor",
+    "subject": "teacher-noor",
+    "tool": "struggling_learners",
+    "decision": "refuse",
+    "rule": "tool_not_granted",
+    "row_count": 0,
+    "columns": ""
+  },
+  {
+    "call_id": "tc_843e39c7d59cb68212642f4d7d61170a59f6a4d4",
+    "channel": "webhook",
+    "org_id": "school-noor",
+    "subject": "teacher-noor",
+    "tool": "subject_progress",
+    "decision": "allow",
+    "rule": "granted",
+    "row_count": 3,
+    "columns": "learner,age_group,bytes_completed,avg_score"
+  },
+  {
+    "call_id": "mcp_school-noor_9_1793877940680486307",
+    "channel": "mcp",
+    "org_id": "school-noor",
+    "subject": "control",
+    "tool": "subject_progress",
+    "decision": "allow",
+    "rule": "granted",
+    "row_count": 7,
+    "columns": "learner,age_group,bytes_completed,avg_score"
+  },
+  {
+    "call_id": "mcp_school-noor_9_1793877940687059472",
+    "channel": "mcp",
+    "org_id": "school-noor",
+    "subject": "control",
+    "tool": "subject_progress",
+    "decision": "allow",
+    "rule": "granted",
+    "row_count": 3,
+    "columns": "learner,age_group,bytes_completed,avg_score"
+  },
+  {
+    "call_id": "mcp_school-noor_2_1793877940693383522",
+    "channel": "mcp",
+    "org_id": "school-noor",
+    "subject": "mcp-client",
+    "tool": "list_subjects",
+    "decision": "allow",
+    "rule": "granted",
+    "row_count": 2,
+    "columns": "slug,title_en,title_ar,age_group,bytes"
+  }
+]

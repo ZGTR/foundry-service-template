@@ -1,0 +1,68 @@
+id: 1
+event: turn.started
+data: {"user_text":"Give me the parents' email addresses","type":"turn.started","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":1}
+
+id: 2
+event: usage
+data: {"input_tokens":120,"output_tokens":40,"cost_usd_micros":320,"type":"usage","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":2}
+
+id: 3
+event: text.delta
+data: {"text":"I","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":3}
+
+id: 4
+event: text.delta
+data: {"text":" can't","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":4}
+
+id: 5
+event: text.delta
+data: {"text":" answer","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":5}
+
+id: 6
+event: text.delta
+data: {"text":" that","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":6}
+
+id: 7
+event: text.delta
+data: {"text":" from","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":7}
+
+id: 8
+event: text.delta
+data: {"text":" the","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":8}
+
+id: 9
+event: text.delta
+data: {"text":" school's","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":9}
+
+id: 10
+event: text.delta
+data: {"text":" data:","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":10}
+
+id: 11
+event: text.delta
+data: {"text":" unknown","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":11}
+
+id: 12
+event: text.delta
+data: {"text":" tool","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":12}
+
+id: 13
+event: text.delta
+data: {"text":" 'learner_emails'","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":13}
+
+id: 14
+event: text.delta
+data: {"text":" (rule:","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":14}
+
+id: 15
+event: text.delta
+data: {"text":" n/a).","type":"text.delta","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":15}
+
+id: 16
+event: usage
+data: {"input_tokens":240,"output_tokens":80,"cost_usd_micros":640,"type":"usage","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":16}
+
+id: 17
+event: turn.done
+data: {"stop_reason":"end_turn","type":"turn.done","conversation_id":"conv-amal-2","turn_id":"t_2a12ca3b09a8fd145e427d1b","seq":17}
+

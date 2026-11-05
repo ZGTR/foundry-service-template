@@ -1,0 +1,88 @@
+id: 1
+event: turn.started
+data: {"user_text":"Which learners need help?","type":"turn.started","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":1}
+
+id: 2
+event: usage
+data: {"input_tokens":120,"output_tokens":40,"cost_usd_micros":320,"type":"usage","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":2}
+
+id: 3
+event: artifact
+data: {"artifact":{"id":"tc_decccaa9b541abaffc5606d3288b3220ff72f153","data":{"ok":false,"reason":"struggling_learners is not granted to this organisation","refused":"tool_not_granted"},"kind":"data_table","title":"struggling_learners"},"type":"artifact","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":3}
+
+id: 4
+event: text.delta
+data: {"text":"I","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":4}
+
+id: 5
+event: text.delta
+data: {"text":" can't","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":5}
+
+id: 6
+event: text.delta
+data: {"text":" answer","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":6}
+
+id: 7
+event: text.delta
+data: {"text":" that","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":7}
+
+id: 8
+event: text.delta
+data: {"text":" from","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":8}
+
+id: 9
+event: text.delta
+data: {"text":" the","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":9}
+
+id: 10
+event: text.delta
+data: {"text":" school's","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":10}
+
+id: 11
+event: text.delta
+data: {"text":" data:","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":11}
+
+id: 12
+event: text.delta
+data: {"text":" struggling_learners","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":12}
+
+id: 13
+event: text.delta
+data: {"text":" is","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":13}
+
+id: 14
+event: text.delta
+data: {"text":" not","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":14}
+
+id: 15
+event: text.delta
+data: {"text":" granted","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":15}
+
+id: 16
+event: text.delta
+data: {"text":" to","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":16}
+
+id: 17
+event: text.delta
+data: {"text":" this","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":17}
+
+id: 18
+event: text.delta
+data: {"text":" organisation","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":18}
+
+id: 19
+event: text.delta
+data: {"text":" (rule:","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":19}
+
+id: 20
+event: text.delta
+data: {"text":" tool_not_granted).","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":20}
+
+id: 21
+event: usage
+data: {"input_tokens":240,"output_tokens":80,"cost_usd_micros":640,"type":"usage","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":21}
+
+id: 22
+event: turn.done
+data: {"stop_reason":"end_turn","type":"turn.done","conversation_id":"conv-noor","turn_id":"t_06a2403bf2c5fc3603f5e18c","seq":22}
+

@@ -1,0 +1,108 @@
+id: 1
+event: turn.started
+data: {"user_text":"Show progress in arabic-letters","type":"turn.started","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":1}
+
+id: 2
+event: usage
+data: {"input_tokens":120,"output_tokens":40,"cost_usd_micros":320,"type":"usage","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":2}
+
+id: 3
+event: artifact
+data: {"artifact":{"id":"tc_843e39c7d59cb68212642f4d7d61170a59f6a4d4","data":{"ok":true,"rows":[{"learner":"Huda","age_group":"5-6","avg_score":85.0,"bytes_completed":3},{"learner":"Rania","age_group":"7-8","avg_score":67.7,"bytes_completed":3},{"learner":"Zaid","age_group":"3-4","avg_score":46.0,"bytes_completed":1}],"tool":"subject_progress","columns":["learner","age_group","bytes_completed","avg_score"],"row_count":3},"kind":"data_table","title":"subject_progress"},"type":"artifact","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":3}
+
+id: 4
+event: text.delta
+data: {"text":"Progress","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":4}
+
+id: 5
+event: text.delta
+data: {"text":" for","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":5}
+
+id: 6
+event: text.delta
+data: {"text":" 3","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":6}
+
+id: 7
+event: text.delta
+data: {"text":" learners:","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":7}
+
+id: 8
+event: text.delta
+data: {"text":" Huda:","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":8}
+
+id: 9
+event: text.delta
+data: {"text":" 3","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":9}
+
+id: 10
+event: text.delta
+data: {"text":" bytes","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":10}
+
+id: 11
+event: text.delta
+data: {"text":" done,","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":11}
+
+id: 12
+event: text.delta
+data: {"text":" avg","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":12}
+
+id: 13
+event: text.delta
+data: {"text":" 85.0;","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":13}
+
+id: 14
+event: text.delta
+data: {"text":" Rania:","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":14}
+
+id: 15
+event: text.delta
+data: {"text":" 3","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":15}
+
+id: 16
+event: text.delta
+data: {"text":" bytes","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":16}
+
+id: 17
+event: text.delta
+data: {"text":" done,","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":17}
+
+id: 18
+event: text.delta
+data: {"text":" avg","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":18}
+
+id: 19
+event: text.delta
+data: {"text":" 67.7;","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":19}
+
+id: 20
+event: text.delta
+data: {"text":" Zaid:","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":20}
+
+id: 21
+event: text.delta
+data: {"text":" 1","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":21}
+
+id: 22
+event: text.delta
+data: {"text":" bytes","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":22}
+
+id: 23
+event: text.delta
+data: {"text":" done,","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":23}
+
+id: 24
+event: text.delta
+data: {"text":" avg","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":24}
+
+id: 25
+event: text.delta
+data: {"text":" 46.0.","type":"text.delta","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":25}
+
+id: 26
+event: usage
+data: {"input_tokens":240,"output_tokens":80,"cost_usd_micros":640,"type":"usage","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":26}
+
+id: 27
+event: turn.done
+data: {"stop_reason":"end_turn","type":"turn.done","conversation_id":"conv-noor","turn_id":"t_4d3629d3bd3e4064f06b517d","seq":27}
+
