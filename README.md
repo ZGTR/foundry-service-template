@@ -661,6 +661,44 @@ SH
 
 Exit code 3 from a gate means "skipped, with the reason printed"; CI treats it the same way.
 
+## Add chat to a product
+
+AgentChat is a streaming chat whose agent runs in the product's own installation of the
+`foundry-agent` step API. A product supplies four things:
+
+1. **A definition.** One compiled conversation definition (agent, tools, budgets), kept in
+   the product's repository. Its digest is the SHA-256 of its RFC 8785 canonical JSON; the
+   BFF below computes it.
+2. **An adapter**, copied from `docs/agent-chat/agent_chat_adapter/` (150 lines of code):
+   - `bff.py`, `bff_router(...)`: checks the product session through the product's own
+     `async verify_session(request) -> ProductUser | None`, signs a short-lived ES256 JWT
+     (`sub` = product user, `custom:org_id` = product tenant, scope
+     `conversation:read conversation:write`), proxies `POST /conversations/{cid}/turns:stream`,
+     `GET /conversations/{cid}/turns/{tid}/events`, `GET` and `DELETE /conversations/{cid}`
+     with the event stream unbuffered, and adds the definition and its digest to each turn.
+     It publishes its public key at `{prefix}/jwks.json`. Never forward the product's own
+     session token.
+   - `webhook.py`, `tool_webhook_router(...)`: the record-tool webhook. It verifies the
+     `X-Foundry-Signature` HMAC and the timestamp's age (401), refuses a stale epoch (409),
+     commits each `tool_call_id` once, and runs the product's `write(tx, call)` and
+     `stage_fact(tx, call)` in one transaction. When `stage_fact` returns `None`, everything
+     rolls back and it answers 503 with no display data. Add the `agent_chat_tool_call` table
+     (`TOOL_CALLS`) to the product's migrations; it needs PostgreSQL.
+   - Dependencies: `httpx`, which `requirements/service.lock` lacks (add it to
+     `service.in`), plus `pyjwt[crypto]` and `rfc8785`, which it has.
+3. **The widget.** Serve `/agent-chat/embed.js` and `/agent-chat/frame.html` from the
+   product's own origin, from the pinned `foundry-webapps` `agent-chat` package.
+4. **An installation.** The product's own step-API deployment from a pinned `foundry-agent`
+   commit, with four settings: its URL (the BFF's `runtime_url`), `AUTH_JWKS_URI` and
+   `PRINCIPAL_ISSUER` pointing at the BFF's key and issuer, `AUTH_AUDIENCE`, and
+   `CONVERSATION_TOOL_WEBHOOK_URL` plus its secret.
+
+The adapter lives under `docs/` because the folder-structure gate allows a closed set of
+top-level directories and one package under `src/`. Its tests are in `tests/agent_chat/`.
+`test_against_real_runtime.py` runs the template as the real runtime's BFF and webhook
+when `FOUNDRY_AGENT` names a `foundry-agent` checkout (repository root, with its `.venv`;
+the step API runs with `SERVICE_MODE=steps`); otherwise it skips by name.
+
 ## Deliberate scope boundaries
 
 The worked example's DOMAIN is a demonstration -- a widget with a name -- and

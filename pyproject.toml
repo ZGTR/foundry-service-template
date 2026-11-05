@@ -144,7 +144,7 @@ orm_metadata = "foundry_service_template.adapters.real.orm:Base"
 # line that CI parses, at exit 0. Measured in this repository:
 # a real 23-passed run reported no count at all. A flag you pass is not the flag
 # the tool receives.
-pythonpath = ["src", "service-kit/testing", "service-kit/vendor", "."]
+pythonpath = ["src", "service-kit/testing", "service-kit/vendor", ".", "docs/agent-chat"]
 testpaths = ["tests"]
 # `"src"` IS FIRST, AND IT IS NOT COSMETIC. Without it this suite imports
 # `foundry_service_template` from wherever pip put it, which in CI is this same
