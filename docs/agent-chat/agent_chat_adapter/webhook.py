@@ -1,6 +1,7 @@
 """AgentChat record-tool webhook: the product side of the runtime's signed tool contract.
 
-The runtime POSTs `{conversation_id, turn_id, tool_call_id, epoch, name, input}` with
+The runtime POSTs `{conversation_id, turn_id, tool_call_id, epoch, name, input, principal}`
+(`principal` = the conversation's owner `{org_id, sub}`, None from an older runtime) with
 `X-Foundry-Timestamp`, `X-Foundry-Signature: sha256=<HMAC(secret, "<ts>.<body>")>` and
 `Idempotency-Key: <tool_call_id>`. This route verifies the signature and the timestamp's
 age, refuses an epoch lower than one already committed for the conversation, commits each
@@ -38,16 +39,16 @@ class ToolCall:
     epoch: int
     name: str
     input: dict
+    principal: dict | None = None  # {org_id, sub}: the conversation's owner (newer runtimes)
 
 
 class _Refused(Exception):
-    def __init__(self, status: int, error: str) -> None:
-        self.status, self.error = status, error
+    """args = (status, error)."""
 
 
 def _parse(raw: bytes, key: str | None) -> ToolCall:
     try:
-        body = json.loads(raw)
+        body = {"principal": None, **json.loads(raw)}  # an older runtime sends no principal
         call = ToolCall(**{name: body[name] for name in ToolCall.__dataclass_fields__})
     except (ValueError, TypeError, KeyError):
         call = None
@@ -99,7 +100,8 @@ def tool_webhook_router(
             display = await run_in_threadpool(
                 commit, _parse(raw, request.headers.get("idempotency-key")))
         except _Refused as refused:
-            return JSONResponse({"error": refused.error}, status_code=refused.status)
+            status, error = refused.args
+            return JSONResponse({"error": error}, status_code=status)
         return JSONResponse({k: display[k] for k in ("state_patch", "artifact") if k in display})
 
     return router
