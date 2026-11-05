@@ -1,0 +1,101 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "text": "Which runs failed this week and what did they cost?"
+  },
+  "status": 200,
+  "response": {
+    "conversation_id": "c-a24a418631a2443292f0",
+    "reply": "3 results from failed_runs: run_fe0e5101bc0d (playbook id blog_post, employee Research Analyst, status failed); run_786565f0b2fc (playbook id weekly_digest, employee Blog Writer, status refused_budget); run_e148514104cc (playbook id seo_brief, employee Blog Writer, status failed).",
+    "cards": [
+      {
+        "id": "tc_cd03ed63f1cf4dddc107062732f83f86c7a61b37",
+        "data": {
+          "ok": true,
+          "rows": [
+            {
+              "run_id": "run_fe0e5101bc0d",
+              "status": "failed",
+              "cost_usd": 0.0169,
+              "employee": "Research Analyst",
+              "ended_at": "2026-11-02T23:10:45",
+              "playbook_id": "blog_post",
+              "terminal_reason": "map_item_exhausted"
+            },
+            {
+              "run_id": "run_786565f0b2fc",
+              "status": "refused_budget",
+              "cost_usd": 0.0,
+              "employee": "Blog Writer",
+              "ended_at": "2026-10-30T01:11:45",
+              "playbook_id": "weekly_digest",
+              "terminal_reason": "refused: spend"
+            },
+            {
+              "run_id": "run_e148514104cc",
+              "status": "failed",
+              "cost_usd": 0.0,
+              "employee": "Blog Writer",
+              "ended_at": "2026-11-03T04:55:45",
+              "playbook_id": "seo_brief",
+              "terminal_reason": "map_item_exhausted"
+            }
+          ],
+          "tool": "failed_runs",
+          "columns": [
+            "run_id",
+            "playbook_id",
+            "employee",
+            "status",
+            "terminal_reason",
+            "cost_usd",
+            "ended_at"
+          ],
+          "row_count": 3
+        },
+        "kind": "data_table",
+        "title": "failed_runs"
+      }
+    ],
+    "errors": [],
+    "event_types": [
+      "turn.started",
+      "usage",
+      "artifact",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "usage",
+      "turn.done"
+    ],
+    "definition_digest": "63424e7ebf74879b209ab6be6bdfa4fe2cd4fe814c1e8d8843e1d673a607796d"
+  }
+}

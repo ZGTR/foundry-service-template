@@ -11,15 +11,17 @@ the lifespan hook that runs the idempotent startup and the graceful drain.
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from foundry_contracts.errors import ConfigurationError, PolicyRefused, Unauthorized
 
+from foundry_data_gateway.composition.config import ServiceConfig
 from foundry_data_gateway.composition.container import Container
-from foundry_data_gateway.domain import InvalidWidgetName, WidgetNotFound
+from foundry_data_gateway.domain import InvalidWidgetName, ToolRefused, WidgetNotFound
 from foundry_data_gateway.runtime import (
     CorrelationIdMiddleware,
     DrainTrackingMiddleware,
@@ -32,11 +34,23 @@ from foundry_data_gateway.transport.http.controllers import (
 
 _STATUS_BY_ERROR = (
     (Unauthorized, 401),
+    (ToolRefused, 403),
     (InvalidWidgetName, 422),
     (WidgetNotFound, 404),
     (PolicyRefused, 403),
     (ConfigurationError, 500),
 )
+
+
+def webhook_secret(config: ServiceConfig) -> Callable[[], bytes] | None:
+    """The webhook HMAC key provider: the injected value, else the mounted file, else none."""
+    if config.tool_webhook_secret:
+        value = config.tool_webhook_secret.strip().encode()
+        return lambda: value
+    if config.tool_webhook_secret_file:
+        path = Path(config.tool_webhook_secret_file)
+        return lambda: path.read_text().strip().encode()
+    return None
 
 
 def create_app(container: Container) -> FastAPI:
@@ -64,7 +78,7 @@ def create_app(container: Container) -> FastAPI:
             data_tools_controller.build_router(
                 container.data_tools,
                 container.authenticate,
-                container.config.tool_webhook_secret_file,
+                webhook_secret(container.config),
             )
         )
 

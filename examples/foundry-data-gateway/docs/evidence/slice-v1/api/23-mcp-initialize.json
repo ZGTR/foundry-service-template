@@ -1,0 +1,30 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "method": "POST",
+    "path": "/mcp",
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 0,
+      "method": "initialize",
+      "params": {}
+    }
+  },
+  "status": 200,
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 0,
+    "result": {
+      "protocolVersion": "2026-07-28",
+      "capabilities": {
+        "tools": {
+          "listChanged": false
+        }
+      },
+      "serverInfo": {
+        "name": "foundry-data-gateway",
+        "version": "1.0.0"
+      }
+    }
+  }
+}

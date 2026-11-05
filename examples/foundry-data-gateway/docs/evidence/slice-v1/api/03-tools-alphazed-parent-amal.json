@@ -1,0 +1,144 @@
+{
+  "request": {
+    "persona": "alphazed-parent-amal",
+    "method": "GET",
+    "path": "/v1/tools",
+    "body": null
+  },
+  "status": 200,
+  "response": {
+    "tools": [
+      {
+        "pack": "alphazed_learning",
+        "name": "list_children",
+        "description": "The parent's children with their level, score, streak and coins.",
+        "source": {
+          "name": "alqosh",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {}
+        },
+        "returns": {
+          "nickname": "string",
+          "level": "string",
+          "score": "integer",
+          "streak_days": "integer",
+          "coins": "integer"
+        },
+        "examples": [
+          {
+            "question": "Show me my children and their streaks.",
+            "arguments": {}
+          }
+        ]
+      },
+      {
+        "pack": "alphazed_learning",
+        "name": "child_progress",
+        "description": "Bytes completed and average best score per subject, for one child or all.",
+        "source": {
+          "name": "alqosh",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "nickname": {
+              "type": "string",
+              "description": "A child's nickname; empty for all children.",
+              "maxLength": 64,
+              "default": ""
+            }
+          }
+        },
+        "returns": {
+          "nickname": "string",
+          "subject": "string",
+          "bytes_completed": "integer",
+          "avg_top_score": "number"
+        },
+        "examples": [
+          {
+            "question": "How is progress going for each of my children?",
+            "arguments": {}
+          }
+        ]
+      },
+      {
+        "pack": "alphazed_learning",
+        "name": "needs_attention",
+        "description": "Child and subject pairs whose average best score is below a threshold, weakest first.",
+        "source": {
+          "name": "alqosh",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "below_score": {
+              "type": "integer",
+              "description": "Score threshold (0-100).",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 60
+            }
+          }
+        },
+        "returns": {
+          "nickname": "string",
+          "subject": "string",
+          "avg_top_score": "number",
+          "bytes_played": "integer"
+        },
+        "examples": [
+          {
+            "question": "Which of my children need help, and in which subject?",
+            "arguments": {
+              "below_score": 60
+            }
+          }
+        ]
+      },
+      {
+        "pack": "alphazed_learning",
+        "name": "next_achievements",
+        "description": "Achievements each child is closest to unlocking, with progress and reward coins.",
+        "source": {
+          "name": "alqosh",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {}
+        },
+        "returns": {
+          "nickname": "string",
+          "achievement": "string",
+          "description": "string",
+          "progress": "integer",
+          "award_coins": "integer"
+        },
+        "examples": [
+          {
+            "question": "Which achievements are my children close to unlocking?",
+            "arguments": {}
+          }
+        ]
+      }
+    ]
+  }
+}

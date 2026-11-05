@@ -52,3 +52,7 @@ rfc8785>=0.1.2
 # rather than left unused: an unwired dependency pinned for an approach this
 # template no longer takes is exactly the leftover this estate's gates exist
 # to catch elsewhere, and there is no reason to make it an exception here.
+
+# Tool packs and policy are YAML; MySQL is a supported data-source dialect.
+pyyaml>=6.0
+pymysql>=1.1

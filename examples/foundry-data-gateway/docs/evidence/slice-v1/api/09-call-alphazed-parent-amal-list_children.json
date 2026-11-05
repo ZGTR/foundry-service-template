@@ -1,0 +1,44 @@
+{
+  "request": {
+    "persona": "alphazed-parent-amal",
+    "method": "POST",
+    "path": "/v1/tools/list_children:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": true,
+    "tool": "list_children",
+    "row_count": 3,
+    "rows": [
+      {
+        "nickname": "Lina",
+        "level": "L2: الحروف وكلماتها ج2 · Letters & Words Pt 2",
+        "score": 490,
+        "streak_days": 0,
+        "coins": 383
+      },
+      {
+        "nickname": "Omar",
+        "level": "L1: الحروف وكلماتها ج1 · Letters & Words Pt 1",
+        "score": 730,
+        "streak_days": 2,
+        "coins": 241
+      },
+      {
+        "nickname": "Yousef",
+        "level": "L1: الحروف وكلماتها ج1 · Letters & Words Pt 1",
+        "score": 520,
+        "streak_days": 15,
+        "coins": 54
+      }
+    ],
+    "columns": [
+      "nickname",
+      "level",
+      "score",
+      "streak_days",
+      "coins"
+    ]
+  }
+}

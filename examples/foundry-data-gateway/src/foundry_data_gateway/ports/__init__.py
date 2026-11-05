@@ -12,6 +12,14 @@ from __future__ import annotations
 
 from foundry_data_gateway.ports.auth import PrincipalAuth
 from foundry_data_gateway.ports.clock import Clock, FrozenClock, SystemClock
+from foundry_data_gateway.ports.data_tools import (
+    CatalogueLoader,
+    DataReceipt,
+    DataSource,
+    ReceiptStore,
+    SourceRegistry,
+    UsageStore,
+)
 from foundry_data_gateway.ports.event_bus import Event, EventHandler, Publisher, Subscriber
 from foundry_data_gateway.ports.health import HealthReport, HealthReporter, ProbeResult
 from foundry_data_gateway.ports.readiness import ReadinessCheck
@@ -23,6 +31,12 @@ from foundry_data_gateway.ports.transaction import (
 from foundry_data_gateway.ports.widget_repository import WidgetRepository
 
 __all__ = [
+    "CatalogueLoader",
+    "DataReceipt",
+    "DataSource",
+    "ReceiptStore",
+    "SourceRegistry",
+    "UsageStore",
     "Clock",
     "Event",
     "EventHandler",

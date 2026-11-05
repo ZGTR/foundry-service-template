@@ -230,11 +230,23 @@ class ServiceConfig(BaseSettings):
     #: Whether startup applies migrations. EXPLICIT by §6: a service migrates
     #: because this says so, never as a side effect of importing a module.
     migrate_on_startup: bool = False
-    #: Data tools. Per-org grants and row caps as JSON
-    #: (`{"org": {"tools": ["list_subjects"], "max_rows": 50}}`); unset means every org
-    #: is refused every tool. The webhook's HMAC key is read from a mounted file.
-    data_policies_json: str = ""
+    #: Data tools. `TOOL_PACKS_DIR` holds `*.tools.yaml` packs and `TOOL_POLICY_FILE` the
+    #: tenant grants (locally), or `TOOL_CATALOGUE_URI` names their S3 prefix (deployed);
+    #: neither means the service serves no data tools. `AGENT_MODEL_ID` is the model
+    #: named in the generated foundry-agent definition.
+    tool_packs_dir: str | None = None
+    tool_policy_file: str | None = None
+    #: `s3://bucket/prefix/` holding the packs and `policy.yaml`; the deployed form.
+    tool_catalogue_uri: str | None = None
     tool_webhook_secret_file: str | None = None
+    #: The webhook HMAC key itself, injected by ECS from Secrets Manager in a deployment
+    #: (a file path locally). Exactly one of the two is used; the value wins.
+    tool_webhook_secret: str | None = None
+    agent_model_id: str = "data-agent-model"
+    #: `DATA_SOURCE_URLS`: JSON object from each pack source's `connection` name to its
+    #: DSN, e.g. `{"alqosh": "mysql+pymysql://reader:...@host/alqosh"}`. Delivered from a
+    #: secret in a deployment; the packs themselves never hold credentials.
+    data_source_urls: dict[str, str] = {}
     #: Where this service's alembic tree is. Relative to the process working
     #: directory, which is `/app` in the image and the repository root locally --
     #: `migrations` resolves correctly in both, which is why the default is a
@@ -301,3 +313,4 @@ class ServiceConfig(BaseSettings):
         config from the environment.
         """
         return cls()
+

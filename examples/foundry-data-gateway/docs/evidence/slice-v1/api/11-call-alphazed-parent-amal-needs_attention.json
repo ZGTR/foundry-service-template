@@ -1,0 +1,58 @@
+{
+  "request": {
+    "persona": "alphazed-parent-amal",
+    "method": "POST",
+    "path": "/v1/tools/needs_attention:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": true,
+    "tool": "needs_attention",
+    "row_count": 6,
+    "rows": [
+      {
+        "nickname": "Lina",
+        "subject": "الألوان · Colours",
+        "avg_top_score": 47.8,
+        "bytes_played": 4
+      },
+      {
+        "nickname": "Yousef",
+        "subject": "الأرقام · Numbers",
+        "avg_top_score": 52.3,
+        "bytes_played": 3
+      },
+      {
+        "nickname": "Lina",
+        "subject": "الحروف · Letters",
+        "avg_top_score": 53.3,
+        "bytes_played": 3
+      },
+      {
+        "nickname": "Yousef",
+        "subject": "الحروف · Letters",
+        "avg_top_score": 54.0,
+        "bytes_played": 3
+      },
+      {
+        "nickname": "Lina",
+        "subject": "الأرقام · Numbers",
+        "avg_top_score": 54.0,
+        "bytes_played": 2
+      },
+      {
+        "nickname": "Yousef",
+        "subject": "الألوان · Colours",
+        "avg_top_score": 57.7,
+        "bytes_played": 3
+      }
+    ],
+    "columns": [
+      "nickname",
+      "subject",
+      "avg_top_score",
+      "bytes_played"
+    ]
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "method": "GET",
+    "path": "/v1/tools",
+    "body": null
+  },
+  "status": 200,
+  "response": {
+    "tools": [
+      {
+        "pack": "shepherd_operations",
+        "name": "failed_runs",
+        "description": "Playbook runs that failed or were refused in the last N days, with the employee that ran them, why they ended, and what they cost in USD.",
+        "source": {
+          "name": "shepherd_db",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "days": {
+              "type": "integer",
+              "description": "Look-back window in days.",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 7
+            }
+          }
+        },
+        "returns": {
+          "run_id": "string",
+          "playbook_id": "string",
+          "employee": "string",
+          "status": "string",
+          "terminal_reason": "string",
+          "cost_usd": "number",
+          "ended_at": "string"
+        },
+        "examples": [
+          {
+            "question": "Which runs failed this week and what did they cost?",
+            "arguments": {
+              "days": 7
+            }
+          }
+        ]
+      },
+      {
+        "pack": "shepherd_operations",
+        "name": "spend_by_employee",
+        "description": "Model spend, tokens and run count per AI employee over the last N days.",
+        "source": {
+          "name": "shepherd_db",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "days": {
+              "type": "integer",
+              "description": "Look-back window in days.",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 30
+            }
+          }
+        },
+        "returns": {
+          "employee": "string",
+          "role": "string",
+          "runs": "integer",
+          "tokens": "integer",
+          "cost_usd": "number"
+        },
+        "examples": [
+          {
+            "question": "How much did each employee spend this month?",
+            "arguments": {
+              "days": 30
+            }
+          }
+        ]
+      },
+      {
+        "pack": "shepherd_operations",
+        "name": "busiest_employees",
+        "description": "AI employees ranked by runs and model calls in the last N days, with current status.",
+        "source": {
+          "name": "shepherd_db",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "days": {
+              "type": "integer",
+              "description": "Look-back window in days.",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 7
+            }
+          }
+        },
+        "returns": {
+          "employee": "string",
+          "status": "string",
+          "runs": "integer",
+          "model_calls": "integer"
+        },
+        "examples": [
+          {
+            "question": "Which employee is the busiest this week?",
+            "arguments": {
+              "days": 7
+            }
+          }
+        ]
+      },
+      {
+        "pack": "shepherd_operations",
+        "name": "model_usage",
+        "description": "Calls, tokens, cost and cache hit rate per model over the last N days.",
+        "source": {
+          "name": "shepherd_db",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "days": {
+              "type": "integer",
+              "description": "Look-back window in days.",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 30
+            }
+          }
+        },
+        "returns": {
+          "model_id": "string",
+          "calls": "integer",
+          "tokens_in": "integer",
+          "tokens_out": "integer",
+          "cost_usd": "number",
+          "cache_hit_rate": "number"
+        },
+        "examples": [
+          {
+            "question": "Which models are we spending on, and how often do we hit the cache?",
+            "arguments": {
+              "days": 30
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

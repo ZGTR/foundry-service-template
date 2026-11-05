@@ -1,0 +1,10 @@
+{
+  "request": {
+    "path": "/v1/tools",
+    "headers": {}
+  },
+  "status": 401,
+  "response": {
+    "detail": "missing or malformed Authorization: Bearer header"
+  }
+}

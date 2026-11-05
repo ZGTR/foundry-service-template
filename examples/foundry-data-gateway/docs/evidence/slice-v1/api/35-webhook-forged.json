@@ -1,0 +1,10 @@
+{
+  "request": {
+    "path": "/v1/tool-webhook",
+    "signature": "wrong key"
+  },
+  "status": 401,
+  "response": {
+    "detail": "bad webhook signature"
+  }
+}

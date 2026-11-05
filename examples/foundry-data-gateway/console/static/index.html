@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundry Data Gateway</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --ink: #1b1f24; --muted: #5d6673; --line: #e3e6ea;
+    --accent: #2f5bea; --accent-ink: #ffffff; --ok: #1f7a4d; --ok-bg: #e6f4ec; --bad: #b42318; --bad-bg: #fdecea;
+    --chip: #eef2ff; --user: #2f5bea; --agent: #f1f3f6;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+           padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 16px; margin: 0; }
+  header h1 small { color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .persona { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; max-width: 100%; }
+  select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); max-width: 100%; min-width: 0; }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--chip); color: var(--accent); white-space: nowrap; }
+  main { display: grid; grid-template-columns: 300px minmax(0, 1fr) 400px; gap: 16px; padding: 16px 20px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-width: 0; }
+  section h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 10px; }
+  .tool { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+  .tool b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  .tool p { margin: 4px 0 6px; color: var(--muted); font-size: 13px; }
+  .ex { display: inline-block; margin: 2px 4px 2px 0; padding: 3px 8px; border-radius: 999px; background: var(--chip);
+        color: var(--accent); border: 0; font: inherit; font-size: 12px; cursor: pointer; text-align: left; }
+  .chat { display: flex; flex-direction: column; min-height: 520px; }
+  .log { flex: 1; overflow: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 8px; }
+  .msg { max-width: 92%; padding: 9px 12px; border-radius: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.user { align-self: flex-end; background: var(--user); color: #fff; }
+  .msg.agent { align-self: flex-start; background: var(--agent); }
+  .msg.refused { background: var(--bad-bg); color: var(--bad); }
+  .card { align-self: stretch; border: 1px solid var(--line); border-radius: 10px; overflow: auto; }
+  .card .cap { padding: 6px 10px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line); }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { text-align: start; padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; background: #fafbfc; }
+  form { display: flex; gap: 8px; margin-top: 8px; }
+  input[type=text] { flex: 1; font: inherit; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; }
+  button.send { font: inherit; padding: 9px 14px; border: 0; border-radius: 8px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  button.send:disabled { opacity: .55; cursor: progress; }
+  .pill { font-size: 11px; padding: 1px 7px; border-radius: 999px; }
+  .pill.allow { background: var(--ok-bg); color: var(--ok); }
+  .pill.refuse { background: var(--bad-bg); color: var(--bad); }
+  .bar { height: 6px; border-radius: 3px; background: var(--accent); }
+  .muted { color: var(--muted); font-size: 12px; }
+  @media (max-width: 1100px) { main { grid-template-columns: minmax(0, 1fr); } .chat { min-height: 420px; } }
+  @media (max-width: 520px) { header, main { padding-left: 16px; padding-right: 16px; } select { width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Foundry Data Gateway <small>governed company data for agents</small></h1>
+  <div class="persona">
+    <span class="tag" data-testid="product-tag">—</span>
+    <select data-testid="persona-select" aria-label="Signed in as"></select>
+  </div>
+</header>
+<main>
+  <section data-testid="tools-panel">
+    <h2>Tools this organisation may use</h2>
+    <div id="tools"></div>
+  </section>
+  <section class="chat">
+    <h2>Ask the data agent</h2>
+    <div class="log" id="log" data-testid="chat-log"></div>
+    <form id="ask">
+      <input type="text" id="q" data-testid="chat-input" placeholder="Ask about your organisation's data…" autocomplete="off">
+      <button class="send" data-testid="chat-send">Ask</button>
+    </form>
+  </section>
+  <section data-testid="audit-panel">
+    <h2>Receipts</h2>
+    <div id="receipts"></div>
+    <h2 style="margin-top:16px">Usage (from data_tool.called events)</h2>
+    <div id="usage"></div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const el = (tag, attrs = {}, text) => { const e = document.createElement(tag); Object.assign(e, attrs); if (text !== undefined) e.textContent = text; return e; };
+let personas = [], current = null, conversation = null;
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+  return r.json();
+}
+
+function table(rows, columns) {
+  const t = el("table"); const head = el("tr");
+  columns.forEach((c) => head.append(el("th", {}, c.replaceAll("_", " "))));
+  t.append(head);
+  const show = (v) => (typeof v === "string" && /^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(v) ? v.slice(0, 16).replace("T", " ") : v ?? "—");
+  rows.forEach((row) => { const tr = el("tr"); columns.forEach((c) => tr.append(el("td", { dir: "auto" }, show(row[c])))); t.append(tr); });
+  return t;
+}
+
+async function loadTools() {
+  const box = $("tools"); box.replaceChildren(el("p", { className: "muted" }, "Loading…"));
+  const { tools } = await api(`/api/${current.id}/tools`);
+  box.replaceChildren();
+  tools.forEach((tool) => {
+    const card = el("div", { className: "tool" }); card.dataset.testid = `tool-${tool.name}`;
+    card.append(el("b", {}, tool.name), el("p", {}, tool.description));
+    tool.examples.forEach((ex) => {
+      const b = el("button", { className: "ex", type: "button" }, ex.question);
+      b.dataset.testid = `example-${tool.name}`;
+      b.onclick = () => { $("q").value = ex.question; $("q").focus(); };
+      card.append(b);
+    });
+    box.append(card);
+  });
+}
+
+async function loadAudit() {
+  const { receipts, usage } = await api(`/api/${current.id}/audit`);
+  const r = $("receipts"); r.replaceChildren();
+  if (!receipts.length) r.append(el("p", { className: "muted" }, "No calls yet."));
+  else {
+    const t = el("table", { style: "font-size:12px;white-space:nowrap" }); t.dataset.testid = "receipts-table";
+    const h = el("tr"); ["tool", "decision", "rows", "via"].forEach((c) => h.append(el("th", {}, c))); t.append(h);
+    receipts.slice(0, 8).forEach((x) => {
+      const tr = el("tr"); tr.append(el("td", {}, x.tool));
+      const d = el("td"); d.append(el("span", { className: `pill ${x.decision}` }, x.decision === "allow" ? "allowed" : x.rule)); tr.append(d);
+      tr.append(el("td", {}, x.row_count), el("td", {}, x.channel)); t.append(tr);
+    });
+    const scroll = el("div", { style: "overflow-x:auto" }); scroll.append(t);
+    r.append(scroll, el("p", { className: "muted" }, `policy ${receipts[0].policy_version}`));
+  }
+  const u = $("usage"); u.replaceChildren();
+  const max = Math.max(1, ...usage.map((x) => x.calls));
+  usage.forEach((x) => {
+    const row = el("div", { style: "margin:6px 0" }); row.dataset.testid = `usage-${x.tool}`;
+    row.append(el("div", { className: "muted" }, `${x.tool} · ${x.calls} calls · ${x.refusals} refused · ${x.rows_returned} rows`));
+    row.append(el("div", { className: "bar", style: `width:${(100 * x.calls) / max}%` }));
+    u.append(row);
+  });
+  if (!usage.length) u.append(el("p", { className: "muted" }, "No usage yet."));
+}
+
+async function select(id) {
+  current = personas.find((p) => p.id === id); conversation = null;
+  document.querySelector("[data-testid=product-tag]").textContent = `${current.product} · ${current.grant}`;
+  $("log").replaceChildren();
+  await Promise.all([loadTools(), loadAudit()]);
+}
+
+$("ask").onsubmit = async (e) => {
+  e.preventDefault();
+  const text = $("q").value.trim(); if (!text) return;
+  const log = $("log"); const send = document.querySelector("[data-testid=chat-send]");
+  const user = el("div", { className: "msg user" }, text); user.dataset.testid = "msg-user"; log.append(user);
+  $("q").value = ""; send.disabled = true;
+  try {
+    const turn = await api(`/api/${current.id}/chat`, { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text, conversation_id: conversation }) });
+    conversation = turn.conversation_id;
+    turn.cards.forEach((card) => {
+      const data = card.data || {};
+      const box = el("div", { className: "card" }); box.dataset.testid = "data-card";
+      if (data.ok) {
+        box.append(el("div", { className: "cap" }, `${card.title} · ${data.row_count} rows · read through the gateway`));
+        box.append(table(data.rows, data.columns || Object.keys(data.rows[0] || {})));
+      } else box.append(el("div", { className: "cap" }, `${card.title} · refused: ${data.refused}`));
+      log.append(box);
+    });
+    const refused = /can't answer/i.test(turn.reply);
+    const agent = el("div", { className: `msg agent${refused ? " refused" : ""}`, dir: "auto" }, turn.reply || "(no reply)");
+    agent.dataset.testid = "msg-agent"; log.append(agent);
+  } catch (err) {
+    const fail = el("div", { className: "msg agent refused" }, String(err)); fail.dataset.testid = "msg-error"; log.append(fail);
+  } finally {
+    send.disabled = false; log.scrollTop = log.scrollHeight; await loadAudit();
+  }
+};
+
+(async () => {
+  ({ personas } = await api("/api/personas"));
+  const s = document.querySelector("[data-testid=persona-select]");
+  personas.forEach((p) => s.append(el("option", { value: p.id }, `${p.product} — ${p.label}`)));
+  s.onchange = () => select(s.value);
+  const wanted = new URLSearchParams(location.search).get("persona");
+  s.value = personas.some((p) => p.id === wanted) ? wanted : personas[0].id;
+  await select(s.value);
+  document.body.dataset.ready = "true";
+})();
+</script>
+</body>
+</html>

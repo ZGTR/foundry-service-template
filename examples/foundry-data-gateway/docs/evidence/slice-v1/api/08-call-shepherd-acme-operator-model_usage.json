@@ -1,0 +1,48 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "method": "POST",
+    "path": "/v1/tools/model_usage:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": true,
+    "tool": "model_usage",
+    "row_count": 3,
+    "rows": [
+      {
+        "model_id": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+        "calls": 17,
+        "tokens_in": 37277,
+        "tokens_out": 43833,
+        "cost_usd": 0.2916,
+        "cache_hit_rate": 0.294
+      },
+      {
+        "model_id": "qwen2.5:14b",
+        "calls": 22,
+        "tokens_in": 50016,
+        "tokens_out": 59544,
+        "cost_usd": 0.0,
+        "cache_hit_rate": 0.227
+      },
+      {
+        "model_id": "qwen2.5:32b",
+        "calls": 25,
+        "tokens_in": 55927,
+        "tokens_out": 67538,
+        "cost_usd": 0.0,
+        "cache_hit_rate": 0.2
+      }
+    ],
+    "columns": [
+      "model_id",
+      "calls",
+      "tokens_in",
+      "tokens_out",
+      "cost_usd",
+      "cache_hit_rate"
+    ]
+  }
+}

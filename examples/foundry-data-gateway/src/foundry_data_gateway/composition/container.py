@@ -26,11 +26,11 @@ from foundry_data_gateway.adapters.real import (
 )
 from foundry_data_gateway.application import (
     CreateWidget,
+    DataToolUseCases,
     GetWidget,
     ListWidgets,
     WidgetUseCases,
 )
-from foundry_data_gateway.application.run_data_tool import RunDataTool
 from foundry_data_gateway.composition.config import ServiceConfig
 from foundry_data_gateway.composition.wiring import (
     LOCAL_ENVS,
@@ -41,12 +41,14 @@ from foundry_data_gateway.composition.wiring import (
     build_publisher,
 )
 from foundry_data_gateway.ports import (
+    CatalogueLoader,
     Clock,
     HealthReporter,
     PrincipalAuth,
     Publisher,
     ReadinessCheck,
     SecretsPort,
+    Subscriber,
     SystemClock,
     TransactionalUnitOfWork,
     TransactionBoundary,
@@ -83,7 +85,7 @@ class Container:
     shutdown: GracefulShutdown
     lifecycle: ServiceLifecycle
     unit_of_work: TransactionalUnitOfWork | None = None
-    data_tools: RunDataTool | None = None
+    data_tools: DataToolUseCases | None = None
 
     def authenticate(self, headers: Mapping[str, str]) -> CallerPrincipalV1:
         return self.principal_auth.authenticate(headers)
@@ -187,25 +189,69 @@ def build_container(
         shutdown=shutdown,
         lifecycle=lifecycle,
         unit_of_work=unit_of_work,
-        data_tools=build_data_tools(config, resolved_secrets) if persistence else None,
+        data_tools=persistence
+        and build_data_tools(config, resolved_secrets, resolved_publisher, resolved_clock),
     )
 
 
-def build_data_tools(config: ServiceConfig, secrets: SecretsPort | None) -> RunDataTool:
-    """The data-tool graph: policy from config, rows and receipts on the service's database.
+def build_data_tools(
+    config: ServiceConfig, secrets: SecretsPort | None, publisher: Publisher, clock: Clock
+) -> DataToolUseCases | None:
+    """The data-tool graph, or None when no packs are configured.
 
-    A second engine over the same URL, lazily connected like the first, so building the
-    container still opens nothing.
+    Wires the ports to their adapters (IoC: the use cases never name one), and subscribes
+    the usage projection to the publisher when it is an in-process bus; a deployment on
+    the outbox delivers the same `data_tool.called` event to the same handler.
     """
-    from foundry_data_gateway.adapters.real.sql_data_access import SqlDataSource, SqlReceiptStore
-    from foundry_data_gateway.domain.data_tools import DataPolicy
+    catalogue = build_catalogue(config)
+    if catalogue is None:
+        return None
+    from foundry_data_gateway.adapters.real import (
+        SqlReceiptStore,
+        SqlSourceRegistry,
+        SqlUsageStore,
+    )
+    from foundry_data_gateway.application import (
+        AgentDefinition,
+        CallDataTool,
+        ListDataTools,
+        ReadAudit,
+        UsageProjection,
+    )
 
     engine = build_database_engine(config, secrets)
-    return RunDataTool(
-        policy=DataPolicy.from_json(config.data_policies_json),
-        source=SqlDataSource(engine),
-        receipts=SqlReceiptStore(engine),
+    catalogue.load()  # fail at startup, not at the first agent call
+    usage = SqlUsageStore(engine)
+    if isinstance(publisher, Subscriber):
+        UsageProjection(usage).subscribe_to(publisher)
+    return DataToolUseCases(
+        call=CallDataTool(
+            catalogue,
+            SqlSourceRegistry(config.data_source_urls),
+            SqlReceiptStore(engine),
+            publisher,
+            clock,
+        ),
+        list=ListDataTools(catalogue),
+        agent=AgentDefinition(catalogue, config.agent_model_id),
+        audit=ReadAudit(SqlReceiptStore(engine), usage),
     )
+
+
+def build_catalogue(config: ServiceConfig) -> CatalogueLoader | None:
+    """Where packs come from: a directory locally, an S3 prefix in a deployment."""
+    from foundry_data_gateway.adapters.real import S3CatalogueLoader, YamlCatalogueLoader
+
+    if config.tool_packs_dir and config.tool_policy_file:
+        return YamlCatalogueLoader(config.tool_packs_dir, config.tool_policy_file)
+    if config.tool_catalogue_uri:
+        import boto3
+
+        client = boto3.client(
+            "s3", region_name=config.aws_region, endpoint_url=config.aws_endpoint_url
+        )
+        return S3CatalogueLoader(config.tool_catalogue_uri, client)
+    return None
 
 
 def build_secrets(config: ServiceConfig) -> SecretsPort | None:

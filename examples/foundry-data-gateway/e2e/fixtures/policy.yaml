@@ -1,0 +1,10 @@
+# Who may call what, for the e2e installation. Tenants absent here may call nothing.
+apiVersion: foundry.dev/tool-policy/v1
+tenants:
+  # Shepherd organisations (tenant = org_id)
+  org_acme:   {pack: shepherd_operations, toolsets: [operator], max_rows: 50}
+  org_globex: {pack: shepherd_operations, toolsets: [finance],  max_rows: 50}
+  # Alphazed parent accounts (tenant = parent id)
+  7f3a2c1e-0000-4000-8000-000000000001: {pack: alphazed_learning, toolsets: [parent],      max_rows: 50}
+  9b1d4e2f-0000-4000-8000-000000000002: {pack: alphazed_learning, toolsets: [parent_free], max_rows: 50}
+  c4e8a6b0-0000-4000-8000-000000000003: {pack: alphazed_learning, toolsets: [parent],      max_rows: 50}

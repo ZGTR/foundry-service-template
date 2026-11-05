@@ -1,0 +1,16 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "method": "POST",
+    "path": "/v1/tools/failed_runs:call",
+    "body": {
+      "days": 500
+    }
+  },
+  "status": 200,
+  "response": {
+    "ok": false,
+    "refused": "invalid_arguments",
+    "reason": "days is above 90"
+  }
+}

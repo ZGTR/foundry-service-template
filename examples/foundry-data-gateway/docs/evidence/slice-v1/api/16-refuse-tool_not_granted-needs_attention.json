@@ -1,0 +1,14 @@
+{
+  "request": {
+    "persona": "alphazed-parent-free",
+    "method": "POST",
+    "path": "/v1/tools/needs_attention:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": false,
+    "refused": "tool_not_granted",
+    "reason": "needs_attention is not available to this organisation"
+  }
+}

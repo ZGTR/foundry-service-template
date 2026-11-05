@@ -1,0 +1,189 @@
+{
+  "request": {
+    "query": "data_tool_receipts"
+  },
+  "response": {
+    "rows": [
+      {
+        "org_id": "org_acme",
+        "channel": "rest",
+        "tool": "failed_runs",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_acme",
+        "channel": "rest",
+        "tool": "spend_by_employee",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_acme",
+        "channel": "rest",
+        "tool": "busiest_employees",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_acme",
+        "channel": "rest",
+        "tool": "model_usage",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "channel": "rest",
+        "tool": "list_children",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "channel": "rest",
+        "tool": "child_progress",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 9,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "channel": "rest",
+        "tool": "needs_attention",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 6,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "channel": "rest",
+        "tool": "next_achievements",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 5,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "channel": "rest",
+        "tool": "list_children",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_acme",
+        "channel": "rest",
+        "tool": "spend_by_employee",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_globex",
+        "channel": "rest",
+        "tool": "failed_runs",
+        "decision": "refuse",
+        "rule": "tool_not_granted",
+        "row_count": 0,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "9b1d4e2f-0000-4000-8000-000000000002",
+        "channel": "rest",
+        "tool": "needs_attention",
+        "decision": "refuse",
+        "rule": "tool_not_granted",
+        "row_count": 0,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_acme",
+        "channel": "rest",
+        "tool": "failed_runs",
+        "decision": "refuse",
+        "rule": "invalid_arguments",
+        "row_count": 0,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "channel": "rest",
+        "tool": "list_children",
+        "decision": "refuse",
+        "rule": "invalid_arguments",
+        "row_count": 0,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_acme",
+        "channel": "rest",
+        "tool": "drop_everything",
+        "decision": "refuse",
+        "rule": "unknown_tool",
+        "row_count": 0,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_acme",
+        "channel": "mcp",
+        "tool": "busiest_employees",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_acme",
+        "channel": "webhook",
+        "tool": "failed_runs",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "org_globex",
+        "channel": "webhook",
+        "tool": "spend_by_employee",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 2,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "channel": "webhook",
+        "tool": "needs_attention",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 6,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      },
+      {
+        "org_id": "9b1d4e2f-0000-4000-8000-000000000002",
+        "channel": "webhook",
+        "tool": "next_achievements",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "policy_version": "sha256:6cd14779198e4cdf"
+      }
+    ]
+  }
+}

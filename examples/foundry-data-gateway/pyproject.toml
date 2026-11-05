@@ -34,6 +34,10 @@ dependencies = [
     "sqlalchemy>=2.0.30",
     "alembic>=1.13",
     "psycopg[binary]>=3.2",
+    # Tool packs and policies are YAML files; MySQL is a supported data-source dialect
+    # (Alphazed and Shepherd both run MySQL), reached through SQLAlchemy like Postgres.
+    "pyyaml>=6.0",
+    "pymysql>=1.1",
 ]
 
 [project.optional-dependencies]
@@ -185,9 +189,10 @@ select = ["E", "F", "I", "UP", "B", "TID"]
 "os.environ".msg = "Packages must not read the environment; inject config through the constructor."
 
 [tool.ruff.lint.per-file-ignores]
-# The PoC driver, stub model and seed script carry long SQL and report strings.
-"poc/*" = ["E501", "B905"]
-"scripts/seed_alphazed.py" = ["E501"]
+# The e2e harness and its fixtures carry long SQL and report strings; the console BFF is
+# a separate reference app whose entrypoint reads its own settings from the environment.
+"e2e/*" = ["E501", "B905"]
+"console/*" = ["E501", "TID251"]
 # composition/config.py is the one designated composition-root module allowed to
 # read os.environ (see its own docstring, and the root pyproject.toml's
 # banned-api message). tests/unit/test_config.py, tests/shape/test_layering.py

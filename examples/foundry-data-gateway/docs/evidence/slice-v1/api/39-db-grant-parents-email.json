@@ -1,0 +1,9 @@
+{
+  "request": {
+    "as": "alqosh_reader",
+    "sql": "SELECT email FROM parents"
+  },
+  "response": {
+    "denied": true
+  }
+}

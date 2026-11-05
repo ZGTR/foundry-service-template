@@ -1,0 +1,92 @@
+{
+  "request": {
+    "persona": "shepherd-globex-finance",
+    "method": "GET",
+    "path": "/v1/tools",
+    "body": null
+  },
+  "status": 200,
+  "response": {
+    "tools": [
+      {
+        "pack": "shepherd_operations",
+        "name": "spend_by_employee",
+        "description": "Model spend, tokens and run count per AI employee over the last N days.",
+        "source": {
+          "name": "shepherd_db",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "days": {
+              "type": "integer",
+              "description": "Look-back window in days.",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 30
+            }
+          }
+        },
+        "returns": {
+          "employee": "string",
+          "role": "string",
+          "runs": "integer",
+          "tokens": "integer",
+          "cost_usd": "number"
+        },
+        "examples": [
+          {
+            "question": "How much did each employee spend this month?",
+            "arguments": {
+              "days": 30
+            }
+          }
+        ]
+      },
+      {
+        "pack": "shepherd_operations",
+        "name": "model_usage",
+        "description": "Calls, tokens, cost and cache hit rate per model over the last N days.",
+        "source": {
+          "name": "shepherd_db",
+          "kind": "mysql",
+          "scope": "bound_param"
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "days": {
+              "type": "integer",
+              "description": "Look-back window in days.",
+              "minimum": 1,
+              "maximum": 90,
+              "default": 30
+            }
+          }
+        },
+        "returns": {
+          "model_id": "string",
+          "calls": "integer",
+          "tokens_in": "integer",
+          "tokens_out": "integer",
+          "cost_usd": "number",
+          "cache_hit_rate": "number"
+        },
+        "examples": [
+          {
+            "question": "Which models are we spending on, and how often do we hit the cache?",
+            "arguments": {
+              "days": 30
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "request": {
+    "persona": "alphazed-parent-amal",
+    "text": "Give me the parents' email addresses"
+  },
+  "status": 200,
+  "response": {
+    "conversation_id": "c-c902a6d3e7614cd48ccb",
+    "reply": "I can't answer that: unknown tool 'contact_emails' (rule: runtime).",
+    "cards": [],
+    "errors": [],
+    "event_types": [
+      "turn.started",
+      "usage",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "usage",
+      "turn.done"
+    ],
+    "definition_digest": "72ffb4b22b2bc053574e797414731323717ac2194e07b6e38969afe10a8f55e6"
+  }
+}

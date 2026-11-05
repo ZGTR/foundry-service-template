@@ -1,0 +1,152 @@
+{
+  "request": {
+    "persona": "alphazed-parent-amal",
+    "text": "Which of my children need help, and in which subject?"
+  },
+  "status": 200,
+  "response": {
+    "conversation_id": "c-0b8607fabd544b3eb44e",
+    "reply": "6 results from needs_attention: Lina (subject الألوان · Colours, avg top score 47.8, bytes played 4); Yousef (subject الأرقام · Numbers, avg top score 52.3, bytes played 3); Lina (subject الحروف · Letters, avg top score 53.3, bytes played 3); Yousef (subject الحروف · Letters, avg top score 54.0, bytes played 3); Lina (subject الأرقام · Numbers, avg top score 54.0, bytes played 2); Yousef (subject الألوان · Colours, avg top score 57.7, bytes played 3).",
+    "cards": [
+      {
+        "id": "tc_dbcaafd52de14bfbbe8230861fe9ca71cac3093b",
+        "data": {
+          "ok": true,
+          "rows": [
+            {
+              "subject": "الألوان · Colours",
+              "nickname": "Lina",
+              "bytes_played": 4,
+              "avg_top_score": 47.8
+            },
+            {
+              "subject": "الأرقام · Numbers",
+              "nickname": "Yousef",
+              "bytes_played": 3,
+              "avg_top_score": 52.3
+            },
+            {
+              "subject": "الحروف · Letters",
+              "nickname": "Lina",
+              "bytes_played": 3,
+              "avg_top_score": 53.3
+            },
+            {
+              "subject": "الحروف · Letters",
+              "nickname": "Yousef",
+              "bytes_played": 3,
+              "avg_top_score": 54.0
+            },
+            {
+              "subject": "الأرقام · Numbers",
+              "nickname": "Lina",
+              "bytes_played": 2,
+              "avg_top_score": 54.0
+            },
+            {
+              "subject": "الألوان · Colours",
+              "nickname": "Yousef",
+              "bytes_played": 3,
+              "avg_top_score": 57.7
+            }
+          ],
+          "tool": "needs_attention",
+          "columns": [
+            "nickname",
+            "subject",
+            "avg_top_score",
+            "bytes_played"
+          ],
+          "row_count": 6
+        },
+        "kind": "data_table",
+        "title": "needs_attention"
+      }
+    ],
+    "errors": [],
+    "event_types": [
+      "turn.started",
+      "usage",
+      "artifact",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "usage",
+      "turn.done"
+    ],
+    "definition_digest": "72ffb4b22b2bc053574e797414731323717ac2194e07b6e38969afe10a8f55e6"
+  }
+}

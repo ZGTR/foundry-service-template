@@ -1,0 +1,630 @@
+[
+  {
+    "check": "catalogue: shepherd-acme-operator sees exactly its 4 granted tools",
+    "pass": true,
+    "detail": [
+      "failed_runs",
+      "spend_by_employee",
+      "busiest_employees",
+      "model_usage"
+    ]
+  },
+  {
+    "check": "catalogue: shepherd-globex-finance sees exactly its 2 granted tools",
+    "pass": true,
+    "detail": [
+      "spend_by_employee",
+      "model_usage"
+    ]
+  },
+  {
+    "check": "catalogue: alphazed-parent-amal sees exactly its 4 granted tools",
+    "pass": true,
+    "detail": [
+      "list_children",
+      "child_progress",
+      "needs_attention",
+      "next_achievements"
+    ]
+  },
+  {
+    "check": "catalogue: alphazed-parent-free sees exactly its 2 granted tools",
+    "pass": true,
+    "detail": [
+      "list_children",
+      "next_achievements"
+    ]
+  },
+  {
+    "check": "use case: shepherd-acme-operator failed_runs returns rows",
+    "pass": true,
+    "detail": {
+      "ok": true,
+      "tool": "failed_runs",
+      "row_count": 3,
+      "rows": [
+        {
+          "run_id": "run_fe0e5101bc0d",
+          "playbook_id": "blog_post",
+          "employee": "Research Analyst",
+          "status": "failed",
+          "terminal_reason": "map_item_exhausted",
+          "cost_usd": 0.0169,
+          "ended_at": "2026-11-02T23:10:45"
+        },
+        {
+          "run_id": "run_786565f0b2fc",
+          "playbook_id": "weekly_digest",
+          "employee": "Blog Writer",
+          "status": "refused_budget",
+          "terminal_reason": "refused: spend",
+          "cost_usd": 0.0,
+          "ended_at": "2026-10-30T01:11:45"
+        },
+        {
+          "run_id": "run_e148514104cc",
+          "playbook_id": "seo_brief",
+          "employee": "Blog Writer",
+          "status": "failed",
+          "terminal_reason": "map_item_exhausted",
+          "cost_usd": 0.0,
+          "ended_at": "2026-11-03T04:55:45"
+        }
+      ],
+      "columns": [
+        "run_id",
+        "playbook_id",
+        "employee",
+        "status",
+        "terminal_reason",
+        "cost_usd",
+        "ended_at"
+      ]
+    }
+  },
+  {
+    "check": "use case: shepherd-acme-operator spend_by_employee returns rows",
+    "pass": true,
+    "detail": {
+      "ok": true,
+      "tool": "spend_by_employee",
+      "row_count": 3,
+      "rows": [
+        {
+          "employee": "Content QA",
+          "role": "reviewer",
+          "runs": 4,
+          "tokens": 72099,
+          "cost_usd": 0.1209
+        },
+        {
+          "employee": "Research Analyst",
+          "role": "researcher",
+          "runs": 5,
+          "tokens": 89239,
+          "cost_usd": 0.1196
+        },
+        {
+          "employee": "Blog Writer",
+          "role": "content_writer",
+          "runs": 8,
+          "tokens": 152797,
+          "cost_usd": 0.0511
+        }
+      ],
+      "columns": [
+        "employee",
+        "role",
+        "runs",
+        "tokens",
+        "cost_usd"
+      ]
+    }
+  },
+  {
+    "check": "use case: shepherd-acme-operator busiest_employees returns rows",
+    "pass": true,
+    "detail": {
+      "ok": true,
+      "tool": "busiest_employees",
+      "row_count": 3,
+      "rows": [
+        {
+          "employee": "Blog Writer",
+          "status": "running",
+          "runs": 5,
+          "model_calls": 19
+        },
+        {
+          "employee": "Content QA",
+          "status": "blocked",
+          "runs": 1,
+          "model_calls": 3
+        },
+        {
+          "employee": "Research Analyst",
+          "status": "idle",
+          "runs": 1,
+          "model_calls": 2
+        }
+      ],
+      "columns": [
+        "employee",
+        "status",
+        "runs",
+        "model_calls"
+      ]
+    }
+  },
+  {
+    "check": "use case: shepherd-acme-operator model_usage returns rows",
+    "pass": true,
+    "detail": {
+      "ok": true,
+      "tool": "model_usage",
+      "row_count": 3,
+      "rows": [
+        {
+          "model_id": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+          "calls": 17,
+          "tokens_in": 37277,
+          "tokens_out": 43833,
+          "cost_usd": 0.2916,
+          "cache_hit_rate": 0.294
+        },
+        {
+          "model_id": "qwen2.5:14b",
+          "calls": 22,
+          "tokens_in": 50016,
+          "tokens_out": 59544,
+          "cost_usd": 0.0,
+          "cache_hit_rate": 0.227
+        },
+        {
+          "model_id": "qwen2.5:32b",
+          "calls": 25,
+          "tokens_in": 55927,
+          "tokens_out": 67538,
+          "cost_usd": 0.0,
+          "cache_hit_rate": 0.2
+        }
+      ],
+      "columns": [
+        "model_id",
+        "calls",
+        "tokens_in",
+        "tokens_out",
+        "cost_usd",
+        "cache_hit_rate"
+      ]
+    }
+  },
+  {
+    "check": "use case: alphazed-parent-amal list_children returns rows",
+    "pass": true,
+    "detail": {
+      "ok": true,
+      "tool": "list_children",
+      "row_count": 3,
+      "rows": [
+        {
+          "nickname": "Lina",
+          "level": "L2: الحروف وكلماتها ج2 · Letters & Words Pt 2",
+          "score": 490,
+          "streak_days": 0,
+          "coins": 383
+        },
+        {
+          "nickname": "Omar",
+          "level": "L1: الحروف وكلماتها ج1 · Letters & Words Pt 1",
+          "score": 730,
+          "streak_days": 2,
+          "coins": 241
+        },
+        {
+          "nickname": "Yousef",
+          "level": "L1: الحروف وكلماتها ج1 · Letters & Words Pt 1",
+          "score": 520,
+          "streak_days": 15,
+          "coins": 54
+        }
+      ],
+      "columns": [
+        "nickname",
+        "level",
+        "score",
+        "streak_days",
+        "coins"
+      ]
+    }
+  },
+  {
+    "check": "use case: alphazed-parent-amal child_progress returns rows",
+    "pass": true,
+    "detail": {
+      "ok": true,
+      "tool": "child_progress",
+      "row_count": 9,
+      "rows": [
+        {
+          "nickname": "Lina",
+          "subject": "الأرقام · Numbers",
+          "bytes_completed": 1,
+          "avg_top_score": 54.0
+        },
+        {
+          "nickname": "Lina",
+          "subject": "الألوان · Colours",
+          "bytes_completed": 1,
+          "avg_top_score": 47.8
+        },
+        {
+          "nickname": "Lina",
+          "subject": "الحروف · Letters",
+          "bytes_completed": 2,
+          "avg_top_score": 53.3
+        },
+        {
+          "nickname": "Omar",
+          "subject": "الأرقام · Numbers",
+          "bytes_completed": 2,
+          "avg_top_score": 66.5
+        },
+        {
+          "nickname": "Omar",
+          "subject": "الألوان · Colours",
+          "bytes_completed": 3,
+          "avg_top_score": 61.3
+        },
+        {
+          "nickname": "Omar",
+          "subject": "الحروف · Letters",
+          "bytes_completed": 4,
+          "avg_top_score": 67.0
+        },
+        {
+          "nickname": "Yousef",
+          "subject": "الأرقام · Numbers",
+          "bytes_completed": 2,
+          "avg_top_score": 52.3
+        },
+        {
+          "nickname": "Yousef",
+          "subject": "الألوان · Colours",
+          "bytes_completed": 2,
+          "avg_top_score": 57.7
+        },
+        {
+          "nickname": "Yousef",
+          "subject": "الحروف · Letters",
+          "bytes_completed": 2,
+          "avg_top_score": 54.0
+        }
+      ],
+      "columns": [
+        "nickname",
+        "subject",
+        "bytes_completed",
+        "avg_top_score"
+      ]
+    }
+  },
+  {
+    "check": "use case: alphazed-parent-amal needs_attention returns rows",
+    "pass": true,
+    "detail": {
+      "ok": true,
+      "tool": "needs_attention",
+      "row_count": 6,
+      "rows": [
+        {
+          "nickname": "Lina",
+          "subject": "الألوان · Colours",
+          "avg_top_score": 47.8,
+          "bytes_played": 4
+        },
+        {
+          "nickname": "Yousef",
+          "subject": "الأرقام · Numbers",
+          "avg_top_score": 52.3,
+          "bytes_played": 3
+        },
+        {
+          "nickname": "Lina",
+          "subject": "الحروف · Letters",
+          "avg_top_score": 53.3,
+          "bytes_played": 3
+        },
+        {
+          "nickname": "Yousef",
+          "subject": "الحروف · Letters",
+          "avg_top_score": 54.0,
+          "bytes_played": 3
+        },
+        {
+          "nickname": "Lina",
+          "subject": "الأرقام · Numbers",
+          "avg_top_score": 54.0,
+          "bytes_played": 2
+        },
+        {
+          "nickname": "Yousef",
+          "subject": "الألوان · Colours",
+          "avg_top_score": 57.7,
+          "bytes_played": 3
+        }
+      ],
+      "columns": [
+        "nickname",
+        "subject",
+        "avg_top_score",
+        "bytes_played"
+      ]
+    }
+  },
+  {
+    "check": "use case: alphazed-parent-amal next_achievements returns rows",
+    "pass": true,
+    "detail": {
+      "ok": true,
+      "tool": "next_achievements",
+      "row_count": 5,
+      "rows": [
+        {
+          "nickname": "Lina",
+          "achievement": "Consistent Learner",
+          "description": "1 day win streak",
+          "progress": 92,
+          "award_coins": 10
+        },
+        {
+          "nickname": "Yousef",
+          "achievement": "Consistent Learner",
+          "description": "1 day win streak",
+          "progress": 89,
+          "award_coins": 10
+        },
+        {
+          "nickname": "Omar",
+          "achievement": "Consistent Learner",
+          "description": "1 day win streak",
+          "progress": 57,
+          "award_coins": 10
+        },
+        {
+          "nickname": "Yousef",
+          "achievement": "Letter Explorer",
+          "description": "Complete 10 letter bytes",
+          "progress": 54,
+          "award_coins": 25
+        },
+        {
+          "nickname": "Lina",
+          "achievement": "Letter Explorer",
+          "description": "Complete 10 letter bytes",
+          "progress": 20,
+          "award_coins": 25
+        }
+      ],
+      "columns": [
+        "nickname",
+        "achievement",
+        "description",
+        "progress",
+        "award_coins"
+      ]
+    }
+  },
+  {
+    "check": "isolation: a parent sees exactly their own children",
+    "pass": true,
+    "detail": [
+      "Lina",
+      "Omar",
+      "Yousef"
+    ]
+  },
+  {
+    "check": "isolation: an org sees only its own AI employees",
+    "pass": true,
+    "detail": [
+      "Blog Writer",
+      "Content QA",
+      "Research Analyst"
+    ]
+  },
+  {
+    "check": "guardrail: shepherd-globex-finance failed_runs refused as tool_not_granted",
+    "pass": true,
+    "detail": {
+      "ok": false,
+      "refused": "tool_not_granted",
+      "reason": "failed_runs is not available to this organisation"
+    }
+  },
+  {
+    "check": "guardrail: alphazed-parent-free needs_attention refused as tool_not_granted",
+    "pass": true,
+    "detail": {
+      "ok": false,
+      "refused": "tool_not_granted",
+      "reason": "needs_attention is not available to this organisation"
+    }
+  },
+  {
+    "check": "guardrail: shepherd-acme-operator failed_runs{'days': 500} refused as invalid_arguments",
+    "pass": true,
+    "detail": {
+      "ok": false,
+      "refused": "invalid_arguments",
+      "reason": "days is above 90"
+    }
+  },
+  {
+    "check": "guardrail: alphazed-parent-amal list_children{'parent_id': '9b1d4e2f-0000-4000-8000-000000000002'} refused as invalid_arguments",
+    "pass": true,
+    "detail": {
+      "ok": false,
+      "refused": "invalid_arguments",
+      "reason": "unexpected arguments ['parent_id']"
+    }
+  },
+  {
+    "check": "guardrail: shepherd-acme-operator drop_everything refused as unknown_tool",
+    "pass": true,
+    "detail": {
+      "ok": false,
+      "refused": "unknown_tool",
+      "reason": "drop_everything is not available to this organisation"
+    }
+  },
+  {
+    "check": "auth: no token -> 401",
+    "pass": true,
+    "detail": 401
+  },
+  {
+    "check": "auth: spoofed x-org-id header without a JWT -> 401",
+    "pass": true,
+    "detail": 401
+  },
+  {
+    "check": "auth: a token for another audience -> 401",
+    "pass": true,
+    "detail": 401
+  },
+  {
+    "check": "mcp: tools/list carries inputSchema, outputSchema and readOnlyHint",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "mcp: tools/call returns structuredContent rows",
+    "pass": true,
+    "detail": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\": true, \"tool\": \"busiest_employees\", \"row_count\": 3, \"rows\": [{\"employee\": \"Blog Writer\", \"status\": \"running\", \"runs\": 8, \"model_calls\": 31}, {\"employee\": \"Research Analyst\", \"status\": \"idle\", \"runs\": 5, \"model_calls\": 18}, {\"employee\": \"Content QA\", \"status\": \"blocked\", \"runs\": 4, \"model_calls\": 15}], \"columns\": [\"employee\", \"status\", \"runs\", \"model_calls\"]}"
+        }
+      ],
+      "structuredContent": {
+        "ok": true,
+        "tool": "busiest_employees",
+        "row_count": 3,
+        "rows": [
+          {
+            "employee": "Blog Writer",
+            "status": "running",
+            "runs": 8,
+            "model_calls": 31
+          },
+          {
+            "employee": "Research Analyst",
+            "status": "idle",
+            "runs": 5,
+            "model_calls": 18
+          },
+          {
+            "employee": "Content QA",
+            "status": "blocked",
+            "runs": 4,
+            "model_calls": 15
+          }
+        ],
+        "columns": [
+          "employee",
+          "status",
+          "runs",
+          "model_calls"
+        ]
+      },
+      "isError": false
+    }
+  },
+  {
+    "check": "dry: shepherd-acme-operator agent is offered exactly its granted tools",
+    "pass": true,
+    "detail": [
+      "busiest_employees",
+      "failed_runs",
+      "model_usage",
+      "spend_by_employee"
+    ]
+  },
+  {
+    "check": "dry: alphazed-parent-free agent is offered exactly its granted tools",
+    "pass": true,
+    "detail": [
+      "list_children",
+      "next_achievements"
+    ]
+  },
+  {
+    "check": "chat: shepherd-acme-operator answered via failed_runs with real rows",
+    "pass": true,
+    "detail": "3 results from failed_runs: run_fe0e5101bc0d (playbook id blog_post, employee Research Analyst, status failed); run_786565f0b2fc (playbook id weekly_digest, employee Blog Writer, status refused_budget); run_e148514104cc (playbook id seo_brief, employee Blog Writer, status failed)."
+  },
+  {
+    "check": "chat: shepherd-globex-finance answered via spend_by_employee with real rows",
+    "pass": true,
+    "detail": "2 results from spend_by_employee: SEO Scout (role researcher, runs 8, tokens 135493); Social Editor (role content_writer, runs 9, tokens 168290)."
+  },
+  {
+    "check": "chat: alphazed-parent-amal answered via needs_attention with real rows",
+    "pass": true,
+    "detail": "6 results from needs_attention: Lina (subject الألوان · Colours, avg top score 47.8, bytes played 4); Yousef (subject الأرقام · Numbers, avg top score 52.3, bytes played 3); Lina (subject الحروف · Letters, avg top score 53.3, bytes played 3); Yousef (subject الحروف · Letters, avg top score 54.0, bytes played 3); Lina (subject الأرقام · Numbers, avg top score 54.0, bytes played 2); Yousef (subject الألوان · Colours, avg top score 57.7, bytes played 3)."
+  },
+  {
+    "check": "chat: alphazed-parent-free answered via next_achievements with real rows",
+    "pass": true,
+    "detail": "3 results from next_achievements: Sara (achievement Number Ninja, description Score 90+ on 5 number bytes, progress 57); Sara (achievement Letter Explorer, description Complete 10 letter bytes, progress 51); Sara (achievement Consistent Learner, description 1 day win streak, progress 36)."
+  },
+  {
+    "check": "chat: an invented tool is refused by foundry-agent, no data call",
+    "pass": true,
+    "detail": "I can't answer that: unknown tool 'contact_emails' (rule: runtime)."
+  },
+  {
+    "check": "webhook: forged signature -> 401",
+    "pass": true,
+    "detail": 401
+  },
+  {
+    "check": "audit: every channel recorded (rest, mcp, webhook) with allow and refuse",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "audit: no receipt for the forged webhook",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "pubsub: usage projection counts equal receipt counts per (org, tool)",
+    "pass": true,
+    "detail": {
+      "receipts": 20
+    }
+  },
+  {
+    "check": "audit: receipts API returns only the caller's org",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "db: alqosh_reader is denied SELECT on parents.email",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "loader: a statement without the tenant binding is refused at load",
+    "pass": true,
+    "detail": "tool list_children: statement never references :parent_id; it would cross tenants"
+  },
+  {
+    "check": "model: every data result reached it fenced as untrusted data",
+    "pass": true,
+    "detail": 5
+  }
+]

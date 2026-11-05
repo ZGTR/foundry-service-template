@@ -1,0 +1,112 @@
+{
+  "request": {
+    "persona": "alphazed-parent-amal",
+    "method": "GET",
+    "path": "/v1/receipts",
+    "body": null
+  },
+  "status": 200,
+  "response": {
+    "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+    "receipts": [
+      {
+        "call_id": "tc_dbcaafd52de14bfbbe8230861fe9ca71cac3093b",
+        "channel": "webhook",
+        "subject": "parent",
+        "pack": "alphazed_learning",
+        "tool": "needs_attention",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 6,
+        "columns": "nickname,subject,avg_top_score,bytes_played",
+        "policy_version": "sha256:6cd14779198e4cdf",
+        "conversation_id": "c-0b8607fabd544b3eb44e",
+        "created_at": "2026-11-05T12:38:50.501896+00:00"
+      },
+      {
+        "call_id": "rest_39221d352ae24d89a4ab01601f44291d",
+        "channel": "rest",
+        "subject": "parent",
+        "pack": "alphazed_learning",
+        "tool": "list_children",
+        "decision": "refuse",
+        "rule": "invalid_arguments",
+        "row_count": 0,
+        "columns": "",
+        "policy_version": "sha256:6cd14779198e4cdf",
+        "conversation_id": null,
+        "created_at": "2026-11-05T12:38:50.043397+00:00"
+      },
+      {
+        "call_id": "rest_40a4471eba5c423081563d20c53af21d",
+        "channel": "rest",
+        "subject": "parent",
+        "pack": "alphazed_learning",
+        "tool": "list_children",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "columns": "nickname,level,score,streak_days,coins",
+        "policy_version": "sha256:6cd14779198e4cdf",
+        "conversation_id": null,
+        "created_at": "2026-11-05T12:38:49.973879+00:00"
+      },
+      {
+        "call_id": "rest_c4e57ad9b71c40b784341413cbdf54e5",
+        "channel": "rest",
+        "subject": "parent",
+        "pack": "alphazed_learning",
+        "tool": "next_achievements",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 5,
+        "columns": "nickname,achievement,description,progress,award_coins",
+        "policy_version": "sha256:6cd14779198e4cdf",
+        "conversation_id": null,
+        "created_at": "2026-11-05T12:38:49.959250+00:00"
+      },
+      {
+        "call_id": "rest_bdc987f9490d43808de3e1972dd61ef7",
+        "channel": "rest",
+        "subject": "parent",
+        "pack": "alphazed_learning",
+        "tool": "needs_attention",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 6,
+        "columns": "nickname,subject,avg_top_score,bytes_played",
+        "policy_version": "sha256:6cd14779198e4cdf",
+        "conversation_id": null,
+        "created_at": "2026-11-05T12:38:49.944364+00:00"
+      },
+      {
+        "call_id": "rest_4d94ffa2b0ee4a7889fa9db6d8ed6aa7",
+        "channel": "rest",
+        "subject": "parent",
+        "pack": "alphazed_learning",
+        "tool": "child_progress",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 9,
+        "columns": "nickname,subject,bytes_completed,avg_top_score",
+        "policy_version": "sha256:6cd14779198e4cdf",
+        "conversation_id": null,
+        "created_at": "2026-11-05T12:38:49.928353+00:00"
+      },
+      {
+        "call_id": "rest_882ccf03b24446d79a4386601e62bfc2",
+        "channel": "rest",
+        "subject": "parent",
+        "pack": "alphazed_learning",
+        "tool": "list_children",
+        "decision": "allow",
+        "rule": "granted",
+        "row_count": 3,
+        "columns": "nickname,level,score,streak_days,coins",
+        "policy_version": "sha256:6cd14779198e4cdf",
+        "conversation_id": null,
+        "created_at": "2026-11-05T12:38:49.912139+00:00"
+      }
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+# Shepherd operations: what an org's operator asks about its AI employees and their runs.
+# Tables and columns are Shepherd's own (services/shepherd-backend: organisations, employees,
+# playbook_runs, node_executions); every table is keyed by org_id, which is the tenant.
+apiVersion: foundry.dev/tool-pack/v1
+pack: shepherd_operations
+description: Runs, spend and model usage of a Shepherd organisation's AI employees.
+
+sources:
+  shepherd_db:
+    kind: mysql
+    connection: shepherd             # a read-only user's DSN, from DATA_SOURCE_URLS
+    scope: {strategy: bound_param, param: org_id}
+
+tools:
+  failed_runs:
+    source: shepherd_db
+    description: >
+      Playbook runs that failed or were refused in the last N days, with the employee that
+      ran them, why they ended, and what they cost in USD.
+    parameters:
+      days: {type: integer, minimum: 1, maximum: 90, default: 7, description: Look-back window in days.}
+    statement: |
+      SELECT r.run_id, r.playbook_id, e.agent_name AS employee, r.status,
+             COALESCE(r.terminal_reason, CONCAT('refused: ', r.refused_bound)) AS terminal_reason,
+             ROUND(COALESCE(SUM(n.cost_micros), 0) / 1000000, 4) AS cost_usd,
+             r.ended_at
+      FROM playbook_runs r
+      JOIN employees e ON e.org_id = r.org_id AND e.employee_id = r.employee_id
+      LEFT JOIN node_executions n ON n.org_id = r.org_id AND n.run_id = r.run_id
+      WHERE r.org_id = :org_id
+        AND r.status IN ('failed', 'refused_budget', 'refused_clock', 'refused_tokens', 'refused_admission')
+        AND r.created_at >= UTC_TIMESTAMP() - INTERVAL :days DAY
+      GROUP BY r.run_id, r.playbook_id, e.agent_name, r.status, r.terminal_reason, r.refused_bound,
+               r.ended_at
+      ORDER BY cost_usd DESC
+    returns: {run_id: string, playbook_id: string, employee: string, status: string,
+              terminal_reason: string, cost_usd: number, ended_at: string}
+    examples:
+      - question: Which runs failed this week and what did they cost?
+        arguments: {days: 7}
+
+  spend_by_employee:
+    source: shepherd_db
+    description: Model spend, tokens and run count per AI employee over the last N days.
+    parameters:
+      days: {type: integer, minimum: 1, maximum: 90, default: 30, description: Look-back window in days.}
+    statement: |
+      SELECT e.agent_name AS employee, e.role, COUNT(DISTINCT r.run_id) AS runs,
+             COALESCE(SUM(n.tokens_in + n.tokens_out), 0) AS tokens,
+             ROUND(COALESCE(SUM(n.cost_micros), 0) / 1000000, 4) AS cost_usd
+      FROM employees e
+      JOIN playbook_runs r ON r.org_id = e.org_id AND r.employee_id = e.employee_id
+      LEFT JOIN node_executions n ON n.org_id = r.org_id AND n.run_id = r.run_id
+      WHERE e.org_id = :org_id AND r.created_at >= UTC_TIMESTAMP() - INTERVAL :days DAY
+      GROUP BY e.agent_name, e.role
+      ORDER BY cost_usd DESC
+    returns: {employee: string, role: string, runs: integer, tokens: integer, cost_usd: number}
+    examples:
+      - question: How much did each employee spend this month?
+        arguments: {days: 30}
+
+  busiest_employees:
+    source: shepherd_db
+    description: AI employees ranked by runs and model calls in the last N days, with current status.
+    parameters:
+      days: {type: integer, minimum: 1, maximum: 90, default: 7, description: Look-back window in days.}
+    statement: |
+      SELECT e.agent_name AS employee, e.status, COUNT(DISTINCT r.run_id) AS runs,
+             COUNT(n.execution_id) AS model_calls
+      FROM employees e
+      LEFT JOIN playbook_runs r ON r.org_id = e.org_id AND r.employee_id = e.employee_id
+           AND r.created_at >= UTC_TIMESTAMP() - INTERVAL :days DAY
+      LEFT JOIN node_executions n ON n.org_id = r.org_id AND n.run_id = r.run_id
+      WHERE e.org_id = :org_id
+      GROUP BY e.agent_name, e.status
+      ORDER BY runs DESC, model_calls DESC
+    returns: {employee: string, status: string, runs: integer, model_calls: integer}
+    examples:
+      - question: Which employee is the busiest this week?
+        arguments: {days: 7}
+
+  model_usage:
+    source: shepherd_db
+    description: Calls, tokens, cost and cache hit rate per model over the last N days.
+    parameters:
+      days: {type: integer, minimum: 1, maximum: 90, default: 30, description: Look-back window in days.}
+    statement: |
+      SELECT n.model_id, COUNT(*) AS calls, SUM(n.tokens_in) AS tokens_in,
+             SUM(n.tokens_out) AS tokens_out,
+             ROUND(SUM(n.cost_micros) / 1000000, 4) AS cost_usd,
+             ROUND(AVG(n.cache_state = 'exact_hit'), 3) AS cache_hit_rate
+      FROM node_executions n
+      WHERE n.org_id = :org_id AND n.executor_kind = 'model'
+        AND n.created_at >= UTC_TIMESTAMP() - INTERVAL :days DAY
+      GROUP BY n.model_id
+      ORDER BY cost_usd DESC
+    returns: {model_id: string, calls: integer, tokens_in: integer, tokens_out: integer,
+              cost_usd: number, cache_hit_rate: number}
+    examples:
+      - question: Which models are we spending on, and how often do we hit the cache?
+        arguments: {days: 30}
+
+toolsets:
+  operator: [failed_runs, spend_by_employee, busiest_employees, model_usage]
+  finance: [spend_by_employee, model_usage]

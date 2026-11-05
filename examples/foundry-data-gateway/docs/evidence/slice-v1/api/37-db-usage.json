@@ -1,0 +1,87 @@
+{
+  "request": {
+    "query": "data_tool_usage"
+  },
+  "response": {
+    "rows": [
+      {
+        "org_id": "org_acme",
+        "tool": "model_usage",
+        "calls": 1,
+        "refusals": 0
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "tool": "child_progress",
+        "calls": 1,
+        "refusals": 0
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "tool": "next_achievements",
+        "calls": 1,
+        "refusals": 0
+      },
+      {
+        "org_id": "org_acme",
+        "tool": "spend_by_employee",
+        "calls": 2,
+        "refusals": 0
+      },
+      {
+        "org_id": "org_globex",
+        "tool": "failed_runs",
+        "calls": 1,
+        "refusals": 1
+      },
+      {
+        "org_id": "9b1d4e2f-0000-4000-8000-000000000002",
+        "tool": "needs_attention",
+        "calls": 1,
+        "refusals": 1
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "tool": "list_children",
+        "calls": 3,
+        "refusals": 1
+      },
+      {
+        "org_id": "org_acme",
+        "tool": "drop_everything",
+        "calls": 1,
+        "refusals": 1
+      },
+      {
+        "org_id": "org_acme",
+        "tool": "busiest_employees",
+        "calls": 2,
+        "refusals": 0
+      },
+      {
+        "org_id": "org_acme",
+        "tool": "failed_runs",
+        "calls": 3,
+        "refusals": 1
+      },
+      {
+        "org_id": "org_globex",
+        "tool": "spend_by_employee",
+        "calls": 1,
+        "refusals": 0
+      },
+      {
+        "org_id": "7f3a2c1e-0000-4000-8000-000000000001",
+        "tool": "needs_attention",
+        "calls": 2,
+        "refusals": 0
+      },
+      {
+        "org_id": "9b1d4e2f-0000-4000-8000-000000000002",
+        "tool": "next_achievements",
+        "calls": 1,
+        "refusals": 0
+      }
+    ]
+  }
+}

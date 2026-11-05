@@ -15,3 +15,15 @@ class InvalidWidgetName(FoundryError):
 
 class WidgetNotFound(FoundryError):
     """No widget with the given id exists for this org."""
+
+
+class InvalidToolPack(FoundryError):
+    """A tool pack or policy file breaks a load-time rule; the service refuses to start."""
+
+
+class ToolRefused(FoundryError):
+    """A data-tool call was refused and nothing was read. `rule` names the check."""
+
+    def __init__(self, rule: str, message: str) -> None:
+        super().__init__(message)
+        self.rule = rule

@@ -1,0 +1,75 @@
+{
+  "request": {
+    "persona": "shepherd-globex-finance",
+    "text": "How much did each employee spend this month?"
+  },
+  "status": 200,
+  "response": {
+    "conversation_id": "c-ebdc834a3f0c4f0490e8",
+    "reply": "2 results from spend_by_employee: SEO Scout (role researcher, runs 8, tokens 135493); Social Editor (role content_writer, runs 9, tokens 168290).",
+    "cards": [
+      {
+        "id": "tc_46c4ac8470efd0eb126a56ea44c9f56a41b27673",
+        "data": {
+          "ok": true,
+          "rows": [
+            {
+              "role": "researcher",
+              "runs": 8,
+              "tokens": 135493,
+              "cost_usd": 0.2102,
+              "employee": "SEO Scout"
+            },
+            {
+              "role": "content_writer",
+              "runs": 9,
+              "tokens": 168290,
+              "cost_usd": 0.1596,
+              "employee": "Social Editor"
+            }
+          ],
+          "tool": "spend_by_employee",
+          "columns": [
+            "employee",
+            "role",
+            "runs",
+            "tokens",
+            "cost_usd"
+          ],
+          "row_count": 2
+        },
+        "kind": "data_table",
+        "title": "spend_by_employee"
+      }
+    ],
+    "errors": [],
+    "event_types": [
+      "turn.started",
+      "usage",
+      "artifact",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "usage",
+      "turn.done"
+    ],
+    "definition_digest": "7ab441512512f0bb804d711d438ab9de27db6fc88223f769043c9c733b19654a"
+  }
+}

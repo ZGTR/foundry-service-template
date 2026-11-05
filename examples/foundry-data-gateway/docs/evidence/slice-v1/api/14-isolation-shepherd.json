@@ -1,0 +1,44 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "method": "POST",
+    "path": "/v1/tools/spend_by_employee:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": true,
+    "tool": "spend_by_employee",
+    "row_count": 3,
+    "rows": [
+      {
+        "employee": "Content QA",
+        "role": "reviewer",
+        "runs": 4,
+        "tokens": 72099,
+        "cost_usd": 0.1209
+      },
+      {
+        "employee": "Research Analyst",
+        "role": "researcher",
+        "runs": 5,
+        "tokens": 89239,
+        "cost_usd": 0.1196
+      },
+      {
+        "employee": "Blog Writer",
+        "role": "content_writer",
+        "runs": 8,
+        "tokens": 152797,
+        "cost_usd": 0.0511
+      }
+    ],
+    "columns": [
+      "employee",
+      "role",
+      "runs",
+      "tokens",
+      "cost_usd"
+    ]
+  }
+}

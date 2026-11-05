@@ -1,0 +1,52 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "method": "POST",
+    "path": "/v1/tools/failed_runs:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": true,
+    "tool": "failed_runs",
+    "row_count": 3,
+    "rows": [
+      {
+        "run_id": "run_fe0e5101bc0d",
+        "playbook_id": "blog_post",
+        "employee": "Research Analyst",
+        "status": "failed",
+        "terminal_reason": "map_item_exhausted",
+        "cost_usd": 0.0169,
+        "ended_at": "2026-11-02T23:10:45"
+      },
+      {
+        "run_id": "run_786565f0b2fc",
+        "playbook_id": "weekly_digest",
+        "employee": "Blog Writer",
+        "status": "refused_budget",
+        "terminal_reason": "refused: spend",
+        "cost_usd": 0.0,
+        "ended_at": "2026-10-30T01:11:45"
+      },
+      {
+        "run_id": "run_e148514104cc",
+        "playbook_id": "seo_brief",
+        "employee": "Blog Writer",
+        "status": "failed",
+        "terminal_reason": "map_item_exhausted",
+        "cost_usd": 0.0,
+        "ended_at": "2026-11-03T04:55:45"
+      }
+    ],
+    "columns": [
+      "run_id",
+      "playbook_id",
+      "employee",
+      "status",
+      "terminal_reason",
+      "cost_usd",
+      "ended_at"
+    ]
+  }
+}

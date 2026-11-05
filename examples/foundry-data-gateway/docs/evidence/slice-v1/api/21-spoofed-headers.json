@@ -1,0 +1,12 @@
+{
+  "request": {
+    "path": "/v1/tools",
+    "headers": {
+      "x-org-id": "org_acme"
+    }
+  },
+  "status": 401,
+  "response": {
+    "detail": "missing or malformed Authorization: Bearer header"
+  }
+}

@@ -11,9 +11,22 @@ with fakes and no process running.
 
 from __future__ import annotations
 
+from foundry_data_gateway.application.call_data_tool import (
+    CallDataTool,
+    ToolCall,
+    ToolResult,
+    result_payload,
+)
 from foundry_data_gateway.application.create_widget import CreateWidget
+from foundry_data_gateway.application.data_tool_catalogue import (
+    AgentDefinition,
+    ListDataTools,
+    ReadAudit,
+)
+from foundry_data_gateway.application.data_tool_use_cases import DataToolUseCases
 from foundry_data_gateway.application.get_widget import GetWidget
 from foundry_data_gateway.application.list_widgets import ListWidgets
+from foundry_data_gateway.application.usage_projection import UsageProjection
 from foundry_data_gateway.application.validate_widget_name import (
     MAX_NAME_LENGTH,
     validate_widget_name,
@@ -21,6 +34,15 @@ from foundry_data_gateway.application.validate_widget_name import (
 from foundry_data_gateway.application.widget_use_cases import WidgetUseCases
 
 __all__ = [
+    "AgentDefinition",
+    "CallDataTool",
+    "DataToolUseCases",
+    "ListDataTools",
+    "ReadAudit",
+    "ToolCall",
+    "ToolResult",
+    "UsageProjection",
+    "result_payload",
     "MAX_NAME_LENGTH",
     "CreateWidget",
     "GetWidget",

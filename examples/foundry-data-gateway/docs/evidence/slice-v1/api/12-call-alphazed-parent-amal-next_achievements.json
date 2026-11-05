@@ -1,0 +1,58 @@
+{
+  "request": {
+    "persona": "alphazed-parent-amal",
+    "method": "POST",
+    "path": "/v1/tools/next_achievements:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": true,
+    "tool": "next_achievements",
+    "row_count": 5,
+    "rows": [
+      {
+        "nickname": "Lina",
+        "achievement": "Consistent Learner",
+        "description": "1 day win streak",
+        "progress": 92,
+        "award_coins": 10
+      },
+      {
+        "nickname": "Yousef",
+        "achievement": "Consistent Learner",
+        "description": "1 day win streak",
+        "progress": 89,
+        "award_coins": 10
+      },
+      {
+        "nickname": "Omar",
+        "achievement": "Consistent Learner",
+        "description": "1 day win streak",
+        "progress": 57,
+        "award_coins": 10
+      },
+      {
+        "nickname": "Yousef",
+        "achievement": "Letter Explorer",
+        "description": "Complete 10 letter bytes",
+        "progress": 54,
+        "award_coins": 25
+      },
+      {
+        "nickname": "Lina",
+        "achievement": "Letter Explorer",
+        "description": "Complete 10 letter bytes",
+        "progress": 20,
+        "award_coins": 25
+      }
+    ],
+    "columns": [
+      "nickname",
+      "achievement",
+      "description",
+      "progress",
+      "award_coins"
+    ]
+  }
+}

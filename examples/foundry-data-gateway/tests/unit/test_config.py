@@ -18,8 +18,13 @@ from foundry_data_gateway.composition.config import ServiceConfig
 #: on the machine where it was written and fails in CI -- or, worse, the other
 #: way round.
 _CLEARED = (
-    "DATA_POLICIES_JSON",
+    "TOOL_PACKS_DIR",
+    "TOOL_POLICY_FILE",
+    "TOOL_CATALOGUE_URI",
+    "TOOL_WEBHOOK_SECRET",
     "TOOL_WEBHOOK_SECRET_FILE",
+    "AGENT_MODEL_ID",
+    "DATA_SOURCE_URLS",
     "SERVICE_ENV",
     "PORT",
     "PRINCIPAL_ISSUER",
@@ -276,6 +281,8 @@ def test_sqs_mode_requires_queue_url() -> None:
             sqs_queue_url=None,
             aws_region=None,
         )
+
+
 # COMMS-FLAVOUR-STRIP:END
 
 

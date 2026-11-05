@@ -28,6 +28,13 @@ from __future__ import annotations
 
 from foundry_data_gateway.adapters.fake.auth import FakePrincipalAuth
 from foundry_data_gateway.adapters.fake.clock import FrozenClock
+from foundry_data_gateway.adapters.fake.data_tools import (
+    FixedRowsDataSource,
+    InMemoryReceiptStore,
+    InMemoryUsageStore,
+    SingleSourceRegistry,
+    StaticCatalogueLoader,
+)
 from foundry_data_gateway.adapters.fake.event_bus import RecordingPublisher
 from foundry_data_gateway.adapters.fake.header_principal_auth import HeaderPrincipalAuth
 from foundry_data_gateway.adapters.fake.health import FakeHealthReporter
@@ -37,6 +44,11 @@ from foundry_data_gateway.adapters.fake.transaction import RecordingTransaction
 from foundry_data_gateway.adapters.fake.widget_repository import InMemoryWidgetRepository
 
 __all__ = [
+    "FixedRowsDataSource",
+    "InMemoryReceiptStore",
+    "InMemoryUsageStore",
+    "SingleSourceRegistry",
+    "StaticCatalogueLoader",
     "FakeHealthReporter",
     "FakePrincipalAuth",
     "FakeReadinessCheck",

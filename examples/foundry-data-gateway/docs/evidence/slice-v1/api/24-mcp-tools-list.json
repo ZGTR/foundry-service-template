@@ -1,0 +1,306 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "method": "POST",
+    "path": "/mcp",
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "tools/list",
+      "params": {}
+    }
+  },
+  "status": 200,
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "tools": [
+        {
+          "name": "failed_runs",
+          "description": "Playbook runs that failed or were refused in the last N days, with the employee that ran them, why they ended, and what they cost in USD.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [],
+            "properties": {
+              "days": {
+                "type": "integer",
+                "description": "Look-back window in days.",
+                "minimum": 1,
+                "maximum": 90,
+                "default": 7
+              }
+            }
+          },
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "run_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "playbook_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "employee": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "status": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "terminal_reason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "cost_usd": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "ended_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              },
+              "row_count": {
+                "type": "integer"
+              }
+            }
+          },
+          "annotations": {
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "spend_by_employee",
+          "description": "Model spend, tokens and run count per AI employee over the last N days.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [],
+            "properties": {
+              "days": {
+                "type": "integer",
+                "description": "Look-back window in days.",
+                "minimum": 1,
+                "maximum": 90,
+                "default": 30
+              }
+            }
+          },
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "employee": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "role": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "runs": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "tokens": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "cost_usd": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              },
+              "row_count": {
+                "type": "integer"
+              }
+            }
+          },
+          "annotations": {
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "busiest_employees",
+          "description": "AI employees ranked by runs and model calls in the last N days, with current status.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [],
+            "properties": {
+              "days": {
+                "type": "integer",
+                "description": "Look-back window in days.",
+                "minimum": 1,
+                "maximum": 90,
+                "default": 7
+              }
+            }
+          },
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "employee": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "status": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "runs": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "model_calls": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              },
+              "row_count": {
+                "type": "integer"
+              }
+            }
+          },
+          "annotations": {
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "model_usage",
+          "description": "Calls, tokens, cost and cache hit rate per model over the last N days.",
+          "inputSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [],
+            "properties": {
+              "days": {
+                "type": "integer",
+                "description": "Look-back window in days.",
+                "minimum": 1,
+                "maximum": 90,
+                "default": 30
+              }
+            }
+          },
+          "outputSchema": {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "model_id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "calls": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "tokens_in": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "tokens_out": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ]
+                    },
+                    "cost_usd": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "cache_hit_rate": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              },
+              "row_count": {
+                "type": "integer"
+              }
+            }
+          },
+          "annotations": {
+            "readOnlyHint": true
+          }
+        }
+      ]
+    }
+  }
+}

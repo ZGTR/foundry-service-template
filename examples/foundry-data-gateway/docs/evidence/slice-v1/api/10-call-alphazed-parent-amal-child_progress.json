@@ -1,0 +1,76 @@
+{
+  "request": {
+    "persona": "alphazed-parent-amal",
+    "method": "POST",
+    "path": "/v1/tools/child_progress:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": true,
+    "tool": "child_progress",
+    "row_count": 9,
+    "rows": [
+      {
+        "nickname": "Lina",
+        "subject": "الأرقام · Numbers",
+        "bytes_completed": 1,
+        "avg_top_score": 54.0
+      },
+      {
+        "nickname": "Lina",
+        "subject": "الألوان · Colours",
+        "bytes_completed": 1,
+        "avg_top_score": 47.8
+      },
+      {
+        "nickname": "Lina",
+        "subject": "الحروف · Letters",
+        "bytes_completed": 2,
+        "avg_top_score": 53.3
+      },
+      {
+        "nickname": "Omar",
+        "subject": "الأرقام · Numbers",
+        "bytes_completed": 2,
+        "avg_top_score": 66.5
+      },
+      {
+        "nickname": "Omar",
+        "subject": "الألوان · Colours",
+        "bytes_completed": 3,
+        "avg_top_score": 61.3
+      },
+      {
+        "nickname": "Omar",
+        "subject": "الحروف · Letters",
+        "bytes_completed": 4,
+        "avg_top_score": 67.0
+      },
+      {
+        "nickname": "Yousef",
+        "subject": "الأرقام · Numbers",
+        "bytes_completed": 2,
+        "avg_top_score": 52.3
+      },
+      {
+        "nickname": "Yousef",
+        "subject": "الألوان · Colours",
+        "bytes_completed": 2,
+        "avg_top_score": 57.7
+      },
+      {
+        "nickname": "Yousef",
+        "subject": "الحروف · Letters",
+        "bytes_completed": 2,
+        "avg_top_score": 54.0
+      }
+    ],
+    "columns": [
+      "nickname",
+      "subject",
+      "bytes_completed",
+      "avg_top_score"
+    ]
+  }
+}

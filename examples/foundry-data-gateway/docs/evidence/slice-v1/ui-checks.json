@@ -1,0 +1,150 @@
+[
+  {
+    "check": "ui: shepherd-acme-operator lists 4 granted tools",
+    "pass": true,
+    "detail": 4
+  },
+  {
+    "check": "ui: shepherd-acme-operator gets an answer from failed_runs",
+    "pass": true,
+    "detail": "3 results from failed_runs: run_fe0e5101bc0d (playbook id blog_post, employee Research Analyst, status failed); run_786565f0b2fc (playbook id weekly_digest, emp"
+  },
+  {
+    "check": "ui: shepherd-acme-operator sees a data table with rows",
+    "pass": true,
+    "detail": 21
+  },
+  {
+    "check": "ui: shepherd-acme-operator audit panel shows usage for failed_runs",
+    "pass": true,
+    "detail": 1
+  },
+  {
+    "check": "ui: shepherd-globex-finance lists 2 granted tools",
+    "pass": true,
+    "detail": 2
+  },
+  {
+    "check": "ui: shepherd-globex-finance gets an answer from model_usage",
+    "pass": true,
+    "detail": "3 results from model_usage: eu.anthropic.claude-haiku-4-5-20251001-v1:0 (calls 21, tokens in 45949, tokens out 57205); qwen2.5:32b (calls 26, tokens in 56215, t"
+  },
+  {
+    "check": "ui: shepherd-globex-finance sees a data table with rows",
+    "pass": true,
+    "detail": 18
+  },
+  {
+    "check": "ui: shepherd-globex-finance audit panel shows usage for model_usage",
+    "pass": true,
+    "detail": 1
+  },
+  {
+    "check": "ui: alphazed-parent-amal lists 4 granted tools",
+    "pass": true,
+    "detail": 4
+  },
+  {
+    "check": "ui: alphazed-parent-amal gets an answer from needs_attention",
+    "pass": true,
+    "detail": "6 results from needs_attention: Lina (subject الألوان · Colours, avg top score 47.8, bytes played 4); Yousef (subject الأرقام · Numbers, avg top score 52.3, byt"
+  },
+  {
+    "check": "ui: alphazed-parent-amal sees a data table with rows",
+    "pass": true,
+    "detail": 24
+  },
+  {
+    "check": "ui: alphazed-parent-amal table shows this family's children",
+    "pass": true,
+    "detail": [
+      "Lina",
+      "الألوان · Colours",
+      "47.8",
+      "4",
+      "Yousef",
+      "الأرقام · Numbers",
+      "52.3",
+      "3"
+    ]
+  },
+  {
+    "check": "ui: alphazed-parent-amal table never shows Sara",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "ui: alphazed-parent-amal table never shows Adam",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "ui: alphazed-parent-amal table never shows Maryam",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "ui: alphazed-parent-amal audit panel shows usage for needs_attention",
+    "pass": true,
+    "detail": 1
+  },
+  {
+    "check": "ui: alphazed-parent-free lists 2 granted tools",
+    "pass": true,
+    "detail": 2
+  },
+  {
+    "check": "ui: alphazed-parent-free gets an answer from next_achievements",
+    "pass": true,
+    "detail": "3 results from next_achievements: Sara (achievement Number Ninja, description Score 90+ on 5 number bytes, progress 57); Sara (achievement Letter Explorer, desc"
+  },
+  {
+    "check": "ui: alphazed-parent-free sees a data table with rows",
+    "pass": true,
+    "detail": 15
+  },
+  {
+    "check": "ui: alphazed-parent-free table shows this family's children",
+    "pass": true,
+    "detail": [
+      "Sara",
+      "Number Ninja",
+      "Score 90+ on 5 number bytes",
+      "57",
+      "40",
+      "Sara",
+      "Letter Explorer",
+      "Complete 10 letter bytes"
+    ]
+  },
+  {
+    "check": "ui: alphazed-parent-free table never shows Yousef",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "ui: alphazed-parent-free table never shows Adam",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "check": "ui: alphazed-parent-free audit panel shows usage for next_achievements",
+    "pass": true,
+    "detail": 1
+  },
+  {
+    "check": "ui: mobile 390px has no horizontal page scroll",
+    "pass": true,
+    "detail": {
+      "overflow": 0,
+      "wide": [
+        "TABLE.[receipts-table] 392",
+        "TR.[] 392",
+        "TH.[] 392",
+        "TR.[] 392",
+        "TD.[] 392",
+        "TR.[] 392"
+      ]
+    }
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "request": {
+    "mutation": "drop :parent_id from list_children"
+  },
+  "response": {
+    "refused": "tool list_children: statement never references :parent_id; it would cross tenants"
+  }
+}

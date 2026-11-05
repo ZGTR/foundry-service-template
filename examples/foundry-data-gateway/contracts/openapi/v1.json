@@ -216,29 +216,6 @@
         ]
       }
     },
-    "/mcp": {
-      "post": {
-        "operationId": "mcp_mcp_post",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Mcp Mcp Post",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Mcp",
-        "tags": [
-          "data-tools"
-        ]
-      }
-    },
     "/readyz": {
       "get": {
         "operationId": "readyz_readyz_get",
@@ -261,52 +238,6 @@
         "summary": "Readyz",
         "tags": [
           "health"
-        ]
-      }
-    },
-    "/v1/receipts": {
-      "get": {
-        "operationId": "receipts_v1_receipts_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Receipts V1 Receipts Get",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Receipts",
-        "tags": [
-          "data-tools"
-        ]
-      }
-    },
-    "/v1/tool-webhook": {
-      "post": {
-        "operationId": "tool_webhook_v1_tool_webhook_post",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Tool Webhook V1 Tool Webhook Post",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Tool Webhook",
-        "tags": [
-          "data-tools"
         ]
       }
     },

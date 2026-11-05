@@ -78,14 +78,15 @@ resource "aws_ecs_task_definition" "this" {
       portMappings = [
         { containerPort = 8080, protocol = "tcp" }
       ]
-      environment = [
+      environment = concat([
         { name = "SERVICE_ENV", value = var.environment },
         { name = "PRINCIPAL_ISSUER", value = "foundry-data-gateway" },
         # EVENT_BUS_MODE deliberately absent -- see the note in serverless.yml
         #: no container reads config.event_bus_mode, so setting
         # it declared a durability mode the process cannot honour.
         { name = "PORT", value = "8080" },
-      ]
+      ], local.data_tool_environment) # data_tools.tf
+      secrets = local.data_tool_secrets # data_tools.tf: injected from Secrets Manager
       logConfiguration = {
         logDriver = "awslogs"
         options = {

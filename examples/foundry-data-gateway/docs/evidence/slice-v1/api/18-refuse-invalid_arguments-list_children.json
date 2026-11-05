@@ -1,0 +1,16 @@
+{
+  "request": {
+    "persona": "alphazed-parent-amal",
+    "method": "POST",
+    "path": "/v1/tools/list_children:call",
+    "body": {
+      "parent_id": "9b1d4e2f-0000-4000-8000-000000000002"
+    }
+  },
+  "status": 200,
+  "response": {
+    "ok": false,
+    "refused": "invalid_arguments",
+    "reason": "unexpected arguments ['parent_id']"
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "request": {
+    "persona": "alphazed-parent-free",
+    "text": "Which achievements are my children close to unlocking?"
+  },
+  "status": 200,
+  "response": {
+    "conversation_id": "c-065761f0c66a42128676",
+    "reply": "3 results from next_achievements: Sara (achievement Number Ninja, description Score 90+ on 5 number bytes, progress 57); Sara (achievement Letter Explorer, description Complete 10 letter bytes, progress 51); Sara (achievement Consistent Learner, description 1 day win streak, progress 36).",
+    "cards": [
+      {
+        "id": "tc_f3458b40d59a92889023b54b0dd4feaef6e0c0f0",
+        "data": {
+          "ok": true,
+          "rows": [
+            {
+              "nickname": "Sara",
+              "progress": 57,
+              "achievement": "Number Ninja",
+              "award_coins": 40,
+              "description": "Score 90+ on 5 number bytes"
+            },
+            {
+              "nickname": "Sara",
+              "progress": 51,
+              "achievement": "Letter Explorer",
+              "award_coins": 25,
+              "description": "Complete 10 letter bytes"
+            },
+            {
+              "nickname": "Sara",
+              "progress": 36,
+              "achievement": "Consistent Learner",
+              "award_coins": 10,
+              "description": "1 day win streak"
+            }
+          ],
+          "tool": "next_achievements",
+          "columns": [
+            "nickname",
+            "achievement",
+            "description",
+            "progress",
+            "award_coins"
+          ],
+          "row_count": 3
+        },
+        "kind": "data_table",
+        "title": "next_achievements"
+      }
+    ],
+    "errors": [],
+    "event_types": [
+      "turn.started",
+      "usage",
+      "artifact",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "text.delta",
+      "usage",
+      "turn.done"
+    ],
+    "definition_digest": "fc01b1ef8f8ae7fc8cb5768ad572f81bf1424e41356c4ddf3639a246a1aa7806"
+  }
+}

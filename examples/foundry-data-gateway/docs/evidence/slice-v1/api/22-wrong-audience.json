@@ -1,0 +1,10 @@
+{
+  "request": {
+    "path": "/v1/tools",
+    "token_audience": "agent-chat"
+  },
+  "status": 401,
+  "response": {
+    "detail": "token failed verification"
+  }
+}

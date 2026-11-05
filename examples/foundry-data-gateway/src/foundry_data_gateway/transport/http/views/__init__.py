@@ -8,6 +8,7 @@ testable without an HTTP client, a running app or a serialiser.
 
 from __future__ import annotations
 
+from foundry_data_gateway.transport.http.views.data_tool_views import DataToolView
 from foundry_data_gateway.transport.http.views.widgets_view import WidgetView
 
-__all__ = ["WidgetView"]
+__all__ = ["DataToolView", "WidgetView"]

@@ -1,0 +1,14 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "method": "POST",
+    "path": "/v1/tools/drop_everything:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": false,
+    "refused": "unknown_tool",
+    "reason": "drop_everything is not available to this organisation"
+  }
+}

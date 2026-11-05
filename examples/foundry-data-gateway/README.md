@@ -1,5 +1,29 @@
 # foundry-data-gateway
 
+Governed company data for agents. A business declares the questions agents may ask of its
+database as a reviewed YAML **tool pack**, grants them to tenants in a **policy**, and every
+agent gets exactly those tools: foundry-agent conversations, any MCP client, or a REST
+caller. Each call is checked against the tenant's grants and scoped to the tenant inside
+the database. Each call leaves a receipt and publishes an event.
+
+| Read | For |
+|---|---|
+| [docs/data-tools/architecture.md](docs/data-tools/architecture.md) | What it is, the doors, defence in depth, SRP/DRY/IoC/DI/MVC/PubSub/OOP/IaC mapped to files |
+| [docs/data-tools/market-and-format.md](docs/data-tools/market-and-format.md) | How the market defines tools, the `tool-pack/v1` format, adding a tool |
+| [docs/data-tools/slice-v1.md](docs/data-tools/slice-v1.md) | Slice v1 scope, real Shepherd and Alphazed use cases, acceptance criteria |
+| [docs/data-tools/roadmap.md](docs/data-tools/roadmap.md) | Slices to the full product, and the owner steps to production |
+| [docs/evidence/slice-v1/REPORT.md](docs/evidence/slice-v1/REPORT.md) | The end-to-end run: API JSON, screenshots, checks |
+
+```bash
+FOUNDRY_AGENT_DIR=/path/to/foundry-agent e2e/run.sh docs/evidence/slice-v1
+```
+
+The service was emitted from `foundry-service-template`; everything below is the
+template's own guide to its shape, gates and deployment.
+
+---
+
+
 A reference backend service that runs, unmodified, as an **AWS Lambda (image package
 type)** or an **ECS Fargate task**: one Docker image, one ECR repository, two thin IaC
 wrappers. `scripts/new_service.sh` emits a new, self-contained service from it.

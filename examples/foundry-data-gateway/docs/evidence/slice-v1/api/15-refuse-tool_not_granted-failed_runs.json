@@ -1,0 +1,14 @@
+{
+  "request": {
+    "persona": "shepherd-globex-finance",
+    "method": "POST",
+    "path": "/v1/tools/failed_runs:call",
+    "body": {}
+  },
+  "status": 200,
+  "response": {
+    "ok": false,
+    "refused": "tool_not_granted",
+    "reason": "failed_runs is not available to this organisation"
+  }
+}

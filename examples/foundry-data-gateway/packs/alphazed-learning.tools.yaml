@@ -1,0 +1,95 @@
+# Alphazed learning: what a parent asks about their children's Arabic learning.
+# Names follow alqosh (children.nickname, age groups with grade/text, subjects,
+# chapters, content_bytes, content_byte_user.top_score/status, streaks, achievements).
+# The tenant is the PARENT account: every statement binds :parent_id from the caller.
+apiVersion: foundry.dev/tool-pack/v1
+pack: alphazed_learning
+description: A family's children, their progress per subject, and where they need help.
+
+sources:
+  alqosh:
+    kind: mysql
+    connection: alqosh               # DSN from DATA_SOURCE_URLS; never in this file
+    scope: {strategy: bound_param, param: parent_id}
+
+tools:
+  list_children:
+    source: alqosh
+    description: The parent's children with their level, score, streak and coins.
+    statement: |
+      SELECT c.nickname, ag.text AS level, c.score, COALESCE(s.total_streak_days, 0) AS streak_days,
+             COALESCE(s.total_coins, 0) AS coins
+      FROM children c
+      LEFT JOIN age_groups ag ON ag.id = c.age_group_id
+      LEFT JOIN user_streaks s ON s.user_id = c.id
+      WHERE c.parent_id = :parent_id
+      ORDER BY c.nickname
+    returns: {nickname: string, level: string, score: integer, streak_days: integer, coins: integer}
+    examples:
+      - question: Show me my children and their streaks.
+        arguments: {}
+
+  child_progress:
+    source: alqosh
+    description: Bytes completed and average best score per subject, for one child or all.
+    parameters:
+      nickname: {type: string, max_length: 64, default: "", description: "A child's nickname; empty for all children."}
+    statement: |
+      SELECT c.nickname, sj.label_text AS subject,
+             SUM(cbu.status = 'completed') AS bytes_completed,
+             ROUND(AVG(cbu.top_score), 1) AS avg_top_score
+      FROM children c
+      JOIN content_byte_user cbu ON cbu.user_id = c.id
+      JOIN content_bytes b ON b.id = cbu.content_byte_id
+      JOIN chapters ch ON ch.id = b.chapter_id
+      JOIN subjects sj ON sj.id = ch.subject_id
+      WHERE c.parent_id = :parent_id AND (:nickname = '' OR c.nickname = :nickname)
+      GROUP BY c.nickname, sj.label_text
+      ORDER BY c.nickname, sj.label_text
+    returns: {nickname: string, subject: string, bytes_completed: integer, avg_top_score: number}
+    examples:
+      - question: How is progress going for each of my children?
+        arguments: {}
+
+  needs_attention:
+    source: alqosh
+    description: Child and subject pairs whose average best score is below a threshold, weakest first.
+    parameters:
+      below_score: {type: integer, minimum: 0, maximum: 100, default: 60, description: Score threshold (0-100).}
+    statement: |
+      SELECT c.nickname, sj.label_text AS subject, ROUND(AVG(cbu.top_score), 1) AS avg_top_score,
+             COUNT(*) AS bytes_played
+      FROM children c
+      JOIN content_byte_user cbu ON cbu.user_id = c.id
+      JOIN content_bytes b ON b.id = cbu.content_byte_id
+      JOIN chapters ch ON ch.id = b.chapter_id
+      JOIN subjects sj ON sj.id = ch.subject_id
+      WHERE c.parent_id = :parent_id
+      GROUP BY c.nickname, sj.label_text
+      HAVING AVG(cbu.top_score) < :below_score
+      ORDER BY avg_top_score
+    returns: {nickname: string, subject: string, avg_top_score: number, bytes_played: integer}
+    examples:
+      - question: Which of my children need help, and in which subject?
+        arguments: {below_score: 60}
+
+  next_achievements:
+    source: alqosh
+    description: Achievements each child is closest to unlocking, with progress and reward coins.
+    statement: |
+      SELECT c.nickname, a.main_text AS achievement, a.description, ua.progress,
+             a.award_coins
+      FROM children c
+      JOIN user_achievements ua ON ua.user_id = c.id AND ua.status = 'in_progress'
+      JOIN achievements a ON a.id = ua.achievement_id
+      WHERE c.parent_id = :parent_id
+      ORDER BY ua.progress DESC
+    returns: {nickname: string, achievement: string, description: string, progress: integer,
+              award_coins: integer}
+    examples:
+      - question: Which achievements are my children close to unlocking?
+        arguments: {}
+
+toolsets:
+  parent: [list_children, child_progress, needs_attention, next_achievements]
+  parent_free: [list_children, next_achievements]

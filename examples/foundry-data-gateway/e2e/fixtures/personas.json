@@ -1,0 +1,12 @@
+{
+  "personas": [
+    {"id": "shepherd-acme-operator", "product": "Shepherd", "tenant": "org_acme", "sub": "ops-lead",
+     "label": "Acme Learning Ltd · operator", "grant": "operator"},
+    {"id": "shepherd-globex-finance", "product": "Shepherd", "tenant": "org_globex", "sub": "finance",
+     "label": "Globex Media · finance", "grant": "finance"},
+    {"id": "alphazed-parent-amal", "product": "Alphazed", "tenant": "7f3a2c1e-0000-4000-8000-000000000001",
+     "sub": "parent", "label": "Amal family (Yousef, Lina, Omar) · parent", "grant": "parent"},
+    {"id": "alphazed-parent-free", "product": "Alphazed", "tenant": "9b1d4e2f-0000-4000-8000-000000000002",
+     "sub": "parent", "label": "Sara's family · free plan", "grant": "parent_free"}
+  ]
+}

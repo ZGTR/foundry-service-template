@@ -1,0 +1,63 @@
+{
+  "request": {
+    "persona": "shepherd-acme-operator",
+    "method": "POST",
+    "path": "/mcp",
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "tools/call",
+      "params": {
+        "name": "busiest_employees",
+        "arguments": {
+          "days": 30
+        }
+      }
+    }
+  },
+  "status": 200,
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"ok\": true, \"tool\": \"busiest_employees\", \"row_count\": 3, \"rows\": [{\"employee\": \"Blog Writer\", \"status\": \"running\", \"runs\": 8, \"model_calls\": 31}, {\"employee\": \"Research Analyst\", \"status\": \"idle\", \"runs\": 5, \"model_calls\": 18}, {\"employee\": \"Content QA\", \"status\": \"blocked\", \"runs\": 4, \"model_calls\": 15}], \"columns\": [\"employee\", \"status\", \"runs\", \"model_calls\"]}"
+        }
+      ],
+      "structuredContent": {
+        "ok": true,
+        "tool": "busiest_employees",
+        "row_count": 3,
+        "rows": [
+          {
+            "employee": "Blog Writer",
+            "status": "running",
+            "runs": 8,
+            "model_calls": 31
+          },
+          {
+            "employee": "Research Analyst",
+            "status": "idle",
+            "runs": 5,
+            "model_calls": 18
+          },
+          {
+            "employee": "Content QA",
+            "status": "blocked",
+            "runs": 4,
+            "model_calls": 15
+          }
+        ],
+        "columns": [
+          "employee",
+          "status",
+          "runs",
+          "model_calls"
+        ]
+      },
+      "isError": false
+    }
+  }
+}
