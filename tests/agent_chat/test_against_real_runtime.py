@@ -151,7 +151,7 @@ def turn(base: str, cid: str, said: str) -> list[tuple[float, dict]]:
 
 
 def test_a_note_turn_commits_one_row_and_streams_the_display_events(stack, engine):
-    base, _, root = stack
+    base, product, root = stack
     import jsonschema
 
     schema = json.loads((root / "contracts" / "agent-chat-stream.v1.json").read_text())
@@ -168,6 +168,8 @@ def test_a_note_turn_commits_one_row_and_streams_the_display_events(stack, engin
     assert patch == {"notes": {"note": "water the plants on Friday"}}
     assert card["kind"] == "note" and card["title"] == "note"
     assert counts(engine) == (1, 1, 1)
+    # the runtime names the conversation's owner, the user the BFF minted the token for
+    assert product.principals[-1] == {"org_id": "org-1", "sub": "user-1"}
     with engine.connect() as cx:
         assert cx.execute(select(NOTES.c.tool_call_id, NOTES.c.detail)).one() == (
             card["id"], "water the plants on Friday")

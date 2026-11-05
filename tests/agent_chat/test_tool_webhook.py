@@ -54,6 +54,16 @@ def test_a_signed_call_commits_the_write_and_its_fact_and_answers_display_data(e
     assert counts(engine) == (1, 1, 1)
 
 
+def test_the_conversation_owner_reaches_the_write_and_an_older_runtime_sends_none(engine):
+    product = Product()
+    body = json.loads(call())
+    body["principal"] = {"org_id": "org-1", "sub": "user-1"}
+    raw = json.dumps(body).encode()
+    assert post(client(engine, product), raw).status_code == 200
+    assert post(client(engine, product), call("call-2"), key="call-2").status_code == 200
+    assert product.principals == [{"org_id": "org-1", "sub": "user-1"}, None]
+
+
 def test_fact_staging_returning_none_is_non_2xx_with_zero_rows_and_no_artifact(engine):
     product = Product(stage=False)
     response = post(client(engine, product), call())

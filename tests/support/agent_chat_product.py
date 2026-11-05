@@ -48,10 +48,11 @@ class Product:
     """The two injected callables, recording how often the write ran."""
 
     def __init__(self, stage: bool = True) -> None:
-        self.stage, self.writes = stage, 0
+        self.stage, self.writes, self.principals = stage, 0, []
 
     def write(self, tx, tool_call):
         self.writes += 1
+        self.principals.append(tool_call.principal)
         tx.execute(insert(NOTES).values(tool_call_id=tool_call.tool_call_id,
                                         detail=tool_call.input["detail"]))
         topic = str(tool_call.input.get("topic", tool_call.name))
