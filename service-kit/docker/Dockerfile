@@ -133,7 +133,7 @@ RUN test -n "${SERVICE_PACKAGE}" \
 # outside their own vendored copy -- governance 11 files, agent-runtime 14,
 # llm-gateway 17, artifact-store/rag/model-foundry 2 each). A service that
 # ALSO vendors a domain-specific package beside them (comms-core's
-# `comms_eventing` and `comms_contracts`) used to need a
+# `factbus` and `comms_contracts`) used to need a
 # hand-edited, no-longer-generic Dockerfile to get it into the image -- the
 # exact fork this file's own banner ("GENERIC: NOTHING BELOW NAMES THIS
 # SERVICE") exists to rule out. `COPY <dir>/ <dest>/` copies a directory's

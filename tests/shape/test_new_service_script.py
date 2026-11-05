@@ -1006,7 +1006,7 @@ def test_the_emitted_dockerfile_has_no_monorepo_paths(tmp_path: Path) -> None:
     # `foundry_contracts` no longer has its OWN COPY line (56592cf: one
     # `COPY service-kit/vendor/ ./` replaces a COPY-per-package-name list, so a
     # service can vendor an additional domain-specific package -- comms-core's
-    # comms_eventing/comms_contracts, for instance -- without forking this
+    # factbus/comms_contracts, for instance -- without forking this
     # kit-pinned file). What the whole-tree COPY above actually guarantees is
     # that whatever is ON DISK under `service-kit/vendor/` reaches the image,
     # so that is what this asserts: the real artifact, not a line of text that

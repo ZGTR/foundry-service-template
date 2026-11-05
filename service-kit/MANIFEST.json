@@ -7,7 +7,7 @@
     "service-kit/ci/openapi_breaking.sh": "e827d3f7cea08880fdaad1ac49b14b8577d3f3f28f5be8cf6eadc0305049d7cd",
     "service-kit/ci/smoke.py": "98235a271cf74b3f6def5ffdb6aa018154c538887981fdee346a8ebdbbc29a05",
     "service-kit/ci/verify.sh": "906843be23bbf638a708afed6ed22452e9efc4488630a59ee427b11742ed8905",
-    "service-kit/docker/Dockerfile": "1ab114312843663986037fe033c250eb034e1f205bf76df54f69f567de7c052f",
+    "service-kit/docker/Dockerfile": "ba88d22126e9d23ee48a2c0f44db638320f205864039030b50e94ab865f5f481",
     "service-kit/docker/README.md": "720e7e9f5ef3d786b2c96ccfc35004c82ded9a3a66ee4f8d2c7f1c81b31283ee",
     "service-kit/docker/compose/localstack.yml": "362d084785260e52c12d35bc6cdae4c516acbbc596df1a907feb26b0658b79dc",
     "service-kit/docker/compose/postgres.yml": "4e82fa676be38650727508db836f97198c37291eb927663318c1080b7f21879a",
@@ -120,7 +120,7 @@
     "service-kit/gates/gate_fixtures/offending/tests/support/takes_a_lock_made_elsewhere.py": "d9b86dc066504fe4d2c2491f318c770183450575a885ab5cda6a8aa72d3578fe",
     "service-kit/gates/gate_fixtures/offending/tests/test_uses_mocks.py": "8d3584e06435c0d3dae38720789496df99563579c0a8ea415437b16371656068",
     "service-kit/gates/gate_fixtures/offending/tests/test_waits_forever.py": "6dedb4e5c3325256b9cd60474c6cd52a9b8e46db4cb16c8951912350742b0f06",
-    "service-kit/kit_ownership.py": "9d70f118580a8cebe1248619e3dc17da3da2357c30cf9d4a5bd6b40f68c619ce",
+    "service-kit/kit_ownership.py": "f5828ba9e90c85acbdc1a8eabb4d618a0105bca385617504e8b749848a669beb",
     "service-kit/sync.py": "fe7fd2dbbcdb0cdc6db269c8c5447f4b321de5c7e946038a2e695e743fa950f3",
     "service-kit/testing/foundry_testkit/__init__.py": "77c44b0ec088312fc995968c48a8a0466f9c31195548dc000765bb2b0b04c1fc",
     "service-kit/testing/foundry_testkit/aws_kit.py": "1b72e0143063c7bdfd153ec2638e663e17327325f76330885c5b1031f3a91cde",
@@ -166,5 +166,5 @@
       ".github/workflows/ci.yml": "050c634670e68d98c5db8c12e42ad80898ce88ffce70a529d19871cb105c6dbe"
     }
   },
-  "template_revision": "16996b0ca3750bdcff72bbb40a38c3e5e32587c3"
+  "template_revision": "bda509f6d31dba59c1206eac41c08b30c4d2e1b0"
 }

@@ -2,7 +2,7 @@
 
 `service-kit/` is template-owned and `sync.py` replaces it wholesale. Some bytes inside
 or beside it nevertheless belong to the SERVICE:
-a comms service vendors `comms_contracts` and `comms_eventing` under
+a comms service vendors `comms_contracts` and `factbus` under
 `service-kit/vendor/`, and comms-email owns its five-function release in
 `.github/workflows/ci.yml`. Before this module nothing said so, so every sync deleted
 the packages and overwrote the release, and each service re-emitted its own
@@ -13,7 +13,7 @@ The service now DECLARES what it owns, in its own pyproject.toml:
 
     [tool.foundry.kit]
     flavour = "comms"
-    service_vendored = ["comms_contracts", "comms_eventing"]
+    service_vendored = ["comms_contracts", "factbus"]
     owned_placements = [".github/workflows/ci.yml"]
 
 `sync.py` preserves exactly that and refuses a collision; `gates/check_kit_drift.py`
