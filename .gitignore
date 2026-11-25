@@ -16,14 +16,6 @@ __pycache__/
 htmlcov/
 
 # Local virtualenvs and build output.
-# The local knowledge graph. `graphify-repo-init.sh` writes graphify-out/ into
-# whatever repository it is pointed at, and this estate's monorepo ignores it at
-# the root -- so inside the monorepo a service submodule looked clean while its
-# OWN rules said nothing, and one emitted service sat permanently
-# untracked-dirty. An enclosing ignore rule is always a lie about the child: a
-# submodule, and an emitted standalone service, inherit nothing.
-graphify-out/
-
 .venv/
 venv/
 build/
