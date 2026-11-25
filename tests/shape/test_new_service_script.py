@@ -1316,10 +1316,10 @@ def test_the_emitted_repo_carries_a_gitignore_covering_what_running_it_produces(
     The classes below are the ones a run of the emitted repo actually produces, so
     the test is about the OUTPUT of using the service, not about tidiness:
     `__pycache__/` from pytest, `.venv/` from the quickstart the script itself
-    prints, `graphify-out/` from `graphify-repo-init.sh`, `*.db` from the SQLite
-    backend. Asserting the rule text rather than a file listing is deliberate --
-    an emitted repo has never been run, so the artifacts do not exist yet and a
-    `rglob` check would pass vacuously against an empty tree.
+    prints, `*.db` from the SQLite backend. Asserting the rule text rather than a
+    file listing is deliberate -- an emitted repo has never been run, so the
+    artifacts do not exist yet and a `rglob` check would pass vacuously against an
+    empty tree.
     """
     dest = tmp_path / "svc"
     assert _run([str(SCRIPT), "foundry-probe-service", str(dest)]).returncode == 0
@@ -1335,7 +1335,7 @@ def test_the_emitted_repo_carries_a_gitignore_covering_what_running_it_produces(
         for line in ignore_file.read_text().splitlines()
         if line.strip() and not line.lstrip().startswith("#")
     }
-    for required in ("__pycache__/", ".venv/", "graphify-out/", "*.db", ".pytest_cache/"):
+    for required in ("__pycache__/", ".venv/", "*.db", ".pytest_cache/"):
         assert required in rules, (
             f".gitignore does not cover {required!r}; running the emitted service "
             f"produces it. Present rules: {sorted(rules)}"
