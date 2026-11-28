@@ -81,7 +81,13 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 COPY requirements/service.lock requirements/service.lock
-RUN test "${SOURCE_DATE_EPOCH}" -ge 0 \
+# An optional extra CA, for networks that intercept TLS (a corporate or sandbox proxy): a BuildKit
+# secret `proxy_ca`, mounted for this step only and never stored in the image, so the image is the
+# same with or without it. A secret's content is not part of the cache key, so a build that warmed
+# this layer with the secret lets a later plain build (compose) reuse it.
+RUN --mount=type=secret,id=proxy_ca,required=false \
+    if [ -s /run/secrets/proxy_ca ]; then export PIP_CERT=/run/secrets/proxy_ca; fi \
+    && test "${SOURCE_DATE_EPOCH}" -ge 0 \
     && pip install --no-cache-dir --require-hashes -r requirements/service.lock
 
 # --- runtime stage -----------------------------------------------------

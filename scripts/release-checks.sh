@@ -37,7 +37,18 @@ python service-kit/gates/check_service_gates.py
 # iac
 bash scripts/check_service_iac.sh
 
+# Docker. A machine with the daemon installed but not running (a cloud sandbox) gets it started; Docker Hub
+# images come through a mirror there, because shared egress IPs hit Docker Hub's anonymous rate limit.
+if ! docker info >/dev/null 2>&1 && [ "$(id -u)" = 0 ] && command -v dockerd >/dev/null; then
+  mirror=--registry-mirror=https://mirror.gcr.io
+  grep -qs registry-mirrors /etc/docker/daemon.json && mirror=
+  (dockerd $mirror >/tmp/release-checks-dockerd.log 2>&1 &)
+  for _ in $(seq 30); do docker info >/dev/null 2>&1 && break; sleep 1; done
+fi
 docker info >/dev/null 2>&1 || { echo "UNPROVEN: the remaining steps need a Docker daemon"; exit 3; }
+# Where TLS is intercepted, PIP_CERT names the CA pip trusts: warm the image's dependency layer with it as
+# the BuildKit secret proxy_ca (mounted for one step, never stored); the plain builds below reuse the layer.
+if [ -s "${PIP_CERT:-}" ]; then docker build -q --secret id=proxy_ca,src="$PIP_CERT" --target builder -f service-kit/docker/Dockerfile . >/dev/null; fi
 
 python scripts/prove_seeded_tests.py
 

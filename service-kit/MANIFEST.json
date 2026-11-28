@@ -7,7 +7,7 @@
     "service-kit/ci/openapi_breaking.sh": "e827d3f7cea08880fdaad1ac49b14b8577d3f3f28f5be8cf6eadc0305049d7cd",
     "service-kit/ci/smoke.py": "98235a271cf74b3f6def5ffdb6aa018154c538887981fdee346a8ebdbbc29a05",
     "service-kit/ci/verify.sh": "906843be23bbf638a708afed6ed22452e9efc4488630a59ee427b11742ed8905",
-    "service-kit/docker/Dockerfile": "ba88d22126e9d23ee48a2c0f44db638320f205864039030b50e94ab865f5f481",
+    "service-kit/docker/Dockerfile": "8c02ca19d79dc1283953cf03985e32058578a7e70eadc2bb82acffc69f56ea9e",
     "service-kit/docker/README.md": "720e7e9f5ef3d786b2c96ccfc35004c82ded9a3a66ee4f8d2c7f1c81b31283ee",
     "service-kit/docker/compose/localstack.yml": "362d084785260e52c12d35bc6cdae4c516acbbc596df1a907feb26b0658b79dc",
     "service-kit/docker/compose/postgres.yml": "4e82fa676be38650727508db836f97198c37291eb927663318c1080b7f21879a",
@@ -166,5 +166,5 @@
       ".github/workflows/ci.yml": "050c634670e68d98c5db8c12e42ad80898ce88ffce70a529d19871cb105c6dbe"
     }
   },
-  "template_revision": "bda509f6d31dba59c1206eac41c08b30c4d2e1b0"
+  "template_revision": "7908d569f8b9518c2527e1aa96d1bea974ec1b85"
 }
